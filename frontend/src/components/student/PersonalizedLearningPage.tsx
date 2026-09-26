@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { PERSONALIZED_FOCUS_PACKAGES, FocusAreaPackage } from '../../data/personalizedResourcesData';
+import { CURRICULUM_CONCEPT_NODES } from '../../data/diagnosticQuestions';
+import { ConceptKnowledgeGraph } from '../common/ConceptKnowledgeGraph';
 import {
   IconBookOpen,
   IconFileText,
@@ -13,6 +15,7 @@ import {
   IconRefreshCw,
   IconAtom,
 } from '../common/Icons';
+import { Video, Play, ExternalLink, Clock, Award, Layers, CheckCircle2 } from 'lucide-react';
 
 export const PersonalizedLearningPage: React.FC = () => {
   const {
@@ -23,8 +26,85 @@ export const PersonalizedLearningPage: React.FC = () => {
     showToast,
   } = useApp();
 
-  // Selected focus area key (default to stoichiometry)
-  const [selectedFocusId, setSelectedFocusId] = useState<string>('stoichiometry');
+  const isPerfectScore = diagnosticSubmission?.generatedLearningPlan?.isPerfectScore ?? false;
+  const weakUnits = diagnosticSubmission?.weakUnitIds ?? [];
+  const missedQuestions = diagnosticSubmission?.missedQuestions ?? [];
+
+  // Determine initial focus package
+  const getDefaultFocusId = (): string => {
+    if (diagnosticSubmission) {
+      if (diagnosticSubmission.generatedLearningPlan?.isPerfectScore) {
+        return 'olympiad_enrichment';
+      }
+      if (diagnosticSubmission.weakUnitIds?.length > 0) {
+        const firstWeakUnitId = diagnosticSubmission.weakUnitIds[0];
+        const matchedNode = CURRICULUM_CONCEPT_NODES.find((n) => n.unitId === firstWeakUnitId);
+        if (matchedNode && PERSONALIZED_FOCUS_PACKAGES[matchedNode.packageId]) {
+          return matchedNode.packageId;
+        }
+      }
+    }
+    return 'stoichiometry';
+  };
+
+  // Selected focus area key
+  const [selectedFocusId, setSelectedFocusId] = useState<string>(getDefaultFocusId);
+  const [videoTimestamp, setVideoTimestamp] = useState<number>(0);
+  const [showSecondaryModules, setShowSecondaryModules] = useState<boolean>(false);
+
+  // Sync selectedFocusId if diagnosticSubmission updates (e.g. after quiz submission)
+  useEffect(() => {
+    if (diagnosticSubmission) {
+      if (diagnosticSubmission.generatedLearningPlan?.isPerfectScore) {
+        setSelectedFocusId('olympiad_enrichment');
+      } else if (diagnosticSubmission.weakUnitIds?.length > 0) {
+        const firstWeakUnitId = diagnosticSubmission.weakUnitIds[0];
+        const matchedNode = CURRICULUM_CONCEPT_NODES.find((n) => n.unitId === firstWeakUnitId);
+        if (matchedNode && PERSONALIZED_FOCUS_PACKAGES[matchedNode.packageId]) {
+          setSelectedFocusId(matchedNode.packageId);
+        }
+      }
+    }
+  }, [diagnosticSubmission]);
+
+  // Dynamic priority packages based strictly on student's actual diagnostic mistakes
+  const priorityPackages: FocusAreaPackage[] = useMemo(() => {
+    if (!diagnosticSubmission) {
+      // Baseline before taking quiz: show foundational units
+      return [
+        PERSONALIZED_FOCUS_PACKAGES['stoichiometry'],
+        PERSONALIZED_FOCUS_PACKAGES['valence_electrons'],
+        PERSONALIZED_FOCUS_PACKAGES['percent_yield'],
+      ].filter(Boolean);
+    }
+
+    if (isPerfectScore) {
+      return [PERSONALIZED_FOCUS_PACKAGES['olympiad_enrichment']].filter(Boolean);
+    }
+
+    // Only serve packages corresponding to student's actual identified weak topics
+    const matched = weakUnits
+      .map((uid) => {
+        const node = CURRICULUM_CONCEPT_NODES.find((n) => n.unitId === uid);
+        return node ? PERSONALIZED_FOCUS_PACKAGES[node.packageId] : null;
+      })
+      .filter((pkg): pkg is FocusAreaPackage => !!pkg);
+
+    return matched.length > 0 ? matched : [PERSONALIZED_FOCUS_PACKAGES['stoichiometry']];
+  }, [diagnosticSubmission, isPerfectScore, weakUnits]);
+
+  // Secondary/Mastered curriculum packages for optional reference
+  const secondaryPackages: FocusAreaPackage[] = useMemo(() => {
+    const priorityIds = new Set(priorityPackages.map((p) => p.id));
+    return Object.values(PERSONALIZED_FOCUS_PACKAGES).filter((p) => !priorityIds.has(p.id));
+  }, [priorityPackages]);
+
+  const parseTimeToSeconds = (tStr: string): number => {
+    const parts = tStr.split(':').map(Number);
+    if (parts.length === 2) return parts[0] * 60 + parts[1];
+    if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    return 0;
+  };
 
   // Practice exercises interactive state
   const [practiceAnswers, setPracticeAnswers] = useState<Record<string, string | number>>({});
@@ -35,7 +115,9 @@ export const PersonalizedLearningPage: React.FC = () => {
   const [questionSent, setQuestionSent] = useState<boolean>(false);
 
   const currentPackage: FocusAreaPackage =
-    PERSONALIZED_FOCUS_PACKAGES[selectedFocusId] || PERSONALIZED_FOCUS_PACKAGES['stoichiometry'];
+    PERSONALIZED_FOCUS_PACKAGES[selectedFocusId] ||
+    priorityPackages[0] ||
+    PERSONALIZED_FOCUS_PACKAGES['stoichiometry'];
 
   const handleOpenDeck = () => {
     setActiveSlidePreviewDeck({
@@ -121,7 +203,7 @@ export const PersonalizedLearningPage: React.FC = () => {
             Personalized Learning Platform
           </h1>
           <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
-            Curated presentation decks, step-by-step guides, and practice problems targeted specifically to your priority focus areas. Updates every week based on diagnostic diagnostics.
+            Curated presentation decks, step-by-step guides, and practice problems targeted specifically to your priority focus areas. Calibrated dynamically based on your diagnostic performance.
           </p>
         </div>
 
@@ -154,7 +236,7 @@ export const PersonalizedLearningPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <span className="text-xs sm:text-sm font-bold text-white">
                 {diagnosticSubmission
-                  ? `Weekly Calibration: Score ${diagnosticSubmission.score} / ${diagnosticSubmission.total}`
+                  ? `Weekly Calibration: Score ${diagnosticSubmission.score} / ${diagnosticSubmission.total} (${Math.round((diagnosticSubmission.score / diagnosticSubmission.total) * 100)}%)`
                   : 'Weekly Adaptive Calibration: Calibrated Baseline'}
               </span>
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
@@ -163,45 +245,219 @@ export const PersonalizedLearningPage: React.FC = () => {
             </div>
             <p className="text-xs text-indigo-200 mt-0.5">
               {diagnosticSubmission
-                ? `Diagnostic taken at ${diagnosticSubmission.submittedAt}. Resources tuned for identified misconceptions.`
-                : 'Using preliminary diagnostic indicators. Retake anytime to refine your custom materials.'}
+                ? isPerfectScore
+                  ? `Diagnostic completed at ${diagnosticSubmission.submittedAt}. 100% Mastery verified with zero misconceptions.`
+                  : `Diagnostic completed at ${diagnosticSubmission.submittedAt}. Tailored remediation decks loaded for ${weakUnits.length} priority area(s).`
+                : 'Using preliminary diagnostic indicators. Take the 10-question diagnostic anytime to calibrate custom materials.'}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xs text-slate-300 bg-white/10 px-3 py-1.5 rounded-lg border border-white/10">Week of Sep 26 - Oct 3</span>
+          <span className="text-xs text-slate-300 bg-white/10 px-3 py-1.5 rounded-lg border border-white/10">
+            Week of Sep 26 - Oct 3
+          </span>
         </div>
       </div>
 
+      {/* DYNAMIC DIAGNOSTIC EVALUATION & IDENTIFIED WEAK TOPICS BREAKDOWN */}
+      {diagnosticSubmission ? (
+        isPerfectScore ? (
+          /* Perfect Score 10/10 Banner */
+          <div className="p-6 rounded-2xl bg-gradient-to-r from-emerald-950 via-teal-950 to-slate-900 border border-emerald-500/40 text-white shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-start sm:items-center gap-3.5">
+                <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 flex items-center justify-center shrink-0 shadow-xs">
+                  <Award className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-300 bg-emerald-900/80 px-2.5 py-0.5 rounded border border-emerald-700">
+                      Diagnostic Evaluation Complete
+                    </span>
+                    <span className="text-xs font-mono font-bold text-emerald-400">
+                      Score: 10 / 10 · 100% Precision
+                    </span>
+                  </div>
+                  <h2 className="text-lg sm:text-xl font-bold text-white mt-1">
+                    Weak Topics / Mistakes Identified: <span className="text-emerald-300">None (100% Mastery Achieved)</span>
+                  </h2>
+                  <p className="text-xs text-emerald-100/80 mt-1 max-w-2xl leading-relaxed">
+                    Flawless diagnostic performance! All 10 diagnostic questions answered accurately with zero traps. 
+                    All 5 sequenced curriculum nodes verified at full mastery. Foundational remediation has been bypassed, 
+                    and the platform has unlocked the Advanced Olympiad Honors Extension below.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  setSelectedFocusId('olympiad_enrichment');
+                  setVideoTimestamp(0);
+                }}
+                className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-bold text-xs rounded-xl shadow-xs transition-colors shrink-0 flex items-center justify-center gap-2 cursor-pointer btn-tactile"
+              >
+                <IconSparkles className="w-4 h-4" />
+                <span>Active Olympiad Deck Loaded</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* Identified Weak Topics & Mistakes Breakdown (< 10 score) */
+          <div className="p-6 rounded-2xl bg-white border border-rose-200/90 shadow-xs space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-rose-100 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
+                  <IconAlertTriangle className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                      Mistakes Identified
+                    </span>
+                    <span className="text-xs font-mono text-slate-500">
+                      Diagnostic Score: {diagnosticSubmission.score} / 10 · {missedQuestions.length} Misconception{missedQuestions.length > 1 ? 's' : ''} Isolated
+                    </span>
+                  </div>
+                  <h2 className="text-base font-bold text-slate-900 mt-0.5">
+                    Weak Topics / Mistakes Identified: {weakUnits.length} Concept Area{weakUnits.length > 1 ? 's' : ''} Flagged for Targeted Remediation
+                  </h2>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xs font-bold text-rose-700 bg-rose-100/80 border border-rose-200 px-3 py-1 rounded-lg">
+                  {weakUnits.length} Remediation Target{weakUnits.length > 1 ? 's' : ''}
+                </span>
+              </div>
+            </div>
+
+            {/* List of identified weak topics with specific missed questions & traps */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              {weakUnits.map((uid) => {
+                const node = CURRICULUM_CONCEPT_NODES.find((n) => n.unitId === uid);
+                const pkg = node ? PERSONALIZED_FOCUS_PACKAGES[node.packageId] : null;
+                const unitMissed = missedQuestions.filter((m) => node?.questionNumbers.includes(m.questionNumber));
+                const isSelected = selectedFocusId === node?.packageId;
+
+                return (
+                  <div
+                    key={uid}
+                    className={`p-4 rounded-xl border text-left transition-all flex flex-col justify-between space-y-3 ${
+                      isSelected
+                        ? 'border-indigo-600 bg-indigo-50/60 ring-2 ring-indigo-600/20 shadow-xs'
+                        : 'border-slate-200 bg-slate-50/70 hover:bg-white hover:border-slate-300'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between text-xs mb-1.5">
+                        <span className="font-bold text-rose-700">
+                          {node?.unitTitle || uid}
+                        </span>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold border border-rose-200">
+                          {unitMissed.length} Missed
+                        </span>
+                      </div>
+
+                      <div className="space-y-1.5 text-xs text-slate-600 mt-2">
+                        {unitMissed.map((m) => (
+                          <div key={m.questionNumber} className="flex items-start gap-1.5">
+                            <span className="text-rose-500 font-bold shrink-0 mt-0.5">✕</span>
+                            <span className="leading-snug">
+                              <strong className="text-slate-800">Q{m.questionNumber}:</strong> {m.trapIdentified}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="pt-2.5 border-t border-slate-200/80 flex items-center justify-between">
+                      <span className="text-[11px] text-slate-500 font-medium truncate max-w-[200px]">
+                        Deck: {pkg?.customSlideDeck.title}
+                      </span>
+                      <button
+                        onClick={() => {
+                          if (node?.packageId) {
+                            setSelectedFocusId(node.packageId);
+                            setVideoTimestamp(0);
+                          }
+                        }}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer btn-tactile ${
+                          isSelected
+                            ? 'bg-indigo-600 text-white shadow-2xs'
+                            : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-100'
+                        }`}
+                      >
+                        {isSelected ? 'Currently Viewing Deck' : 'Load Remediation Deck'}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )
+      ) : null}
+
+      {/* SEQUENCED CONCEPT DEPENDENCY KNOWLEDGE GRAPH */}
+      <ConceptKnowledgeGraph
+        diagnosticSubmission={diagnosticSubmission}
+        selectedPackageId={selectedFocusId}
+        onSelectPackage={(pkgId) => {
+          setSelectedFocusId(pkgId);
+          setVideoTimestamp(0);
+        }}
+      />
+
       {/* Focus Area Selector Tabs */}
       <section className="bg-white rounded-2xl border border-slate-200/90 p-6 sm:p-7 shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-indigo-50 border border-indigo-200/80 text-indigo-600 flex items-center justify-center">
               <IconAtom className="w-5 h-5" />
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-900">
-                Select Priority Focus Area
+                {isPerfectScore
+                  ? 'Advanced Honors & Curriculum Modules'
+                  : 'Tailored Priority Remediation Modules'}
               </h2>
               <p className="text-xs text-slate-500">
-                Choose a concept to explore tailored PPTs and resources
+                {isPerfectScore
+                  ? 'Full mastery verified. Explore the advanced Olympiad module or inspect core units below.'
+                  : 'Displaying tailored study decks matching your identified diagnostic mistakes.'}
               </p>
             </div>
           </div>
-          <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">
-            3 Available Modules
-          </span>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md">
+              {priorityPackages.length} {isPerfectScore ? 'Honors Module' : 'Priority Target(s)'}
+            </span>
+            {secondaryPackages.length > 0 && (
+              <button
+                onClick={() => setShowSecondaryModules((prev) => !prev)}
+                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 underline px-2 py-1 cursor-pointer"
+              >
+                {showSecondaryModules
+                  ? 'Hide Other Units'
+                  : `+${secondaryPackages.length} Other Units`}
+              </button>
+            )}
+          </div>
         </div>
 
+        {/* Priority Focus Packages Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {Object.values(PERSONALIZED_FOCUS_PACKAGES).map((pkg) => {
+          {priorityPackages.map((pkg) => {
             const isSelected = selectedFocusId === pkg.id;
             return (
               <button
                 key={pkg.id}
-                onClick={() => setSelectedFocusId(pkg.id)}
+                onClick={() => {
+                  setSelectedFocusId(pkg.id);
+                  setVideoTimestamp(0);
+                }}
                 className={`p-4 rounded-xl border text-left transition-all flex flex-col justify-between space-y-3 cursor-pointer btn-tactile ${
                   isSelected
                     ? 'border-indigo-600 bg-indigo-50/80 shadow-xs ring-2 ring-indigo-600/20'
@@ -214,6 +470,10 @@ export const PersonalizedLearningPage: React.FC = () => {
                     {pkg.urgency === 'high' ? (
                       <span className="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold text-[10px] border border-rose-200">
                         Priority Focus
+                      </span>
+                    ) : isPerfectScore ? (
+                      <span className="px-2 py-0.5 rounded bg-purple-100 text-purple-800 font-bold text-[10px] border border-purple-200">
+                        Olympiad Extension
                       </span>
                     ) : (
                       <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold text-[10px] border border-amber-200">
@@ -231,12 +491,12 @@ export const PersonalizedLearningPage: React.FC = () => {
                 </div>
 
                 <div className="text-xs text-slate-500 line-clamp-2">
-                  Trap: {pkg.identifiedTrap}
+                  Focus: {pkg.identifiedTrap}
                 </div>
 
                 <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-xs font-semibold">
                   <span className={isSelected ? 'text-indigo-700' : 'text-slate-500'}>
-                    {isSelected ? 'Currently Viewing' : 'Select Package'}
+                    {isSelected ? 'Currently Viewing' : 'Select Deck'}
                   </span>
                   <IconArrowRight
                     className={`w-3.5 h-3.5 transition-transform ${
@@ -248,6 +508,47 @@ export const PersonalizedLearningPage: React.FC = () => {
             );
           })}
         </div>
+
+        {/* Optional Secondary / Mastered Units Grid */}
+        {showSecondaryModules && secondaryPackages.length > 0 && (
+          <div className="pt-4 border-t border-slate-100 space-y-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
+              Additional Curriculum Units ({secondaryPackages.length} Units Available):
+            </span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {secondaryPackages.map((pkg) => {
+                const isSelected = selectedFocusId === pkg.id;
+                return (
+                  <button
+                    key={pkg.id}
+                    onClick={() => {
+                      setSelectedFocusId(pkg.id);
+                      setVideoTimestamp(0);
+                    }}
+                    className={`p-3.5 rounded-xl border text-left transition-all flex flex-col justify-between space-y-2 cursor-pointer btn-tactile ${
+                      isSelected
+                        ? 'border-indigo-600 bg-indigo-50/80 ring-2 ring-indigo-600/20'
+                        : 'border-slate-200 bg-slate-50 hover:bg-white hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between text-[10px]">
+                      <span className="font-semibold text-slate-500">{pkg.unit}</span>
+                      <span className="px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 font-medium">
+                        Reference
+                      </span>
+                    </div>
+                    <h4 className="text-xs font-bold text-slate-900 leading-snug">
+                      {pkg.topic}
+                    </h4>
+                    <span className="text-[11px] font-semibold text-indigo-600">
+                      {isSelected ? 'Active' : 'Load Materials'}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* SECTION 1: Tailored Presentation Deck (PPT) for Selected Focus Area */}
@@ -316,7 +617,127 @@ export const PersonalizedLearningPage: React.FC = () => {
         </div>
       </section>
 
-      {/* SECTION 2: Made Study Resources & Guides for Focus Area */}
+      {/* SECTION 2: Understandable Curated Video Lesson (Interactive YouTube Tutorial) */}
+      <section className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-red-100 text-red-600 shrink-0 shadow-2xs">
+              <Video className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-red-700 bg-red-50 px-2 py-0.5 rounded border border-red-200">
+                  Curated Video Tutorial
+                </span>
+                <span className="text-xs text-slate-400">·</span>
+                <span className="text-xs text-slate-500 font-mono flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 text-slate-400" />
+                  {currentPackage.videoLesson.duration}
+                </span>
+              </div>
+              <h2 className="text-lg font-bold text-slate-900 mt-0.5">
+                {currentPackage.videoLesson.title}
+              </h2>
+            </div>
+          </div>
+
+          <a
+            href={`https://www.youtube.com/watch?v=${currentPackage.videoLesson.youtubeId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0 btn-tactile"
+          >
+            <ExternalLink className="w-4 h-4" />
+            <span>Open in YouTube ↗</span>
+          </a>
+        </div>
+
+        {/* Video Player + Chapters Split Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          {/* Left: Embedded YouTube Player */}
+          <div className="lg:col-span-8 space-y-3">
+            <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-md">
+              <iframe
+                key={`${currentPackage.videoLesson.youtubeId}-${videoTimestamp}`}
+                className="w-full h-full"
+                src={`https://www.youtube-nocookie.com/embed/${currentPackage.videoLesson.youtubeId}?autoplay=${videoTimestamp > 0 ? 1 : 0}&start=${videoTimestamp}&rel=0`}
+                title={currentPackage.videoLesson.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between text-xs text-slate-500 pt-1">
+              <span>
+                Instructor: <strong className="text-slate-700">{currentPackage.videoLesson.instructor}</strong> · {currentPackage.videoLesson.channel}
+              </span>
+              <span className="text-[11px] bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-medium">
+                HD Player with Step-by-Step Audio Explanation
+              </span>
+            </div>
+          </div>
+
+          {/* Right: Key Concepts & Jump-to Timestamps */}
+          <div className="lg:col-span-4 bg-slate-50 rounded-2xl border border-slate-200/90 p-5 space-y-4 flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Play className="w-4 h-4 text-red-600 fill-red-600" />
+                <h3 className="text-sm font-bold text-slate-900">
+                  Concept Chapters
+                </h3>
+              </div>
+
+              <p className="text-xs text-slate-600 leading-relaxed">
+                {currentPackage.videoLesson.description}
+              </p>
+
+              <div className="space-y-2 pt-2 border-t border-slate-200/80">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Click to Jump Directly:
+                </span>
+                {currentPackage.videoLesson.keyTimestamps.map((item, idx) => {
+                  const seconds = parseTimeToSeconds(item.time);
+                  const isCurrent = videoTimestamp === seconds;
+
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => setVideoTimestamp(seconds)}
+                      className={`w-full text-left p-2.5 rounded-lg border text-xs transition-all flex items-center justify-between cursor-pointer btn-tactile ${
+                        isCurrent
+                          ? 'bg-red-50 border-red-300 text-red-950 font-bold'
+                          : 'bg-white border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-100/70'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold">
+                          {item.time}
+                        </span>
+                        <span className="line-clamp-1">{item.label}</span>
+                      </div>
+                      <Play className="w-3 h-3 text-slate-400 shrink-0" />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Quick Diagnostic Connection Tip */}
+            <div className="p-3 rounded-xl bg-amber-50 border border-amber-200/90 text-amber-900 text-xs mt-3">
+              <span className="font-bold block text-[10px] uppercase tracking-wider text-amber-800 mb-0.5">
+                Targeted Remediation Tip:
+              </span>
+              <p className="leading-snug text-[11px]">
+                {currentPackage.identifiedTrap}
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* SECTION 3: Made Study Resources & Guides for Focus Area */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Core Mental Model & Analogy */}

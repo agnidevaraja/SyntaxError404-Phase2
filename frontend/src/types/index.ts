@@ -1,5 +1,13 @@
 export type Role = 'student' | 'facilitator' | 'guest';
 
+export interface AuthUser {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL?: string | null;
+  role: 'student' | 'facilitator';
+}
+
 export type ActiveView =
   | 'landing'
   | 'student_hub'
@@ -9,9 +17,23 @@ export type ActiveView =
 
 export type QuestionType = 'multiple_choice' | 'short_text';
 
+export interface ConceptNode {
+  unitId: string; // 'unit-1' through 'unit-5'
+  unitNumber: number; // 1 to 5
+  unitTitle: string; // e.g. 'Unit 1: Foundations of Matter & Atomic Structure'
+  shortTitle: string; // e.g. 'Atomic Structure & Isotopes'
+  packageId: string; // 'atomic_structure', 'valence_electrons', etc.
+  questionNumbers: number[]; // e.g. [1, 2]
+  keyConcept: string;
+}
+
 export interface DiagnosticQuestion {
   id: string;
   questionNumber: number;
+  unitId: string; // 'unit-1', 'unit-2', etc.
+  unitNumber: number;
+  unitTitle: string;
+  packageId: string;
   topic: string;
   questionType: QuestionType;
   prompt: string;
@@ -32,16 +54,21 @@ export interface DiagnosticSubmission {
   total: number;
   missedQuestions: {
     questionNumber: number;
+    unitId: string;
+    unitNumber: number;
+    unitTitle: string;
     topic: string;
     studentAnswer: string;
     correctAnswer: string;
     trapIdentified: string;
     explanation: string;
   }[];
+  weakUnitIds: string[]; // List of unitIds that had >= 1 mistake, e.g. ['unit-4', 'unit-2']
   generatedLearningPlan: {
     priorityArea: string;
     recommendedActions: string[];
     focusUnits: string[];
+    isPerfectScore: boolean;
   };
 }
 
@@ -129,7 +156,9 @@ export interface DailyQuizResult {
   dayName: string; // 'Mon', 'Tue', etc.
   dateStr: string; // 'Sep 20'
   quizTitle: string;
-  score: number; // percentage (e.g. 58 to 94)
+  score: number; // percentage (daily quiz score e.g. 100 for 5/5)
+  quizScore?: number; // explicit daily quiz percentage (e.g. 100)
+  proficiencyScore?: number; // cumulative subject proficiency reached (e.g. 58 to 94)
   questionsCount: number;
   correctCount: number;
   timeSpentMinutes: number;

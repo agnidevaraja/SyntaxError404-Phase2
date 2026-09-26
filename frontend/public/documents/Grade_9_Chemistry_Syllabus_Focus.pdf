@@ -1,0 +1,165 @@
+%PDF-1.4
+%âãÏÓ
+1 0 obj
+<< /Type /Catalog /Pages 3 0 R /Outlines 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Outlines /Count 0 >>
+endobj
+3 0 obj
+<< /Type /Pages /Kids [ 7 0 R ] /Count 1 >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /Name /F1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /Name /F2 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /Name /F3 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>
+endobj
+7 0 obj
+<< /Type /Page /Parent 3 0 R /MediaBox [ 0 0 612 792 ] /Contents 8 0 R /Resources << /Font << /F1 4 0 R /F2 5 0 R /F3 6 0 R >> /ProcSet [ /PDF /Text ] >> >>
+endobj
+8 0 obj
+<< /Length 3650 >>
+stream
+BT
+/F2 16 Tf
+50 740 Td
+(GRADE 9 CHEMISTRY SYLLABUS FOCUS) Tj
+0 -22 Td
+/F3 10 Tf
+0 -2 Td
+(Interrelated Topics: The Mole Concept, Redox Reactions & Quantitative Stoichiometry) Tj
+0 -14 Td
+0 -8 Td
+/F2 12 Tf
+0 -4 Td
+(CURRICULUM OVERVIEW & TOPIC INTERRELATION) Tj
+0 -14 Td
+/F1 9.5 Tf
+(Academic Level: Grade 9 Chemistry Honors / Pre-Advanced Syllabus) Tj
+0 -14 Td
+/F1 9.5 Tf
+(Faculty Lead: Dr. Eleanor Vance | St. Jude Preparatory Academy) Tj
+0 -14 Td
+/F1 9.5 Tf
+(Core Theme: Quantitative Electron Transfer & Mass Conservation) Tj
+0 -14 Td
+/F1 9.5 Tf
+(This syllabus deliberately links three foundational pillars of modern chemistry:) Tj
+0 -14 Td
+/F1 9.5 Tf
+(1\) The Mole Concept \(counting discrete particles by weighing bulk mass\)) Tj
+0 -14 Td
+/F1 9.5 Tf
+(2\) Redox Reactions \(tracking fundamental electron exchange across oxidation states\)) Tj
+0 -14 Td
+/F1 9.5 Tf
+(3\) Stoichiometric Redox Analysis \(quantifying exact electron and mass balance\)) Tj
+0 -14 Td
+0 -8 Td
+/F2 12 Tf
+0 -4 Td
+(TOPIC 1: THE MOLE CONCEPT & MOLAR MASS BRIDGES) Tj
+0 -14 Td
+/F1 9.5 Tf
+(Target Mastery: 100% Quantitative Fluency) Tj
+0 -14 Td
+/F1 9.5 Tf
+(- Avogadro's Constant: N_A = 6.022 x 10^23 particles per mole) Tj
+0 -14 Td
+/F1 9.5 Tf
+(- Molar Mass Calculation \(M\): Summation of atomic weights from Periodic Table \(g/mol\)) Tj
+0 -14 Td
+/F1 9.5 Tf
+(- Fundamental Conversion Formula: n = mass \(g\) / Molar Mass \(g/mol\)) Tj
+0 -14 Td
+/F1 9.5 Tf
+(- Particle Counting Bridge: Number of Molecules = n * 6.022 x 10^23) Tj
+0 -14 Td
+/F1 9.5 Tf
+(- Molar Gas Volume at STP: 1 mole of any ideal gas occupies 22.4 dm^3 \(Liters\)) Tj
+0 -14 Td
+/F1 9.5 Tf
+(Key Diagnostic Trap: Applying coefficient multipliers directly to gram masses instead of moles) Tj
+0 -14 Td
+0 -8 Td
+/F2 12 Tf
+0 -4 Td
+(TOPIC 2: OXIDATION-REDUCTION \(REDOX\) REACTIONS) Tj
+0 -14 Td
+/F1 9.5 Tf
+(Target Mastery: Electron Transfer & State Identification) Tj
+0 -14 Td
+/F1 9.5 Tf
+(- Fundamental Concept: Oxidation Is Loss of electrons, Reduction Is Gain \(OIL RIG\)) Tj
+0 -14 Td
+/F1 9.5 Tf
+(- Oxidation Number Assignment Rules: Free elements = 0, Group 1 = +1, Oxygen = -2, Hydrogen = +1) Tj
+0 -14 Td
+/F1 9.5 Tf
+(- Identifying Oxidizing Agents \(electron acceptors\) and Reducing Agents \(electron donors\)) Tj
+0 -14 Td
+/F1 9.5 Tf
+(- Construction of Half-Equations with explicit electron representation \(e-\)) Tj
+0 -14 Td
+/F1 9.5 Tf
+(- Disproportionation & Synthesis Redox Transformations in aqueous solution) Tj
+0 -14 Td
+/F1 9.5 Tf
+(Key Diagnostic Trap: Confusing oxidation state increases with electron gain \(charge inversion\)) Tj
+0 -14 Td
+0 -8 Td
+/F2 12 Tf
+0 -4 Td
+(TOPIC 3: STOICHIOMETRY & QUANTITATIVE REDOX ANALYSIS) Tj
+0 -14 Td
+/F1 9.5 Tf
+(Target Mastery: Mass, Electron & Yield Conservation) Tj
+0 -14 Td
+/F1 9.5 Tf
+(- Electron Balance Principle: Total electrons lost in oxidation MUST equal electrons gained in reduction) Tj
+0 -14 Td
+/F1 9.5 Tf
+(- Balancing complex Redox Equations using electron-conservation half-reaction methods) Tj
+0 -14 Td
+/F1 9.5 Tf
+(- Mole-to-Mole Stoichiometric Ratios derived from balanced redox equations) Tj
+0 -14 Td
+/F1 9.5 Tf
+(- Limiting Reagent Determination: Using mole-per-coefficient ratios to isolate the limiting species) Tj
+0 -14 Td
+/F1 9.5 Tf
+(- Excess Reactant Accounting: Moles remaining = Initial moles - Consumed moles) Tj
+0 -14 Td
+/F1 9.5 Tf
+(- Percent Yield Calculations: Percent Yield = \(Actual Mass / Theoretical Mass\) * 100%) Tj
+0 -14 Td
+/F1 9.5 Tf
+(Key Diagnostic Trap: Failure to subtract consumed moles from initial reactant pools) Tj
+0 -14 Td
+0 -8 Td
+/F3 8 Tf
+0 -16 Td
+(Page 1 of 1 - St. Jude Preparatory Academy - Grade 9 Academic Exam Syllabus) Tj
+ET
+endstream
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000019 00000 n 
+0000000084 00000 n 
+0000000130 00000 n 
+0000000189 00000 n 
+0000000296 00000 n 
+0000000408 00000 n 
+0000000523 00000 n 
+0000000695 00000 n 
+trailer
+<< /Size 9 /Root 1 0 R >>
+startxref
+4396
+%%EOF

@@ -1,5 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
+  signOut as firebaseSignOut,
+  onAuthStateChanged,
+} from 'firebase/auth';
+import { auth, googleProvider } from '../services/firebase';
+import {
   Role,
   ActiveView,
   DiagnosticQuestion,
@@ -8,6 +17,7 @@ import {
   SyllabusFocusItem,
   ClassSlideDeck,
   StudentProfile,
+  AuthUser,
 } from '../types';
 import { DIAGNOSTIC_QUESTIONS } from '../data/diagnosticQuestions';
 import {
@@ -29,6 +39,17 @@ interface AppContextType {
   setRole: (role: Role) => void;
   activeView: ActiveView;
   setActiveView: (view: ActiveView) => void;
+
+  // Firebase Authentication
+  authUser: AuthUser | null;
+  isAuthModalOpen: boolean;
+  setIsAuthModalOpen: (open: boolean) => void;
+  authModalInitialRole: 'student' | 'facilitator';
+  openAuthModal: (role?: 'student' | 'facilitator') => void;
+  loginWithGoogle: (targetRole: 'student' | 'facilitator') => Promise<void>;
+  loginWithEmail: (email: string, pass: string, targetRole: 'student' | 'facilitator') => Promise<void>;
+  registerWithEmail: (email: string, pass: string, name: string, targetRole: 'student' | 'facilitator') => Promise<void>;
+  loginDemoQuickFill: (targetRole: 'student' | 'facilitator') => void;
 
   // Student Main Hub state
   syllabusFocus: SyllabusFocusItem[];
@@ -66,8 +87,33 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [role, setRole] = useState<Role>('guest');
-  const [activeView, setActiveView] = useState<ActiveView>('landing');
+  const [authUser, setAuthUser] = useState<AuthUser | null>(() => {
+    const saved = localStorage.getItem('outstand_auth_user');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  });
+
+  const [role, setRole] = useState<Role>(() => {
+    const savedRole = localStorage.getItem('outstand_auth_role');
+    if (savedRole === 'student' || savedRole === 'facilitator') return savedRole;
+    return 'guest';
+  });
+
+  const [activeView, setActiveView] = useState<ActiveView>(() => {
+    const savedRole = localStorage.getItem('outstand_auth_role');
+    if (savedRole === 'student') return 'student_hub';
+    if (savedRole === 'facilitator') return 'facilitator_portal';
+    return 'landing';
+  });
+
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+  const [authModalInitialRole, setAuthModalInitialRole] = useState<'student' | 'facilitator'>('student');
 
   const [syllabusFocus] = useState<SyllabusFocusItem[]>(FULL_EXAM_SYLLABUS);
   const [studentTasks, setStudentTasks] = useState<StudentTask[]>(INITIAL_STUDENT_TASKS);
@@ -132,6 +178,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         } else {
           missedQuestions.push({
             questionNumber: q.questionNumber,
+            unitId: q.unitId,
+            unitNumber: q.unitNumber,
+            unitTitle: q.unitTitle,
             topic: q.topic,
             studentAnswer:
               selectedIndex !== undefined && q.options?.[selectedIndex]
@@ -161,6 +210,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         } else {
           missedQuestions.push({
             questionNumber: q.questionNumber,
+            unitId: q.unitId,
+            unitNumber: q.unitNumber,
+            unitTitle: q.unitTitle,
             topic: q.topic,
             studentAnswer: textVal || 'No response provided',
             correctAnswer: q.acceptedAnswers?.[0] || 'See explanation',
@@ -171,73 +223,110 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     });
 
-    // Formulate personalized learning plan
-    const priorityArea =
-      missedQuestions.length > 0
-        ? missedQuestions[0].topic
-        : 'Unit 5 Advanced Gas Stoichiometry';
+    const isPerfectScore = score === DIAGNOSTIC_QUESTIONS.length;
+    const weakUnitIds = Array.from(new Set(missedQuestions.map((m) => m.unitId)));
 
-    const focusUnits = Array.from(
-      new Set(
-        missedQuestions.map((m) =>
-          m.questionNumber <= 3
-            ? 'Unit 2: Molecular Architecture'
-            : m.questionNumber <= 5
-            ? 'Unit 3: The Mole Concept'
-            : m.questionNumber <= 8
-            ? 'Unit 4: Stoichiometry & Reagents'
-            : 'Unit 5: Yields & Gas Stoichiometry'
-        )
-      )
-    );
+    // Formulate personalized learning plan
+    const priorityArea = isPerfectScore
+      ? 'None (100% Mastery Achieved)'
+      : missedQuestions[0]?.unitTitle || 'Unit 4: Stoichiometric Molar Bridge & Limiting Reagents';
+
+    const focusUnits = isPerfectScore
+      ? ['Olympiad Honors Extension (Post-100% Mastery)']
+      : Array.from(new Set(missedQuestions.map((m) => m.unitTitle)));
+
+    const recommendedActions = isPerfectScore
+      ? [
+          'Explore Advanced Olympiad Extension: Real Gas Corrections & Van der Waals Dynamics',
+          'Practice university-level multi-step reaction cascades and kinetics',
+          'Review Olympiad Honors slide deck for advanced theoretical insights',
+        ]
+      : [
+          `Review targeted presentation decks for ${weakUnitIds.length} identified misconception area(s)`,
+          'Work through the step-by-step golden routines and formula passports',
+          'Complete interactive practice micro-exercises to verify mastery',
+        ];
 
     const submission: DiagnosticSubmission = {
-      studentId: 'std-achalesh',
+      studentId: 'std-rohan',
       submittedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       answers,
       score,
       total: DIAGNOSTIC_QUESTIONS.length,
       missedQuestions,
+      weakUnitIds,
       generatedLearningPlan: {
         priorityArea,
-        recommendedActions: [
-          `Review the dimensional analysis conversion bridge before retrying ${priorityArea}`,
-          'Study slides 2-4 in Unit 3 Stoichiometry deck in Class Drive',
-          'Complete 3 targeted practice problems targeting your identified traps',
-        ],
-        focusUnits: focusUnits.length > 0 ? focusUnits : ['Unit 4: Stoichiometry'],
+        recommendedActions,
+        focusUnits,
+        isPerfectScore,
       },
     };
 
     setDiagnosticSubmission(submission);
 
-    // Update Achalesh in cohort students
+    // Update Rohan Sharma in cohort students
     setCohortStudents((prev) =>
       prev.map((s) => {
-        if (s.id === 'std-achalesh') {
+        if (s.id === 'std-rohan' || s.id === 'std-achalesh') {
+          const mistakesList = isPerfectScore
+            ? []
+            : missedQuestions.map((m) => `Question ${m.questionNumber} (${m.unitTitle}): ${m.trapIdentified}`);
+
           return {
             ...s,
             diagnosticStatus: 'completed',
             diagnosticScore: score,
-            commonMistakes: missedQuestions.map((m) => `Q${m.questionNumber} (${m.topic}): ${m.trapIdentified}`),
-            recommendedFocus: priorityArea,
-            tasksCompleted: 2,
+            commonMistakes: mistakesList,
+            recommendedFocus: isPerfectScore
+              ? 'None (100% Mastery Achieved) — Olympiad Extension'
+              : priorityArea,
+            tasksCompleted: 3,
           };
         }
         return s;
       })
     );
 
+    // Keep inspector updated if currently inspecting Rohan
+    setSelectedStudentForInspect((prev) => {
+      if (prev && (prev.id === 'std-rohan' || prev.id === 'std-achalesh')) {
+        const mistakesList = isPerfectScore
+          ? []
+          : missedQuestions.map((m) => `Question ${m.questionNumber} (${m.unitTitle}): ${m.trapIdentified}`);
+
+        return {
+          ...prev,
+          diagnosticStatus: 'completed',
+          diagnosticScore: score,
+          commonMistakes: mistakesList,
+          recommendedFocus: isPerfectScore
+            ? 'None (100% Mastery Achieved) — Olympiad Extension'
+            : priorityArea,
+          tasksCompleted: 3,
+        };
+      }
+      return prev;
+    });
+
     // Auto mark diagnostic task as completed
     setStudentTasks((prev) =>
       prev.map((t) => (t.type === 'diagnostic' ? { ...t, completed: true } : t))
     );
 
-    showToast(
-      'Diagnostic Completed & Analyzed!',
-      `You scored ${score}/10. Personalized weekly study plan and mistake analysis generated.`,
-      score >= 8 ? 'success' : 'info'
-    );
+    if (isPerfectScore) {
+      showToast(
+        'Flawless 10/10 Score!',
+        '100% Mastery achieved! Advanced Olympiad Honors module unlocked.',
+        'success'
+      );
+    } else {
+      showToast(
+        'Diagnostic Calibrated!',
+        `You scored ${score}/10. ${missedQuestions.length} conceptual area(s) isolated for targeted remediation.`,
+        score >= 7 ? 'success' : 'info'
+      );
+    }
 
     return submission;
   };
@@ -246,19 +335,149 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setDiagnosticSubmission(null);
   };
 
-  const loginPersona = (targetRole: 'student' | 'facilitator') => {
+  // Sync auth state listener with Firebase
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
+      if (fbUser) {
+        const savedRole = (localStorage.getItem('outstand_auth_role') as 'student' | 'facilitator') || 'student';
+        const profile: AuthUser = {
+          uid: fbUser.uid,
+          email: fbUser.email,
+          displayName: fbUser.displayName || (savedRole === 'student' ? 'Achalesh R.' : 'Dr. Eleanor Vance'),
+          photoURL: fbUser.photoURL,
+          role: savedRole,
+        };
+        setAuthUser(profile);
+        setRole(savedRole);
+        localStorage.setItem('outstand_auth_user', JSON.stringify(profile));
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const openAuthModal = (targetRole: 'student' | 'facilitator' = 'student') => {
+    setAuthModalInitialRole(targetRole);
+    setIsAuthModalOpen(true);
+  };
+
+  const loginWithGoogle = async (targetRole: 'student' | 'facilitator') => {
+    const result = await signInWithPopup(auth, googleProvider);
+    const fbUser = result.user;
+    const displayName = fbUser.displayName || (targetRole === 'student' ? 'Achalesh R.' : 'Dr. Eleanor Vance');
+    const profile: AuthUser = {
+      uid: fbUser.uid,
+      email: fbUser.email,
+      displayName,
+      photoURL: fbUser.photoURL,
+      role: targetRole,
+    };
+    setAuthUser(profile);
     setRole(targetRole);
+    localStorage.setItem('outstand_auth_user', JSON.stringify(profile));
+    localStorage.setItem('outstand_auth_role', targetRole);
+    setIsAuthModalOpen(false);
+
     if (targetRole === 'student') {
       setActiveView('student_hub');
-      showToast('Welcome, Achalesh!', 'Student Main Hub loaded with syllabus focus and tasks.');
+      showToast(`Welcome, ${displayName}!`, 'Signed in with Google Single Sign-On (SSO).', 'success');
     } else {
       setActiveView('facilitator_portal');
-      showToast('Welcome, Dr. Eleanor Vance!', 'Facilitator Cohort Analysis portal loaded.');
+      showToast(`Welcome, ${displayName}!`, 'Signed in with Google Single Sign-On (SSO).', 'success');
     }
   };
 
-  const logout = () => {
+  const loginWithEmail = async (email: string, pass: string, targetRole: 'student' | 'facilitator') => {
+    const result = await signInWithEmailAndPassword(auth, email, pass);
+    const fbUser = result.user;
+    const displayName = fbUser.displayName || (targetRole === 'student' ? 'Achalesh R.' : 'Dr. Eleanor Vance');
+    const profile: AuthUser = {
+      uid: fbUser.uid,
+      email: fbUser.email,
+      displayName,
+      photoURL: fbUser.photoURL,
+      role: targetRole,
+    };
+    setAuthUser(profile);
+    setRole(targetRole);
+    localStorage.setItem('outstand_auth_user', JSON.stringify(profile));
+    localStorage.setItem('outstand_auth_role', targetRole);
+    setIsAuthModalOpen(false);
+
+    if (targetRole === 'student') {
+      setActiveView('student_hub');
+      showToast(`Welcome, ${displayName}!`, 'Signed in successfully with email & password.', 'success');
+    } else {
+      setActiveView('facilitator_portal');
+      showToast(`Welcome, ${displayName}!`, 'Signed in successfully with email & password.', 'success');
+    }
+  };
+
+  const registerWithEmail = async (email: string, pass: string, name: string, targetRole: 'student' | 'facilitator') => {
+    const result = await createUserWithEmailAndPassword(auth, email, pass);
+    if (name) {
+      await updateProfile(result.user, { displayName: name });
+    }
+    const profile: AuthUser = {
+      uid: result.user.uid,
+      email: result.user.email,
+      displayName: name || (targetRole === 'student' ? 'Achalesh R.' : 'Dr. Eleanor Vance'),
+      photoURL: result.user.photoURL,
+      role: targetRole,
+    };
+    setAuthUser(profile);
+    setRole(targetRole);
+    localStorage.setItem('outstand_auth_user', JSON.stringify(profile));
+    localStorage.setItem('outstand_auth_role', targetRole);
+    setIsAuthModalOpen(false);
+
+    if (targetRole === 'student') {
+      setActiveView('student_hub');
+      showToast(`Account Created!`, `Welcome, ${profile.displayName}! Student portal initialized.`, 'success');
+    } else {
+      setActiveView('facilitator_portal');
+      showToast(`Account Created!`, `Welcome, ${profile.displayName}! Facilitator portal initialized.`, 'success');
+    }
+  };
+
+  const loginDemoQuickFill = (targetRole: 'student' | 'facilitator') => {
+    const displayName = targetRole === 'student' ? 'Achalesh R.' : 'Dr. Eleanor Vance';
+    const email = targetRole === 'student' ? 'student@outstand.edu' : 'facilitator@outstand.edu';
+    const profile: AuthUser = {
+      uid: targetRole === 'student' ? 'demo-std-achalesh' : 'demo-fac-vance',
+      email,
+      displayName,
+      role: targetRole,
+    };
+    setAuthUser(profile);
+    setRole(targetRole);
+    localStorage.setItem('outstand_auth_user', JSON.stringify(profile));
+    localStorage.setItem('outstand_auth_role', targetRole);
+    setIsAuthModalOpen(false);
+
+    if (targetRole === 'student') {
+      setActiveView('student_hub');
+      showToast('Developer Quick-Fill Success', 'Instant demo access loaded for Achalesh R.', 'success');
+    } else {
+      setActiveView('facilitator_portal');
+      showToast('Developer Quick-Fill Success', 'Instant demo access loaded for Dr. Eleanor Vance.', 'success');
+    }
+  };
+
+  const loginPersona = (targetRole: 'student' | 'facilitator') => {
+    openAuthModal(targetRole);
+  };
+
+  const logout = async () => {
+    try {
+      await firebaseSignOut(auth);
+    } catch (err) {
+      console.warn('Firebase signout note:', err);
+    }
+    setAuthUser(null);
     setRole('guest');
+    localStorage.removeItem('outstand_auth_user');
+    localStorage.removeItem('outstand_auth_role');
     setActiveView('landing');
     setSelectedStudentForInspect(null);
     showToast('Signed Out', 'Returned to Outstand Adaptive Learning Hub homepage.');
@@ -271,6 +490,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setRole,
         activeView,
         setActiveView,
+        authUser,
+        isAuthModalOpen,
+        setIsAuthModalOpen,
+        authModalInitialRole,
+        openAuthModal,
+        loginWithGoogle,
+        loginWithEmail,
+        registerWithEmail,
+        loginDemoQuickFill,
         syllabusFocus,
         studentTasks,
         toggleTaskCompleted,

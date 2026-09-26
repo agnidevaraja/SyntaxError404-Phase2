@@ -1,9 +1,19 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { IconAtom, IconChevronRight, IconUser, IconShield } from './Icons';
+import { LogOut } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
-  const { role, activeView, setActiveView, loginPersona, logout } = useApp();
+  const { role, activeView, setActiveView, authUser, openAuthModal, logout } = useApp();
+
+  const getInitials = (name?: string | null) => {
+    if (!name) return role === 'student' ? 'AR' : 'EV';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+    return name.slice(0, 2).toUpperCase();
+  };
+
+  const displayName = authUser?.displayName || (role === 'student' ? 'Achalesh R.' : 'Dr. Eleanor Vance');
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
@@ -69,14 +79,14 @@ export const Navbar: React.FC = () => {
 
         {/* Right Zone: Clean Persona Actions */}
         <div className="flex items-center gap-3">
-          {role !== 'guest' && activeView !== 'landing' && (
+          {role !== 'guest' && activeView !== 'landing' ? (
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 text-xs text-slate-700 font-medium bg-slate-50 border border-slate-200/80 px-2.5 py-1.5 rounded-lg">
                 <div className="w-6 h-6 rounded-md bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-[10px]">
-                  {role === 'student' ? 'AR' : 'EV'}
+                  {getInitials(displayName)}
                 </div>
-                <span>
-                  {role === 'student' ? 'Achalesh R.' : 'Dr. Eleanor Vance'}
+                <span className="font-semibold text-slate-800">
+                  {displayName}
                 </span>
                 <span className="text-[10px] uppercase font-bold text-slate-400 border-l border-slate-200 pl-2">
                   {role === 'student' ? 'Student' : 'Facilitator'}
@@ -85,9 +95,26 @@ export const Navbar: React.FC = () => {
 
               <button
                 onClick={logout}
-                className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg border border-slate-200 transition-all cursor-pointer btn-tactile"
+                className="px-3 py-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 active:bg-rose-100 rounded-lg border border-rose-200 transition-all cursor-pointer btn-tactile flex items-center gap-1.5"
+                title="Sign out of your session"
               >
-                Back to Home
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => openAuthModal('student')}
+                className="px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 rounded-lg border border-indigo-200 transition-all cursor-pointer btn-tactile"
+              >
+                Student Sign In
+              </button>
+              <button
+                onClick={() => openAuthModal('facilitator')}
+                className="px-3 py-1.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-2xs transition-all cursor-pointer btn-tactile"
+              >
+                Facilitator Sign In
               </button>
             </div>
           )}

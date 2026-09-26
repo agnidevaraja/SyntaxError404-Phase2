@@ -10,8 +10,9 @@ import {
   IconFileText,
   IconBookOpen,
 } from '../common/Icons';
+import { User } from 'lucide-react';
 import { SevenDayProficiencyChart } from '../common/SevenDayProficiencyChart';
-import { COHORT_WEEKLY_PROGRESSIONS, ACHALESH_WEEKLY_PROGRESSION } from '../../data/weeklyProficiencyData';
+import { COHORT_WEEKLY_PROGRESSIONS, ACHALESH_WEEKLY_PROGRESSION, ROHAN_WEEKLY_PROGRESSION } from '../../data/weeklyProficiencyData';
 
 export const FacilitatorPortal: React.FC = () => {
   const {
@@ -51,7 +52,7 @@ export const FacilitatorPortal: React.FC = () => {
               Dr. Eleanor Vance
             </h1>
             <p className="text-xs sm:text-sm text-slate-300">
-              Chemistry Educator · Cohort Analysis (28 Enrolled Students)
+              Chemistry Educator · Cohort Analysis ({cohortStudents.length} Enrolled Grade 9 Students)
             </p>
           </div>
         </div>
@@ -73,11 +74,13 @@ export const FacilitatorPortal: React.FC = () => {
             Cohort Diagnostic Completion
           </span>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-slate-900">27 / 28</span>
-            <span className="text-xs text-emerald-600 font-semibold">96% Calibrated</span>
+            <span className="text-2xl font-bold font-mono text-slate-900">
+              {cohortStudents.filter((s) => s.diagnosticStatus === 'completed').length} / {cohortStudents.length}
+            </span>
+            <span className="text-xs text-emerald-600 font-semibold">100% Calibrated</span>
           </div>
           <p className="text-[11px] text-slate-500">
-            1 student pending weekly diagnostic completion.
+            All {cohortStudents.length} students completed weekly diagnostic calibration.
           </p>
         </div>
 
@@ -86,8 +89,8 @@ export const FacilitatorPortal: React.FC = () => {
             Mean Diagnostic Score
           </span>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-indigo-600">8.2 / 10</span>
-            <span className="text-xs text-slate-500">82% Class Accuracy</span>
+            <span className="text-2xl font-bold font-mono text-indigo-600">8.1 / 10</span>
+            <span className="text-xs text-slate-500">81% Class Accuracy</span>
           </div>
           <p className="text-[11px] text-slate-500">
             Strongest area: Unit 1 Atomic Mass & Isotopes.
@@ -113,11 +116,11 @@ export const FacilitatorPortal: React.FC = () => {
             Active Study Plans
           </span>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-slate-900">28</span>
+            <span className="text-2xl font-bold font-mono text-slate-900">{cohortStudents.length}</span>
             <span className="text-xs text-slate-500">Personalized Paths</span>
           </div>
           <p className="text-[11px] text-slate-500">
-            Tailored weekly actions generated for each student.
+            Tailored weekly actions generated for all {cohortStudents.length} students.
           </p>
         </div>
       </section>
@@ -206,11 +209,9 @@ export const FacilitatorPortal: React.FC = () => {
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
-                  <img
-                    src={std.avatar}
-                    alt={std.name}
-                    className="w-12 h-12 rounded-full object-cover border border-slate-200 shrink-0"
-                  />
+                  <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 text-slate-500 flex items-center justify-center shrink-0 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:border-indigo-200 transition-colors">
+                    <User className="w-6 h-6" />
+                  </div>
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
                       {std.name}
@@ -272,7 +273,7 @@ export const FacilitatorPortal: React.FC = () => {
       {/* Individual Student Inspection Modal */}
       {selectedStudentForInspect && (() => {
         const studentProgression =
-          COHORT_WEEKLY_PROGRESSIONS[selectedStudentForInspect.id] || ACHALESH_WEEKLY_PROGRESSION;
+          COHORT_WEEKLY_PROGRESSIONS[selectedStudentForInspect.id] || ROHAN_WEEKLY_PROGRESSION;
 
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
@@ -281,11 +282,9 @@ export const FacilitatorPortal: React.FC = () => {
               {/* Header */}
               <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">
-                  <img
-                    src={selectedStudentForInspect.avatar}
-                    alt={selectedStudentForInspect.name}
-                    className="w-10 h-10 rounded-full object-cover border border-slate-300"
-                  />
+                  <div className="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
+                    <User className="w-5 h-5" />
+                  </div>
                   <div>
                     <h3 className="text-base font-bold text-slate-900">
                       {selectedStudentForInspect.name}

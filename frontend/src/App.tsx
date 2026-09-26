@@ -8,6 +8,7 @@ import { PersonalizedLearningPage } from './components/student/PersonalizedLearn
 import { FacilitatorPortal } from './components/facilitator/FacilitatorPortal';
 import { DiagnosticAssessmentModal } from './components/student/DiagnosticAssessmentModal';
 import { SlidePreviewModal } from './components/student/SlidePreviewModal';
+import { AuthModal } from './components/common/AuthModal';
 import { IconCheckCircle, IconAlertTriangle, IconX } from './components/common/Icons';
 
 export function AppContent() {
@@ -30,6 +31,7 @@ export function AppContent() {
       {/* Modals & Overlays */}
       <DiagnosticAssessmentModal />
       <SlidePreviewModal />
+      <AuthModal />
 
       {/* Global Toast Notification */}
       {toast && (

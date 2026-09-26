@@ -6,6 +6,8 @@ export const SlidePreviewModal: React.FC = () => {
   const { activeSlidePreviewDeck, setActiveSlidePreviewDeck } = useApp();
   const [currentSlidePage, setCurrentSlidePage] = useState<number>(1);
 
+  const totalSlides = activeSlidePreviewDeck?.slidesCount || activeSlidePreviewDeck?.slides?.length || 1;
+
   useEffect(() => {
     if (!activeSlidePreviewDeck) return;
 
@@ -16,19 +18,27 @@ export const SlidePreviewModal: React.FC = () => {
       } else if (e.key === 'ArrowLeft') {
         setCurrentSlidePage((p) => Math.max(1, p - 1));
       } else if (e.key === 'ArrowRight') {
-        setCurrentSlidePage((p) => Math.min(activeSlidePreviewDeck.slidesCount, p + 1));
+        setCurrentSlidePage((p) => Math.min(totalSlides, p + 1));
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeSlidePreviewDeck, setActiveSlidePreviewDeck]);
+  }, [activeSlidePreviewDeck, setActiveSlidePreviewDeck, totalSlides]);
 
   if (!activeSlidePreviewDeck) return null;
 
   const currentSlide =
-    activeSlidePreviewDeck.slides.find((s) => s.pageNumber === currentSlidePage) ||
-    activeSlidePreviewDeck.slides[0];
+    activeSlidePreviewDeck.slides.find(
+      (s, idx) => (s.pageNumber ?? (s as any).slideNumber ?? idx + 1) === currentSlidePage
+    ) ||
+    activeSlidePreviewDeck.slides[0] || {
+      pageNumber: 1,
+      title: activeSlidePreviewDeck.title,
+      contentBullets: ['No content bullets provided.'],
+    };
+
+  const currentPageNumber = currentSlide.pageNumber ?? (currentSlide as any).slideNumber ?? currentSlidePage;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
@@ -77,7 +87,7 @@ export const SlidePreviewModal: React.FC = () => {
                   {activeSlidePreviewDeck.unit}
                 </span>
                 <span className="font-mono">
-                  Slide {currentSlide.pageNumber} of {activeSlidePreviewDeck.slidesCount}
+                  Slide {currentPageNumber} of {totalSlides}
                 </span>
               </div>
               <h3 className="text-xl font-bold text-white tracking-tight">
@@ -117,7 +127,7 @@ export const SlidePreviewModal: React.FC = () => {
           <div className="max-w-2xl mx-auto w-full pt-6 mt-6 border-t border-slate-800 flex items-center justify-between">
             <button
               onClick={() => setCurrentSlidePage((p) => Math.max(1, p - 1))}
-              disabled={currentSlidePage === 1}
+              disabled={currentSlidePage <= 1}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 active:bg-slate-900 disabled:opacity-30 disabled:pointer-events-none text-xs font-semibold text-slate-200 transition-all cursor-pointer btn-tactile"
             >
               <IconChevronLeft className="w-4 h-4" />
@@ -126,23 +136,26 @@ export const SlidePreviewModal: React.FC = () => {
 
             {/* Page dots */}
             <div className="flex items-center gap-1.5">
-              {activeSlidePreviewDeck.slides.map((s) => (
-                <button
-                  key={s.pageNumber}
-                  onClick={() => setCurrentSlidePage(s.pageNumber)}
-                  className={`h-2 rounded-full transition-all cursor-pointer ${
-                    s.pageNumber === currentSlidePage
-                      ? 'bg-indigo-400 w-6'
-                      : 'bg-slate-700 hover:bg-slate-600 w-2'
-                  }`}
-                  title={`Go to slide ${s.pageNumber}`}
-                />
-              ))}
+              {activeSlidePreviewDeck.slides.map((s, idx) => {
+                const pageNum = s.pageNumber ?? (s as any).slideNumber ?? (idx + 1);
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentSlidePage(pageNum)}
+                    className={`h-2 rounded-full transition-all cursor-pointer ${
+                      pageNum === currentSlidePage
+                        ? 'bg-indigo-400 w-6'
+                        : 'bg-slate-700 hover:bg-slate-600 w-2'
+                    }`}
+                    title={`Go to slide ${pageNum}`}
+                  />
+                );
+              })}
             </div>
 
             <button
-              onClick={() => setCurrentSlidePage((p) => Math.min(activeSlidePreviewDeck.slidesCount, p + 1))}
-              disabled={currentSlidePage === activeSlidePreviewDeck.slidesCount}
+              onClick={() => setCurrentSlidePage((p) => Math.min(totalSlides, p + 1))}
+              disabled={currentSlidePage >= totalSlides}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 active:bg-slate-900 disabled:opacity-30 disabled:pointer-events-none text-xs font-semibold text-slate-200 transition-all cursor-pointer btn-tactile"
             >
               <span>Next Slide</span>
