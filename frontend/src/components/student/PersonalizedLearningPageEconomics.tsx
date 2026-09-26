@@ -154,40 +154,40 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
   if (!economicsDiagnosticSubmission) {
     return (
       <div className="space-y-6 max-w-4xl mx-auto py-8">
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-2">
+        <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">
           <button
             onClick={() => setActiveView('student_hub')}
-            className="hover:text-slate-900 transition-colors cursor-pointer"
+            className="hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
           >
             Student Hub
           </button>
           <span aria-hidden="true">/</span>
           <button
             onClick={() => setActiveView('subject_economics')}
-            className="hover:text-slate-900 transition-colors cursor-pointer"
+            className="hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
           >
             Economics
           </button>
           <span aria-hidden="true">/</span>
-          <span className="text-amber-700 font-bold">Diagnostic Calibration Required</span>
+          <span className="text-amber-700 dark:text-amber-400 font-bold">Diagnostic Calibration Required</span>
         </div>
 
-        <div className="bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 text-center shadow-lg space-y-6">
-          <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center mx-auto shadow-xs">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 sm:p-12 text-center shadow-lg space-y-6 transition-colors">
+          <div className="w-16 h-16 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 flex items-center justify-center mx-auto shadow-xs">
             <Lock className="w-8 h-8" />
           </div>
 
           <div className="space-y-3 max-w-xl mx-auto">
-            <span className="text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-100/70 border border-amber-300 px-3 py-1 rounded-md">
+            <span className="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 bg-amber-100/70 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 px-3 py-1 rounded-md">
               Prerequisite Calibration Required
             </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               Unlock Your Personalized Economics Space
             </h2>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
               Your personalized learning space dynamically isolates your specific conceptual misconceptions, builds custom slide decks, and curates international competitions based on your diagnostic answers.
             </p>
-            <p className="text-xs text-slate-500 font-medium">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
               Please take the 10-question Economics diagnostic test first to generate your tailored roadmap.
             </p>
           </div>
@@ -207,23 +207,23 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
 
             <button
               onClick={() => setActiveView('subject_economics')}
-              className="w-full sm:w-auto px-5 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm rounded-xl transition-all cursor-pointer"
+              className="w-full sm:w-auto px-5 py-3.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-sm rounded-xl transition-all cursor-pointer"
             >
               Back to Economics Subject Page
             </button>
           </div>
 
-          <div className="pt-6 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4 text-left text-xs text-slate-600">
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-              <strong className="text-slate-900 block mb-0.5">1. Diagnostic Calibration</strong>
+          <div className="pt-6 border-t border-slate-100 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-4 text-left text-xs text-slate-600 dark:text-slate-300">
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700">
+              <strong className="text-slate-900 dark:text-white block mb-0.5">1. Diagnostic Calibration</strong>
               Answer 10 short microeconomic questions to isolate knowledge gaps.
             </div>
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-              <strong className="text-slate-900 block mb-0.5">2. Tailored Slide Decks</strong>
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700">
+              <strong className="text-slate-900 dark:text-white block mb-0.5">2. Tailored Slide Decks</strong>
               Receive presentation decks and golden routines targeting your exact traps.
             </div>
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-              <strong className="text-slate-900 block mb-0.5">3. Curated Opportunities</strong>
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700">
+              <strong className="text-slate-900 dark:text-white block mb-0.5">3. Curated Opportunities</strong>
               Get matched with real-world competitions and finance challenges.
             </div>
           </div>
@@ -236,30 +236,30 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
     <div className="space-y-8 pb-16">
       
       {/* Top Breadcrumb & Header Bar */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6 transition-colors">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-2">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">
             <button
               onClick={() => setActiveView('student_hub')}
-              className="hover:text-slate-900 transition-colors cursor-pointer"
+              className="hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
             >
               Student Hub
             </button>
             <span aria-hidden="true">/</span>
             <button
               onClick={() => setActiveView('subject_economics')}
-              className="hover:text-slate-900 transition-colors cursor-pointer"
+              className="hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
             >
               Economics
             </button>
             <span aria-hidden="true">/</span>
-            <span className="text-emerald-700 font-bold">Personalized Learning Space</span>
+            <span className="text-emerald-700 dark:text-emerald-400 font-bold">Personalized Learning Space</span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
             Personalized Economics Space
           </h1>
-          <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 max-w-2xl leading-relaxed">
             Curated presentation decks, opportunity cost trade-off sandboxes, and supply/demand practice problems calibrated specifically to your diagnostic standing.
           </p>
         </div>
@@ -267,7 +267,7 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
         <div className="flex flex-wrap items-center gap-3 shrink-0">
           <button
             onClick={() => setActiveView('subject_economics')}
-            className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer btn-tactile"
+            className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer btn-tactile"
           >
             <IconChevronLeft className="w-4 h-4" />
             <span>Back to Economics</span>
@@ -275,9 +275,9 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
 
           <button
             onClick={() => setIsChatDrawerOpen(true)}
-            className="px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 active:bg-emerald-200 text-emerald-800 font-semibold text-xs rounded-xl border border-emerald-200 transition-all flex items-center gap-1.5 cursor-pointer btn-tactile shadow-2xs"
+            className="px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 active:bg-emerald-200 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 font-semibold text-xs rounded-xl border border-emerald-200 dark:border-emerald-800 transition-all flex items-center gap-1.5 cursor-pointer btn-tactile shadow-2xs"
           >
-            <MessageSquare className="w-3.5 h-3.5 text-emerald-700" />
+            <MessageSquare className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
             <span>Instructor Support (1-on-1 Chat)</span>
           </button>
 

@@ -43,32 +43,32 @@ export const ConceptKnowledgeGraph: React.FC<ConceptKnowledgeGraphProps> = ({
     : nodes.length;
 
   return (
-    <div className={`bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-7 shadow-xs space-y-5 ${className}`}>
+    <div className={`bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-7 shadow-xs space-y-5 transition-colors ${className}`}>
       
       {/* Knowledge Graph Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 ${
             isEcon
-              ? 'bg-emerald-50 border-emerald-200/80 text-emerald-700'
-              : 'bg-indigo-50 border-indigo-200/80 text-indigo-600'
+              ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200/80 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-400'
+              : 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200/80 dark:border-indigo-800/60 text-indigo-600 dark:text-indigo-400'
           }`}>
             <Layers className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-slate-900">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
                 {isEcon ? 'Grade 9 Economics Concept Dependency Graph' : 'Grade 9 Chemistry Concept Dependency Graph'}
               </h3>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
                 isEcon
-                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                  : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
+                  : 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800'
               }`}>
                 {nodes.length} Sequenced Nodes
               </span>
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               {isEcon
                 ? 'Prerequisite mastery mapping across scarcity, opportunity cost, supply & demand, and price equilibrium.'
                 : 'Prerequisite mastery mapping across atomic structure, mole conversions, and reaction stoichiometry.'}
@@ -80,20 +80,20 @@ export const ConceptKnowledgeGraph: React.FC<ConceptKnowledgeGraphProps> = ({
         <div className="flex items-center gap-2 shrink-0">
           {diagnosticSubmission ? (
             isPerfectScore ? (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold">
-                <Award className="w-4 h-4 text-emerald-600" />
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-bold">
+                <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <span>{nodes.length}/{nodes.length} Nodes Mastered (100% Mastery)</span>
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold">
-                <span className={`font-mono font-bold ${isEcon ? 'text-emerald-700' : 'text-indigo-600'}`}>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold">
+                <span className={`font-mono font-bold ${isEcon ? 'text-emerald-700 dark:text-emerald-400' : 'text-indigo-600 dark:text-indigo-400'}`}>
                   {masteredCount} / {nodes.length}
                 </span>
                 <span>Nodes Mastered · {weakUnits.length} Remediation Target{weakUnits.length > 1 ? 's' : ''}</span>
               </div>
             )
           ) : (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 text-xs font-medium">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-medium">
               <HelpCircle className="w-4 h-4 text-slate-400" />
               <span>Standard Baseline Calibration</span>
             </div>
@@ -129,32 +129,32 @@ export const ConceptKnowledgeGraph: React.FC<ConceptKnowledgeGraphProps> = ({
               } ${
                 diagnosticSubmission
                   ? isMastered
-                    ? 'bg-emerald-50/40 border-emerald-200 hover:border-emerald-400 hover:bg-emerald-50/70'
-                    : 'bg-rose-50/40 border-rose-200 hover:border-rose-400 hover:bg-rose-50/70'
-                  : 'bg-white border-slate-200 hover:border-slate-300'
+                    ? 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/60 hover:border-emerald-400 dark:hover:border-emerald-700 hover:bg-emerald-50/70 dark:hover:bg-emerald-950/30'
+                    : 'bg-rose-50/40 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/60 hover:border-rose-400 dark:hover:border-rose-700 hover:bg-rose-50/70 dark:hover:bg-rose-950/30'
+                  : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
               }`}
             >
               <div className="space-y-2">
                 {/* Node Level and Mastery Status */}
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">
+                  <span className="text-[10px] font-mono font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                     Node {node.unitNumber}
                   </span>
                   
                   {diagnosticSubmission ? (
                     isMastered ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                         <span>Mastered</span>
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-300 animate-pulse">
-                        <AlertTriangle className="w-3 h-3 text-rose-600" />
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-800 animate-pulse">
+                        <AlertTriangle className="w-3 h-3 text-rose-600 dark:text-rose-400" />
                         <span>{missedInNode} Missed</span>
                       </span>
                     )
                   ) : (
-                    <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
                       Calibrated
                     </span>
                   )}
@@ -162,33 +162,33 @@ export const ConceptKnowledgeGraph: React.FC<ConceptKnowledgeGraphProps> = ({
 
                 {/* Node Name */}
                 <div>
-                  <h4 className={`text-xs font-bold text-slate-900 transition-colors leading-snug line-clamp-2 ${
-                    isEcon ? 'group-hover:text-emerald-700' : 'group-hover:text-indigo-600'
+                  <h4 className={`text-xs font-bold text-slate-900 dark:text-white transition-colors leading-snug line-clamp-2 ${
+                    isEcon ? 'group-hover:text-emerald-700 dark:group-hover:text-emerald-400' : 'group-hover:text-indigo-600 dark:group-hover:text-indigo-400'
                   }`}>
                     {node.shortTitle}
                   </h4>
-                  <span className="text-[10px] text-slate-500 font-mono block mt-0.5">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono block mt-0.5">
                     Q{node.questionNumbers.join(', Q')}
                   </span>
                 </div>
 
-                <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
                   {node.keyConcept}
                 </p>
               </div>
 
               {/* Action / Select Callout */}
-              <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px] font-semibold">
-                <span className={isSelected ? (isEcon ? 'text-emerald-700 font-bold' : 'text-indigo-700 font-bold') : 'text-slate-500'}>
+              <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-[11px] font-semibold">
+                <span className={isSelected ? (isEcon ? 'text-emerald-700 dark:text-emerald-400 font-bold' : 'text-indigo-700 dark:text-indigo-400 font-bold') : 'text-slate-500 dark:text-slate-400'}>
                   {isSelected ? 'Viewing' : 'Select'}
                 </span>
                 <ArrowRight
                   className={`w-3 h-3 transition-transform ${
                     isSelected
                       ? isEcon
-                        ? 'text-emerald-600 translate-x-1'
-                        : 'text-indigo-600 translate-x-1'
-                      : 'text-slate-400'
+                        ? 'text-emerald-600 dark:text-emerald-400 translate-x-1'
+                        : 'text-indigo-600 dark:text-indigo-400 translate-x-1'
+                      : 'text-slate-400 dark:text-slate-600'
                   }`}
                 />
               </div>
@@ -219,7 +219,7 @@ export const ConceptKnowledgeGraph: React.FC<ConceptKnowledgeGraphProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-amber-600 bg-amber-100 px-2 py-0.5 rounded">
+                <span className="text-xs font-bold uppercase tracking-wider text-amber-600 bg-amber-100 dark:bg-amber-950/50 dark:text-amber-300 dark:border dark:border-amber-800 px-2 py-0.5 rounded">
                   {isEcon ? 'Economics Olympiad Extension Unlocked' : 'Olympiad Extension Unlocked'}
                 </span>
                 <span className="text-xs font-mono font-semibold opacity-75">100% Score Reward</span>
@@ -254,7 +254,7 @@ export const ConceptKnowledgeGraph: React.FC<ConceptKnowledgeGraphProps> = ({
       )}
 
       {/* Conceptual Legend */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-2 text-[11px] text-slate-500 border-t border-slate-100">
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-2 text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-xs bg-emerald-500" />
