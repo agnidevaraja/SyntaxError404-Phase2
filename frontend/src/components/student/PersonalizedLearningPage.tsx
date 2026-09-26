@@ -762,6 +762,32 @@ export const PersonalizedLearningPage: React.FC = () => {
                 {currentPackage.studyGuide.analogy}
               </p>
             </div>
+
+            {/* Structure-Mapping Analogy Boundary Card */}
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-slate-800 text-[11px] uppercase tracking-wider font-mono">
+                  Analogy Boundary Card (Gentner Structure-Mapping)
+                </span>
+                <span className="text-[10px] text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md font-semibold border border-indigo-200">
+                  Mental Model Guardrail
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                <div className="p-2.5 rounded-lg bg-emerald-50/80 border border-emerald-200 text-emerald-950 space-y-0.5">
+                  <span className="font-bold text-emerald-900 block">Where it works:</span>
+                  <p className="leading-relaxed">
+                    Just like available cheese slices strictly limit sandwich production, the reactant with fewer available stoichiometric units limits product formation.
+                  </p>
+                </div>
+                <div className="p-2.5 rounded-lg bg-rose-50/80 border border-rose-200 text-rose-950 space-y-0.5">
+                  <span className="font-bold text-rose-900 block">Where it stops:</span>
+                  <p className="leading-relaxed">
+                    Unlike bread and cheese, chemical molecules react according to integer mole ratios (never raw mass) and cannot be divided into arbitrary fractions.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="pt-4 border-t border-slate-100">

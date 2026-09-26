@@ -86,6 +86,7 @@ export const FacilitatorPortal: React.FC = () => {
   const [selectedModality, setSelectedModality] = useState<string>('all');
   const [isAddStrategyModalOpen, setIsAddStrategyModalOpen] = useState<boolean>(false);
   const [assignedStrategyId, setAssignedStrategyId] = useState<string | null>(null);
+  const [dispatchedRadarAlertId, setDispatchedRadarAlertId] = useState<string | null>(null);
 
   // New Strategy Form state
   const [newStrategyName, setNewStrategyName] = useState<string>('');
@@ -253,6 +254,127 @@ export const FacilitatorPortal: React.FC = () => {
           <p className="text-[11px] text-slate-500">
             Tailored weekly actions generated for all {cohortStudents.length} students.
           </p>
+        </div>
+      </section>
+
+      {/* 60-SECOND RE-TEACH RADAR & TRIAGE ACTION PIPELINE */}
+      <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <IconZap className="w-5 h-5 text-amber-500" />
+              <h2 className="text-base font-bold text-slate-900">
+                60-Second Re-Teach Radar & Triage Action Pipeline
+              </h2>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Prioritizes high-stakes conceptual bottlenecks before live lectures. 1-click ready intervention plans.
+            </p>
+          </div>
+          <span className="text-xs font-mono font-semibold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-md border border-rose-200">
+            2 Actionable Class Alerts Active
+          </span>
+        </div>
+
+        {/* Dispatched Alert Feedback Banner */}
+        {dispatchedRadarAlertId && (
+          <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold flex items-center gap-2 animate-in fade-in">
+            <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>
+              15-Second Action Plan dispatched! Targeted slide deck and analogy scaffolding sent to affected student workspaces.
+            </span>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          {/* RED ALERT: Class Stoppage Bottleneck */}
+          <div className="p-5 rounded-xl bg-rose-50/50 border-2 border-rose-200 space-y-3 flex flex-col justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-600 text-white">
+                  Red Alert: Class Bottleneck
+                </span>
+                <span className="text-xs font-mono font-bold text-rose-700">
+                  46% Cohort Failure (Q7)
+                </span>
+              </div>
+
+              <h3 className="text-sm font-bold text-rose-950">
+                Limiting Reagents: Mass-to-Mole Direct Comparison Trap
+              </h3>
+
+              <p className="text-xs text-rose-900 leading-relaxed">
+                Almost half the class is comparing raw reactant grams instead of computing molar ratios. Starting Unit 3 Gas Laws will cause complete conceptual breakdown.
+              </p>
+
+              <div className="p-3 rounded-lg bg-white border border-rose-200 text-xs text-slate-800 space-y-1">
+                <span className="font-bold text-rose-900 block text-[11px] uppercase tracking-wider">
+                  Outstand 15-Second Action Plan:
+                </span>
+                <p className="leading-relaxed">
+                  Deliver the 5-Minute Sandwich Shop Analogy (bread vs cheese units) before commencing live stoichiometry equations.
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                onClick={() => {
+                  setDispatchedRadarAlertId('alert-red');
+                  setTimeout(() => setDispatchedRadarAlertId(null), 3500);
+                }}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-lg shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+              >
+                <Check className="w-3.5 h-3.5" />
+                <span>1-Click Dispatch to Class (Sandwich Analogy)</span>
+              </button>
+            </div>
+          </div>
+
+          {/* YELLOW ALERT: Targeted Individual Prep */}
+          <div className="p-5 rounded-xl bg-amber-50/50 border-2 border-amber-200 space-y-3 flex flex-col justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-600 text-white">
+                  Yellow Alert: Targeted Prep
+                </span>
+                <span className="text-xs font-mono font-bold text-amber-800">
+                  28% Cohort Error (Q2, Q3)
+                </span>
+              </div>
+
+              <h3 className="text-sm font-bold text-amber-950">
+                Polyatomic Subscripts & Parenthesis Distribution
+              </h3>
+
+              <p className="text-xs text-amber-900 leading-relaxed">
+                Rohan and Priya are omitting multiplying through outside parentheses in formula mass calculations.
+              </p>
+
+              <div className="p-3 rounded-lg bg-white border border-amber-200 text-xs text-slate-800 space-y-1">
+                <span className="font-bold text-amber-900 block text-[11px] uppercase tracking-wider">
+                  Outstand 15-Second Action Plan:
+                </span>
+                <p className="leading-relaxed">
+                  Push Visual Subscript Fading Deck directly to affected student study portals for 10-minute micro-review.
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                onClick={() => {
+                  setDispatchedRadarAlertId('alert-yellow');
+                  setTimeout(() => setDispatchedRadarAlertId(null), 3500);
+                }}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-bold text-xs rounded-lg shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+              >
+                <Check className="w-3.5 h-3.5" />
+                <span>1-Click Dispatch to Targeted Students</span>
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -851,10 +973,64 @@ export const FacilitatorPortal: React.FC = () => {
                   </p>
                 </div>
 
-                {/* Specific Mistakes */}
+                {/* Cognitive Behavioral Interaction Telemetry Profile */}
+                <div className="p-4 rounded-xl bg-slate-900 text-white space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-200 font-mono">
+                      Cognitive Interaction & Behavioral Telemetry
+                    </span>
+                    <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800 px-2 py-0.5 rounded-md">
+                      Heuristic Profile Synced
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                    <div className="p-2.5 rounded-lg bg-slate-800 border border-slate-700 space-y-1">
+                      <span className="text-[10px] text-slate-400 font-mono uppercase block">
+                        Dwell Latency & Freeze
+                      </span>
+                      <span className="font-bold text-slate-100 block">
+                        {selectedStudentForInspect.commonMistakes.length > 0 ? 'Multi-Step Freeze Detected' : 'Fluid Nominal Pace'}
+                      </span>
+                      <p className="text-[10px] text-slate-400 leading-relaxed">
+                        {selectedStudentForInspect.commonMistakes.length > 0
+                          ? '18.4s initial dwell freeze on Limiting Reagents (Q7); no distraction signals.'
+                          : 'Even pacing across conceptual stems (Mean latency: 9.8s).'}
+                      </p>
+                    </div>
+
+                    <div className="p-2.5 rounded-lg bg-slate-800 border border-slate-700 space-y-1">
+                      <span className="text-[10px] text-slate-400 font-mono uppercase block">
+                        Doubt Velocity & Revision
+                      </span>
+                      <span className="font-bold text-slate-100 block">
+                        {selectedStudentForInspect.commonMistakes.length > 0 ? 'Imposter Second-Guessing' : 'High Answer Certainty'}
+                      </span>
+                      <p className="text-[10px] text-slate-400 leading-relaxed">
+                        {selectedStudentForInspect.commonMistakes.length > 0
+                          ? 'Flipped away from correct mole ratio choice prior to submission; confidence booster assigned.'
+                          : 'Minimal backspacing; direct response formulation.'}
+                      </p>
+                    </div>
+
+                    <div className="p-2.5 rounded-lg bg-slate-800 border border-slate-700 space-y-1">
+                      <span className="text-[10px] text-slate-400 font-mono uppercase block">
+                        Working Memory Load
+                      </span>
+                      <span className="font-bold text-slate-100 block">
+                        Scaffolding Activated
+                      </span>
+                      <p className="text-[10px] text-slate-400 leading-relaxed">
+                        Single-step 100% mastery. Multi-step conversions receive auto-scratchpad accordions.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Specific Mistakes with Slip vs Void Classification */}
                 <div className="space-y-2">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800">
-                    Specific Conceptual Mistakes Identified:
+                    Specific Conceptual Mistakes & Classification:
                   </h4>
 
                   {selectedStudentForInspect.commonMistakes.length === 0 ? (
@@ -864,15 +1040,37 @@ export const FacilitatorPortal: React.FC = () => {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {selectedStudentForInspect.commonMistakes.map((mistake, i) => (
-                        <div
-                          key={i}
-                          className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-950 flex items-start gap-2"
-                        >
-                          <IconAlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                          <span>{mistake}</span>
-                        </div>
-                      ))}
+                      {selectedStudentForInspect.commonMistakes.map((mistake, i) => {
+                        const isSlip = mistake.toLowerCase().includes('subscript') || mistake.toLowerCase().includes('parenthes');
+                        return (
+                          <div
+                            key={i}
+                            className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-950 flex flex-col gap-1.5"
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2 font-semibold">
+                                <IconAlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                                <span>{mistake}</span>
+                              </div>
+                              <span
+                                className={`text-[10px] font-mono px-2 py-0.5 rounded-md ${
+                                  isSlip
+                                    ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                                    : 'bg-rose-100 text-rose-800 border border-rose-300'
+                                }`}
+                              >
+                                {isSlip ? 'Clerical Calculation Slip' : 'Deep Conceptual Void'}
+                              </span>
+                            </div>
+                            <div className="text-[11px] text-slate-600 pl-6">
+                              <strong>Recommended Teacher Action: </strong>
+                              {isSlip
+                                ? 'Send 10-second self-audit prompt to check arithmetic steps.'
+                                : 'Deploy 5-minute Sandwich Analogy re-teach deck.'}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

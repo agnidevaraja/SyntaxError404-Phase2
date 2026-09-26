@@ -350,49 +350,6 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                 />
               </div>
 
-              {/* Live Input Telemetry Sensor Strip */}
-              <div className="p-3 rounded-xl bg-slate-900 text-white flex flex-wrap items-center justify-between gap-3 text-[11px] font-mono mb-5 shadow-xs">
-                <div className="flex flex-wrap items-center gap-4">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-slate-400">Idle Dwell:</span>
-                    <span
-                      className={`font-semibold ${
-                        idleSeconds >= 6 ? 'text-amber-400 animate-pulse' : 'text-emerald-400'
-                      }`}
-                    >
-                      {idleSeconds}s {idleSeconds >= 6 ? '(Freeze Detected)' : '(Nominal)'}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-slate-400">Backspace Burst:</span>
-                    <span
-                      className={`font-semibold ${
-                        backspaceBurstCount > 0 ? 'text-rose-400' : 'text-emerald-400'
-                      }`}
-                    >
-                      {backspaceBurstCount} {backspaceBurstCount > 0 ? '(Revising)' : '(Stable)'}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-slate-400">Doubt Velocity:</span>
-                    <span
-                      className={`font-semibold ${
-                        optionFlips > 1 ? 'text-amber-400' : 'text-emerald-400'
-                      }`}
-                    >
-                      {optionFlips > 1 ? `${optionFlips} Flips (Second-Guessing)` : 'Steady'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1.5 text-[10px] text-indigo-300">
-                  <span className="w-1.5 h-1.5 rounded-xs bg-emerald-400 animate-pulse" />
-                  <span>Telemetry Live</span>
-                </div>
-              </div>
-
               {/* Mode Switcher: Standard Quiz vs Stealth Interactive Mode */}
               <div className="flex items-center justify-between gap-2 p-1.5 bg-slate-100 rounded-xl mb-5">
                 <button
@@ -837,7 +794,66 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                 </button>
               </div>
 
-              {/* Mistake & Error Breakdown */}
+              {/* Cognitive Behavioral Profile & Telemetry Insights */}
+              <div className="p-5 rounded-2xl bg-slate-900 text-white space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div className="flex items-center gap-2">
+                    <IconSparkles className="w-4 h-4 text-indigo-400" />
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">
+                      Non-Invasive Cognitive Behavioral Assessment Profile
+                    </h4>
+                  </div>
+                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800 px-2 py-0.5 rounded-md">
+                    Telemetry Synced
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-1.5">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-mono block">
+                      Affective Latency Index
+                    </span>
+                    <span className="font-bold text-slate-100 block">
+                      {idleSeconds >= 6 ? 'Cognitive Dwell Pause Flagged' : 'Fluid Cognitive Pace'}
+                    </span>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      {idleSeconds >= 6
+                        ? 'Observed initial reading pause (>6s) on multi-step stoichiometry; no off-task distraction.'
+                        : 'Consistent dwell latency across all conceptual stems with zero freeze paralysis.'}
+                    </p>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-1.5">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-mono block">
+                      Doubt Velocity & Revision
+                    </span>
+                    <span className="font-bold text-slate-100 block">
+                      {optionFlips > 1 || backspaceBurstCount > 0
+                        ? 'Imposter Second-Guessing Noted'
+                        : 'High Answer Certainty'}
+                    </span>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      {optionFlips > 1 || backspaceBurstCount > 0
+                        ? 'Initial intuitive reasoning was correct; confidence reassurance prompt delivered.'
+                        : 'Clean direct responses with minimal backspace friction or option oscillation.'}
+                    </p>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-1.5">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-mono block">
+                      Working Memory Load
+                    </span>
+                    <span className="font-bold text-slate-100 block">
+                      Multi-Step Scaffolding Active
+                    </span>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      Single-step concepts mastered; 3-stage yield problems automatically receive scratchpad steps.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mistake & Error Breakdown with Slip vs Void Classifier */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -855,46 +871,70 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {localSubmission.missedQuestions.map((missed, i) => (
-                      <div
-                        key={i}
-                        className="p-4 rounded-xl border border-rose-200 bg-rose-50/50 space-y-2 text-xs"
-                      >
-                        <div className="flex items-center justify-between text-rose-900 font-bold">
-                          <span>
-                            Question {missed.questionNumber}: {missed.topic}
-                          </span>
-                          <span className="text-[11px] px-2 py-0.5 rounded-md bg-rose-100 text-rose-800">
-                            Mistake Detected
-                          </span>
-                        </div>
+                    {localSubmission.missedQuestions.map((missed, i) => {
+                      const isClericalSlip = missed.questionNumber === 3;
+                      return (
+                        <div
+                          key={i}
+                          className="p-4 rounded-xl border border-rose-200 bg-rose-50/50 space-y-2 text-xs"
+                        >
+                          <div className="flex items-center justify-between text-rose-900 font-bold">
+                            <span>
+                              Question {missed.questionNumber}: {missed.topic}
+                            </span>
+                            <div className="flex items-center gap-1.5">
+                              <span
+                                className={`text-[10px] font-mono px-2 py-0.5 rounded-md ${
+                                  isClericalSlip
+                                    ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                                    : 'bg-rose-100 text-rose-800 border border-rose-300'
+                                }`}
+                              >
+                                {isClericalSlip ? 'Clerical Calculation Slip' : 'Deep Conceptual Void'}
+                              </span>
+                            </div>
+                          </div>
 
-                        <div className="p-2.5 rounded-lg bg-white border border-rose-100 space-y-1">
-                          <div>
-                            Your Answer:{' '}
-                            <span className="text-rose-700 font-semibold line-through">
-                              {missed.studentAnswer}
+                          <div className="p-2.5 rounded-lg bg-white border border-rose-100 space-y-1">
+                            <div>
+                              Your Answer:{' '}
+                              <span className="text-rose-700 font-semibold line-through">
+                                {missed.studentAnswer}
+                              </span>
+                            </div>
+                            <div>
+                              Correct Answer:{' '}
+                              <span className="text-emerald-700 font-semibold">
+                                {missed.correctAnswer}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="text-rose-950 font-medium">
+                            <strong>Trap Identified: </strong>
+                            {missed.trapIdentified}
+                          </div>
+
+                          <div className="p-2.5 rounded-md bg-indigo-50 border border-indigo-100 text-indigo-950">
+                            <strong>Formula & Correction: </strong>
+                            {missed.explanation}
+                          </div>
+
+                          {/* Action Resolution Guidance */}
+                          <div className="p-2 rounded-md bg-white border border-slate-200 text-[11px] text-slate-700 flex items-center justify-between">
+                            <span>
+                              <strong>Outstand Action: </strong>
+                              {isClericalSlip
+                                ? '10-Second Self-Audit Triggered (no remedial lecture required)'
+                                : '5-Minute Structure-Mapping Analogy Repair (Sandwich Shop Model)'}
+                            </span>
+                            <span className="text-indigo-600 font-semibold font-mono">
+                              {isClericalSlip ? 'Quick Audit' : 'Analogy Ready'}
                             </span>
                           </div>
-                          <div>
-                            Correct Answer:{' '}
-                            <span className="text-emerald-700 font-semibold">
-                              {missed.correctAnswer}
-                            </span>
-                          </div>
                         </div>
-
-                        <div className="text-rose-950 font-medium">
-                          <strong>Trap Identified: </strong>
-                          {missed.trapIdentified}
-                        </div>
-
-                        <div className="p-2.5 rounded-md bg-indigo-50 border border-indigo-100 text-indigo-950">
-                          <strong>Formula & Correction: </strong>
-                          {missed.explanation}
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
