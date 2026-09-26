@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   html {
     -webkit-font-smoothing: antialiased;
@@ -11,6 +13,7 @@
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color: #0f172a;
     background-color: #f8fafc;
+    transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
   
   code, kbd, samp, pre, .font-mono {
@@ -53,3 +56,261 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+/* -------------------------------------------------------------
+   Universal High-Contrast Modern Dark Theme Styling
+   ------------------------------------------------------------- */
+html.dark body {
+  background-color: #0b0f19;
+  color: #f1f5f9;
+}
+
+html.dark ::selection {
+  background-color: #312e81;
+  color: #e0e7ff;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Dark Mode Core Surfaces & Elevation */
+html.dark .bg-white {
+  background-color: #0f172a;
+}
+html.dark .bg-white\/95 {
+  background-color: rgba(15, 23, 42, 0.95);
+}
+html.dark .bg-white\/90 {
+  background-color: rgba(15, 23, 42, 0.90);
+}
+html.dark .bg-white\/80 {
+  background-color: rgba(15, 23, 42, 0.80);
+}
+html.dark .bg-slate-50 {
+  background-color: #0b1120;
+}
+html.dark .bg-slate-50\/70,
+html.dark .bg-slate-50\/50 {
+  background-color: rgba(11, 17, 32, 0.75);
+}
+html.dark .bg-slate-100 {
+  background-color: #1e293b;
+}
+html.dark .hover\:bg-slate-100:hover {
+  background-color: #1e293b;
+}
+html.dark .hover\:bg-slate-50:hover {
+  background-color: #162032;
+}
+html.dark .hover\:bg-slate-200:hover {
+  background-color: #334155;
+}
+html.dark .bg-slate-200 {
+  background-color: #334155;
+}
+
+/* Dark Mode Borders */
+html.dark .border-slate-100,
+html.dark .border-slate-200,
+html.dark .border-slate-200\/80,
+html.dark .border-slate-200\/90 {
+  border-color: #1e293b;
+}
+html.dark .border-slate-300 {
+  border-color: #334155;
+}
+html.dark .divide-slate-100 > * + *,
+html.dark .divide-slate-200 > * + * {
+  border-color: #1e293b;
+}
+
+/* Dark Mode Text Contrast Hierarchy */
+html.dark .text-slate-900 {
+  color: #f8fafc;
+}
+html.dark .text-slate-800 {
+  color: #f1f5f9;
+}
+html.dark .text-slate-700 {
+  color: #e2e8f0;
+}
+html.dark .text-slate-600 {
+  color: #cbd5e1;
+}
+html.dark .text-slate-500 {
+  color: #94a3b8;
+}
+html.dark .text-slate-400 {
+  color: #64748b;
+}
+
+/* Dark Mode Inputs, Selects & Textareas */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #1e293b;
+  color: #f8fafc;
+  border-color: #334155;
+}
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b;
+}
+html.dark input:focus,
+html.dark textarea:focus,
+html.dark select:focus {
+  border-color: #6366f1;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+}
+
+/* Dark Mode Accent Tinted Containers */
+html.dark .bg-indigo-50 {
+  background-color: rgba(99, 102, 241, 0.14);
+}
+html.dark .text-indigo-700,
+html.dark .text-indigo-600 {
+  color: #a5b4fc;
+}
+html.dark .border-indigo-200,
+html.dark .border-indigo-200\/80,
+html.dark .border-indigo-200\/60 {
+  border-color: rgba(99, 102, 241, 0.32);
+}
+
+html.dark .bg-emerald-50,
+html.dark .bg-emerald-50\/50 {
+  background-color: rgba(16, 185, 129, 0.14);
+}
+html.dark .text-emerald-700,
+html.dark .text-emerald-800,
+html.dark .text-emerald-900,
+html.dark .text-emerald-950 {
+  color: #6ee7b7;
+}
+html.dark .border-emerald-200,
+html.dark .border-emerald-200\/90,
+html.dark .border-emerald-200\/80 {
+  border-color: rgba(16, 185, 129, 0.32);
+}
+
+html.dark .bg-amber-50,
+html.dark .bg-amber-50\/50 {
+  background-color: rgba(245, 158, 11, 0.14);
+}
+html.dark .text-amber-700,
+html.dark .text-amber-800,
+html.dark .text-amber-900 {
+  color: #fcd34d;
+}
+html.dark .border-amber-200,
+html.dark .border-amber-200\/80 {
+  border-color: rgba(245, 158, 11, 0.32);
+}
+
+html.dark .bg-rose-50,
+html.dark .bg-rose-50\/50 {
+  background-color: rgba(244, 63, 94, 0.14);
+}
+html.dark .text-rose-700,
+html.dark .text-rose-800,
+html.dark .text-rose-900 {
+  color: #fda4af;
+}
+html.dark .border-rose-200 {
+  border-color: rgba(244, 63, 94, 0.32);
+}
+
+/* Subtle Shadows for Dark Mode Cards */
+html.dark .shadow-xs,
+html.dark .shadow-sm,
+html.dark .shadow-md,
+html.dark .shadow-lg {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+}
+
+/* -------------------------------------------------------------
+   Eye-Friendly Warm Sepia Reading Mode
+   ------------------------------------------------------------- */
+html.theme-sepia body {
+  background-color: #fbf7ee;
+  color: #2b251d;
+}
+html.theme-sepia .bg-white {
+  background-color: #fffefb !important;
+  border-color: #ebe2d3 !important;
+}
+html.theme-sepia .bg-slate-50 {
+  background-color: #f5ede0 !important;
+  border-color: #e5dac6 !important;
+}
+html.theme-sepia .bg-slate-100 {
+  background-color: #eee3d1 !important;
+}
+html.theme-sepia .border-slate-200,
+html.theme-sepia .border-slate-100 {
+  border-color: #ebe2d3 !important;
+}
+html.theme-sepia .text-slate-900 {
+  color: #2b251d !important;
+}
+html.theme-sepia .text-slate-700,
+html.theme-sepia .text-slate-600 {
+  color: #574b3d !important;
+}
+html.theme-sepia .text-slate-500 {
+  color: #7d6e5c !important;
+}
+
+/* -------------------------------------------------------------
+   Typography Font Customization Switcher
+   ------------------------------------------------------------- */
+html[data-font="editorial"] body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+}
+html[data-font="sans"] body {
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+html[data-font="dyslexic"] body {
+  font-family: 'Lexend', system-ui, sans-serif !important;
+}
+html[data-font="mono"] body {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* -------------------------------------------------------------
+   Accessibility Font Scaling
+   ------------------------------------------------------------- */
+html[data-scale="compact"] {
+  font-size: 14.5px;
+}
+html[data-scale="normal"] {
+  font-size: 16px;
+}
+html[data-scale="large"] {
+  font-size: 17.5px;
+}
+
+/* -------------------------------------------------------------
+   Chemical & Scientific Equation Formatter
+   ------------------------------------------------------------- */
+sub, .chem-sub {
+  font-size: 0.72em;
+  vertical-align: -0.22em;
+  line-height: 0;
+  font-variant-numeric: tabular-nums;
+}
+sup, .chem-sup {
+  font-size: 0.72em;
+  vertical-align: 0.38em;
+  line-height: 0;
+}
+.chem-eq {
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  letter-spacing: 0.02em;
+}
+

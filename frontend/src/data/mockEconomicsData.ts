@@ -97,7 +97,7 @@ export const ECONOMICS_SLIDE_DECKS: ClassSlideDeck[] = [
         title: 'Opportunity Cost Defined Rigorously',
         contentBullets: [
           'Opportunity Cost is the value of the NEXT BEST alternative forgone',
-          'It is NOT all options given up—only the single best runner-up option',
+          'It is NOT all options given up - only the single best runner-up option',
           'Monetary cost reflects only explicit accounting expenses',
           'True economic cost = Explicit Accounting Costs + Implicit Opportunity Costs',
         ],
@@ -398,7 +398,7 @@ export const ECONOMICS_DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
     correctAnswerIndex: 1,
     misconceptionTrap: 'Summing all alternative options together rather than identifying the next best alternative.',
     explanation:
-      'Opportunity cost is defined strictly as the value of the NEXT BEST single alternative forgone—in this case, going to the cinema. It is never the sum of all conceivable alternatives.',
+      'Opportunity cost is defined strictly as the value of the NEXT BEST single alternative forgone - in this case, going to the cinema. It is never the sum of all conceivable alternatives.',
   },
   {
     id: 'econ-q4',

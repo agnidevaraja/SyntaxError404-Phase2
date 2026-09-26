@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { IconAtom, IconChevronRight, IconUser, IconShield } from './Icons';
-import { LogOut } from 'lucide-react';
+import { LogOut, Sun, Moon, Sliders } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const {
@@ -14,6 +14,9 @@ export const Navbar: React.FC = () => {
     facilitatorSubject,
     setFacilitatorSubject,
     canSwitchSubject,
+    theme,
+    toggleTheme,
+    setIsSettingsOpen,
   } = useApp();
 
   const isEconomicsFacilitator = facilitatorSubject === 'economics';
@@ -28,19 +31,19 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-40 w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 shadow-xs transition-colors">
+      <div className="max-w-[1580px] w-full mx-auto px-4 sm:px-6 lg:px-10 h-16 flex items-center justify-between">
         
         {/* Brand Wordmark & Context Breadcrumb */}
         <div className="flex items-center gap-4">
           <button
             onClick={() => setActiveView('landing')}
-            className="flex items-center gap-2.5 text-left focus:outline-none group cursor-pointer btn-tactile"
+            className="flex items-center gap-2.5 text-left focus:outline-hidden group cursor-pointer btn-tactile"
           >
             <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-xs group-hover:bg-indigo-700 transition-colors">
               <IconAtom className="w-5 h-5" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-slate-900 group-hover:text-indigo-950 transition-colors">
+            <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white group-hover:text-indigo-950 dark:group-hover:text-indigo-300 transition-colors">
               Outstand
             </span>
           </button>
@@ -129,29 +132,53 @@ export const Navbar: React.FC = () => {
           )}
         </div>
 
-        {/* Right Zone: Clean Persona Actions */}
-        <div className="flex items-center gap-3">
+        {/* Right Zone: Clean Persona Actions & Theme Toggle */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Settings & Accessibility Modal Trigger */}
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            aria-label="Platform Settings & Accessibility"
+            title="Platform Settings & Accessibility"
+            className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center transition-all cursor-pointer btn-tactile text-slate-600 dark:text-slate-300 shrink-0"
+          >
+            <Sliders className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+          </button>
+
+          {/* Dark / Light Mode Switcher */}
+          <button
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center transition-all cursor-pointer btn-tactile text-slate-600 dark:text-slate-300 shrink-0"
+          >
+            {theme === 'dark' ? (
+              <Sun className="w-4 h-4 text-amber-400" />
+            ) : (
+              <Moon className="w-4 h-4 text-indigo-600" />
+            )}
+          </button>
+
           {role !== 'guest' && activeView !== 'landing' ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <div className="flex items-center gap-2 text-xs text-slate-700 font-medium bg-slate-50 border border-slate-200/80 px-2.5 py-1.5 rounded-lg">
-                <div className="w-6 h-6 rounded-md bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-[10px]">
+                <div className="w-6 h-6 rounded-md bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-[10px] shrink-0">
                   {getInitials(displayName)}
                 </div>
-                <span className="font-semibold text-slate-800">
+                <span className="font-semibold text-slate-800 truncate max-w-[110px] sm:max-w-none">
                   {displayName}
                 </span>
-                <span className="text-[10px] uppercase font-bold text-slate-400 border-l border-slate-200 pl-2">
+                <span className="text-[10px] uppercase font-bold text-slate-400 border-l border-slate-200 pl-2 shrink-0">
                   {role === 'student' ? 'Student' : 'Facilitator'}
                 </span>
               </div>
 
               <button
                 onClick={logout}
-                className="px-3 py-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 active:bg-rose-100 rounded-lg border border-rose-200 transition-all cursor-pointer btn-tactile flex items-center gap-1.5"
+                className="px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 active:bg-rose-100 rounded-lg border border-rose-200 transition-all cursor-pointer btn-tactile flex items-center gap-1.5 shrink-0"
                 title="Sign out of your session"
               >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>Sign Out</span>
+                <LogOut className="w-3.5 h-3.5 shrink-0" />
+                <span className="hidden sm:inline">Sign Out</span>
               </button>
             </div>
           ) : (

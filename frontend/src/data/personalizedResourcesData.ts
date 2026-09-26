@@ -71,10 +71,10 @@ export const PERSONALIZED_FOCUS_PACKAGES: Record<string, FocusAreaPackage> = {
     formulaSnippet: 'Average Atomic Mass = (f₁ × m₁) + (f₂ × m₂) + ...   |   Neutrons (N) = Mass Number (A) - Atomic Number (Z)',
     videoLesson: {
       title: 'How To Calculate Average Atomic Mass & Isotope Percentages',
-      youtubeId: 'xirPkCIS0dQ',
+      youtubeId: '7UEe_q0YFjQ',
       duration: '10:48',
-      instructor: 'The Organic Chemistry Tutor',
-      channel: 'The Organic Chemistry Tutor',
+      instructor: 'Tyler DeWitt',
+      channel: 'Tyler DeWitt Chemistry',
       description: 'Master fractional abundance weighting, distinguishing mass numbers from atomic numbers, and calculating subatomic particles with clear step-by-step examples.',
       keyTimestamps: [
         { time: '0:00', label: 'What is an Isotope?' },
@@ -185,10 +185,10 @@ export const PERSONALIZED_FOCUS_PACKAGES: Record<string, FocusAreaPackage> = {
     formulaSnippet: 'Total Valence Pool = Σ (Group Valence Electrons) - (Net Positive Charge) + (Net Negative Charge)   |   M(Ca(NO₃)₂) = 1Ca + 2N + 6O',
     videoLesson: {
       title: 'Lewis Dot Structures & Polyatomic Ion Charges',
-      youtubeId: '1ZlnzyHahvo',
+      youtubeId: 'cIuXl7o66Aw',
       duration: '10:52',
-      instructor: 'The Organic Chemistry Tutor',
-      channel: 'The Organic Chemistry Tutor',
+      instructor: 'Tyler DeWitt',
+      channel: 'Tyler DeWitt Chemistry',
       description: 'Learn step-by-step how to count valence electrons, add/subtract electrons for polyatomic ion charges, and draw stable octet Lewis structures.',
       keyTimestamps: [
         { time: '0:00', label: 'Counting Valence Electrons' },

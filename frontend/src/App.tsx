@@ -12,18 +12,19 @@ import { FacilitatorSubjectSelectPage } from './components/facilitator/Facilitat
 import { DiagnosticAssessmentModal } from './components/student/DiagnosticAssessmentModal';
 import { SlidePreviewModal } from './components/student/SlidePreviewModal';
 import { AuthModal } from './components/common/AuthModal';
+import { SettingsModal } from './components/common/SettingsModal';
 import { IconCheckCircle, IconAlertTriangle, IconX } from './components/common/Icons';
 
 export function AppContent() {
   const { activeView, toast, dismissToast } = useApp();
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900 font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col text-slate-900 dark:text-slate-100 font-sans transition-colors">
       {/* Universal Top Bar */}
       <Navbar />
 
-      {/* Main Content Viewport */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* Main Content Viewport - Optimized Edge-to-Edge Responsive Grid */}
+      <main className="flex-1 w-full max-w-[1580px] mx-auto px-4 sm:px-6 lg:px-10 py-6">
         {activeView === 'landing' && <LandingPage />}
         {activeView === 'student_hub' && <StudentMainHub />}
         {activeView === 'subject_chemistry' && <ChemistrySubjectPage />}
@@ -38,6 +39,7 @@ export function AppContent() {
       <DiagnosticAssessmentModal />
       <SlidePreviewModal />
       <AuthModal />
+      <SettingsModal />
 
       {/* Global Toast Notification */}
       {toast && (

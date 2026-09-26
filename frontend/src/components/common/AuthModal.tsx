@@ -231,7 +231,7 @@ export const AuthModal: React.FC = () => {
           </div>
 
           {/* SECTION 1: DEVELOPER / DEMO QUICK-FILL (ONE-CLICK LOGIN) */}
-          <div className="p-4 rounded-xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-xs border border-indigo-900/50 space-y-3">
+          <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-white shadow-xs space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-md bg-amber-400/20 text-amber-300 flex items-center justify-center text-xs">

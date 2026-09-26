@@ -331,14 +331,14 @@ export const StudentMainHub: React.FC = () => {
               Enrolled Academic Courses · Personalized Adaptive Learning Spaces
             </p>
           </div>
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-900">
             2 Subjects Enrolled
           </span>
         </div>
 
         <div className="space-y-5">
           {/* Subject 1: Chemistry Card */}
-          <div className="bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6 card-hover border border-indigo-900/40">
+          <div className="bg-slate-900 dark:bg-slate-900/95 rounded-2xl p-6 sm:p-8 text-white shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6 card-hover border border-indigo-900/40">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-mono font-semibold text-indigo-300 bg-indigo-950/80 border border-indigo-700/60 px-2.5 py-1 rounded-md">
@@ -403,7 +403,7 @@ export const StudentMainHub: React.FC = () => {
           </div>
 
           {/* Subject 2: Economics Card */}
-          <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950/80 rounded-2xl p-6 sm:p-8 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6 card-hover border border-amber-900/40">
+          <div className="bg-slate-900 dark:bg-slate-900/95 rounded-2xl p-6 sm:p-8 text-white shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6 card-hover border border-amber-900/40">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-mono font-semibold text-amber-300 bg-amber-950/80 border border-amber-700/60 px-2.5 py-1 rounded-md">

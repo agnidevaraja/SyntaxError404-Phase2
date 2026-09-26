@@ -140,39 +140,39 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
   );
 
   return (
-    <div className={`bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs space-y-5 ${className}`}>
+    <div className={`bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-xs space-y-5 transition-colors ${className}`}>
       
       {/* Header & Graph Switcher Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
         <div>
           <div className="flex items-center gap-2">
             <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${
               isEconomics
-                ? 'bg-emerald-50 border-emerald-200/80 text-emerald-800'
-                : 'bg-indigo-50 border-indigo-200/80 text-indigo-700'
+                ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200/80 dark:border-emerald-800/50 text-emerald-800 dark:text-emerald-300'
+                : 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200/80 dark:border-indigo-800/50 text-indigo-700 dark:text-indigo-300'
             }`}>
               <IconCalendar className="w-3.5 h-3.5" />
               <span>{progression.subject} Interactive Performance</span>
             </span>
-            <span className="text-xs text-slate-400">·</span>
-            <span className="text-xs font-semibold text-slate-500">Grade 9 Curriculum</span>
+            <span className="text-xs text-slate-400 dark:text-slate-600">·</span>
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Grade 9 Curriculum</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5 mt-1.5">
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
               {activeGraph === 'cumulative'
                 ? `${progression.subject} Proficiency Growth (Cumulative Mastery)`
                 : `${progression.subject} Daily Quiz Accuracy (By Day Performance)`}
             </h3>
 
             {/* Clean, Non-Pill Badge for Growth */}
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-md">
-              <span className="w-1.5 h-1.5 rounded-xs bg-emerald-600 inline-block" />
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 rounded-md">
+              <span className="w-1.5 h-1.5 rounded-xs bg-emerald-600 dark:bg-emerald-400 inline-block" />
               <span>+{progression.growthPercentage}% Weekly Mastery Gain</span>
             </span>
           </div>
 
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             {activeGraph === 'cumulative'
               ? `Tracking progressive ${progression.subject} mastery curve from ${progression.startingProficiency}% baseline up to ${progression.currentProficiency}% current mastery.`
               : 'Tracking exact score on each day\'s 5-question diagnostic quiz (e.g. 5/5 = 100%, 4/5 = 80%). Not cumulative.'}
@@ -180,61 +180,60 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
         </div>
 
         {/* Top Two-Graph Switcher Button Group */}
-        <div className="flex flex-col gap-1.5 shrink-0 self-start sm:self-auto">
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
             <button
               onClick={() => setActiveGraph('cumulative')}
               className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer btn-tactile flex items-center gap-1.5 ${
                 activeGraph === 'cumulative'
                   ? isEconomics
-                    ? 'bg-white text-emerald-800 shadow-2xs'
-                    : 'bg-white text-indigo-700 shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-white dark:bg-slate-700 text-emerald-800 dark:text-emerald-300 shadow-2xs'
+                    : 'bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-2xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <span>Cumulative Mastery Curve</span>
+              <span>Cumulative Mastery</span>
             </button>
             <button
               onClick={() => setActiveGraph('daily')}
               className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer btn-tactile flex items-center gap-1.5 ${
                 activeGraph === 'daily'
                   ? isEconomics
-                    ? 'bg-white text-emerald-800 shadow-2xs'
-                    : 'bg-white text-indigo-700 shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-white dark:bg-slate-700 text-emerald-800 dark:text-emerald-300 shadow-2xs'
+                    : 'bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-2xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <span>Daily Score (By Day)</span>
+              <span>Daily Scores</span>
             </button>
           </div>
 
           {/* Sub-toggle for Daily Graph (Bars vs Line) */}
           {activeGraph === 'daily' && (
-            <div className="flex items-center justify-end gap-1 px-1 text-[11px]">
-              <span className="text-slate-400">View as:</span>
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-[11px]">
               <button
                 onClick={() => setDailyViewStyle('bars')}
-                className={`px-2 py-0.5 rounded text-[11px] font-semibold transition-colors cursor-pointer ${
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   dailyViewStyle === 'bars'
                     ? isEconomics
-                      ? 'bg-emerald-100 text-emerald-900 font-bold'
-                      : 'bg-indigo-100 text-indigo-800 font-bold'
-                    : 'text-slate-500 hover:text-slate-800'
+                      ? 'bg-white dark:bg-slate-700 text-emerald-900 dark:text-emerald-300 font-bold shadow-2xs'
+                      : 'bg-white dark:bg-slate-700 text-indigo-800 dark:text-indigo-300 font-bold shadow-2xs'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
                 }`}
               >
-                Daily Bars
+                Bars
               </button>
               <button
                 onClick={() => setDailyViewStyle('line')}
-                className={`px-2 py-0.5 rounded text-[11px] font-semibold transition-colors cursor-pointer ${
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   dailyViewStyle === 'line'
                     ? isEconomics
-                      ? 'bg-emerald-100 text-emerald-900 font-bold'
-                      : 'bg-indigo-100 text-indigo-800 font-bold'
-                    : 'text-slate-500 hover:text-slate-800'
+                      ? 'bg-white dark:bg-slate-700 text-emerald-900 dark:text-emerald-300 font-bold shadow-2xs'
+                      : 'bg-white dark:bg-slate-700 text-indigo-800 dark:text-indigo-300 font-bold shadow-2xs'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
                 }`}
               >
-                Daily Line
+                Line
               </button>
             </div>
           )}
@@ -243,59 +242,59 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
 
       {/* 4 Summary Stat Badges */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-0.5">
-          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+        <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 space-y-0.5">
+          <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">
             {activeGraph === 'cumulative' ? 'Cumulative Mastery' : 'Latest Daily Score'}
           </span>
           <div className="flex items-baseline gap-1.5">
-            <span className={`text-xl font-extrabold font-mono ${isEconomics ? 'text-emerald-700' : 'text-indigo-700'}`}>
+            <span className={`text-xl font-extrabold font-mono ${isEconomics ? 'text-emerald-700 dark:text-emerald-400' : 'text-indigo-700 dark:text-indigo-400'}`}>
               {activeGraph === 'cumulative'
                 ? `${progression.currentProficiency}%`
                 : `${getQuizScore(quizzes[quizzes.length - 1])}%`}
             </span>
-            <span className="text-[10px] font-bold text-emerald-600">
+            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
               {activeGraph === 'cumulative' ? 'Mastered' : '5/5 Correct'}
             </span>
           </div>
         </div>
 
-        <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-0.5">
-          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+        <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 space-y-0.5">
+          <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">
             Day 1 Baseline
           </span>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-xl font-extrabold font-mono text-slate-500">
+            <span className="text-xl font-extrabold font-mono text-slate-500 dark:text-slate-400">
               {activeGraph === 'cumulative'
                 ? `${progression.startingProficiency}%`
                 : `${getQuizScore(quizzes[0])}%`}
             </span>
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500">
               {activeGraph === 'cumulative' ? 'Starting Level' : 'Mon Quiz (3/5)'}
             </span>
           </div>
         </div>
 
-        <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-0.5">
-          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+        <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 space-y-0.5">
+          <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">
             Avg Daily Quiz Accuracy
           </span>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-xl font-extrabold font-mono text-slate-900">
+            <span className="text-xl font-extrabold font-mono text-slate-900 dark:text-white">
               {avgQuizScore}%
             </span>
-            <span className="text-[10px] font-semibold text-slate-500">7-Day Mean</span>
+            <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">7-Day Mean</span>
           </div>
         </div>
 
-        <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-0.5">
-          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+        <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 space-y-0.5">
+          <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">
             Daily Quiz Completion
           </span>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-xl font-extrabold font-mono text-emerald-600">
+            <span className="text-xl font-extrabold font-mono text-emerald-600 dark:text-emerald-400">
               {progression.daysStreak}/7
             </span>
-            <span className="text-[10px] font-semibold text-emerald-600">100% Completed</span>
+            <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">100% Completed</span>
           </div>
         </div>
       </div>
@@ -303,24 +302,24 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
       {/* SVG Interactive Graph Canvas Container */}
       <div
         ref={containerRef}
-        className="relative bg-slate-50/70 border border-slate-200/80 rounded-2xl p-3 sm:p-4 overflow-hidden"
+        className="relative bg-slate-50/70 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-3 sm:p-4 overflow-hidden"
       >
         {/* Interactive Legend Bar */}
-        <div className="flex items-center justify-between gap-2 mb-2 px-1 text-[11px] text-slate-500">
+        <div className="flex items-center justify-between gap-2 mb-2 px-1 text-[11px] text-slate-500 dark:text-slate-400">
           <div className="flex items-center gap-3">
             {activeGraph === 'cumulative' ? (
-              <span className={`flex items-center gap-1.5 font-medium ${isEconomics ? 'text-emerald-800' : 'text-indigo-700'}`}>
+              <span className={`flex items-center gap-1.5 font-medium ${isEconomics ? 'text-emerald-800 dark:text-emerald-300' : 'text-indigo-700 dark:text-indigo-300'}`}>
                 <span className={`w-2.5 h-2.5 rounded-xs inline-block ${isEconomics ? 'bg-emerald-600' : 'bg-indigo-600'}`} />
                 <span>Cumulative Subject Mastery ({progression.startingProficiency}% ➔ {progression.currentProficiency}%)</span>
               </span>
             ) : (
-              <span className="flex items-center gap-1.5 font-medium text-emerald-700">
+              <span className="flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-300">
                 <span className="w-2.5 h-2.5 rounded-xs bg-emerald-500 inline-block" />
                 <span>Single-Day Quiz Score (5/5 = 100%, 4/5 = 80%, 3/5 = 60%)</span>
               </span>
             )}
           </div>
-          <span className="text-[10px] text-slate-400 hidden sm:inline">
+          <span className="text-[10px] text-slate-400 dark:text-slate-500 hidden sm:inline">
             Hover anywhere across chart to inspect any day
           </span>
         </div>
@@ -389,7 +388,7 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
                 width="90"
                 height="14"
                 rx="3"
-                fill="#ffffff"
+                className="fill-white dark:fill-slate-900"
                 stroke="#10b981"
                 strokeWidth="0.8"
                 strokeOpacity="0.6"
@@ -398,7 +397,7 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
                 x={width - paddingX - 49}
                 y={getY(80) - 5}
                 textAnchor="middle"
-                className="text-[9px] font-bold fill-emerald-700"
+                className="text-[9px] font-bold fill-emerald-700 dark:fill-emerald-400"
               >
                 80% Benchmark
               </text>
@@ -485,8 +484,8 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
                         width="36"
                         height="15"
                         rx="4"
-                        fill="#ffffff"
-                        stroke={isActive ? primaryColor : '#cbd5e1'}
+                        className={isActive ? 'fill-white dark:fill-slate-900' : 'fill-white dark:fill-slate-800'}
+                        stroke={isActive ? primaryColor : '#94a3b8'}
                         strokeWidth={isActive ? '1.5' : '1'}
                         style={{ filter: 'url(#softGlow)' }}
                       />
@@ -497,7 +496,9 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
                         y={labelY}
                         textAnchor="middle"
                         className={`text-[10px] font-mono font-bold ${
-                          isActive ? 'fill-slate-950 font-extrabold' : 'fill-slate-700'
+                          isActive
+                            ? 'fill-slate-950 dark:fill-white font-extrabold'
+                            : 'fill-slate-700 dark:fill-slate-200'
                         }`}
                       >
                         {pt.value}%
@@ -554,8 +555,8 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
                         width="36"
                         height="15"
                         rx="4"
-                        fill="#ffffff"
-                        stroke={isActive ? barColor : '#cbd5e1'}
+                        className={isActive ? 'fill-white dark:fill-slate-900' : 'fill-white dark:fill-slate-800'}
+                        stroke={isActive ? barColor : '#94a3b8'}
                         strokeWidth={isActive ? '1.5' : '1'}
                         style={{ filter: 'url(#softGlow)' }}
                       />
@@ -565,7 +566,9 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
                         y={badgeY + 1}
                         textAnchor="middle"
                         className={`text-[10px] font-mono font-bold ${
-                          isActive ? 'fill-slate-950 font-extrabold' : 'fill-slate-700'
+                          isActive
+                            ? 'fill-slate-950 dark:fill-white font-extrabold'
+                            : 'fill-slate-700 dark:fill-slate-200'
                         }`}
                       >
                         {quizScore}%
@@ -627,8 +630,8 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
                         width="36"
                         height="15"
                         rx="4"
-                        fill="#ffffff"
-                        stroke={isActive ? '#059669' : '#cbd5e1'}
+                        className={isActive ? 'fill-white dark:fill-slate-900' : 'fill-white dark:fill-slate-800'}
+                        stroke={isActive ? '#059669' : '#94a3b8'}
                         strokeWidth={isActive ? '1.5' : '1'}
                         style={{ filter: 'url(#softGlow)' }}
                       />
@@ -638,7 +641,9 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
                         y={labelY}
                         textAnchor="middle"
                         className={`text-[10px] font-mono font-bold ${
-                          isActive ? 'fill-slate-950 font-extrabold' : 'fill-slate-700'
+                          isActive
+                            ? 'fill-slate-950 dark:fill-white font-extrabold'
+                            : 'fill-slate-700 dark:fill-slate-200'
                         }`}
                       >
                         {pt.value}%
@@ -666,9 +671,9 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
                     className={`text-xs font-semibold transition-colors ${
                       isActive
                         ? isEconomics
-                          ? 'fill-emerald-800 font-extrabold'
-                          : 'fill-indigo-700 font-extrabold'
-                        : 'fill-slate-500 hover:fill-slate-900'
+                          ? 'fill-emerald-800 dark:fill-emerald-300 font-extrabold'
+                          : 'fill-indigo-700 dark:fill-indigo-300 font-extrabold'
+                        : 'fill-slate-500 hover:fill-slate-900 dark:fill-slate-400 dark:hover:fill-slate-100'
                     }`}
                   >
                     {q.dayName}
@@ -732,12 +737,14 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
       </div>
 
       {/* Selected/Hovered Day Inspector Card */}
-      <div className={`p-4 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all ${
-        isEconomics ? 'border-emerald-200/90 bg-emerald-50/50' : 'border-indigo-200/90 bg-indigo-50/50'
+      <div className={`p-4 rounded-xl border flex flex-col lg:flex-row lg:items-center justify-between gap-4 transition-all ${
+        isEconomics
+          ? 'border-emerald-200/90 dark:border-emerald-800/60 bg-emerald-50/50 dark:bg-emerald-950/30'
+          : 'border-indigo-200/90 dark:border-indigo-800/60 bg-indigo-50/50 dark:bg-indigo-950/30'
       }`}>
-        <div className="space-y-1.5">
+        <div className="space-y-1.5 min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className={`text-xs font-bold ${isEconomics ? 'text-emerald-950' : 'text-indigo-950'}`}>
+            <span className={`text-xs font-bold ${isEconomics ? 'text-emerald-950 dark:text-emerald-200' : 'text-indigo-950 dark:text-indigo-200'}`}>
               {activeDay.dayName}, {activeDay.dateStr}:
             </span>
 
@@ -751,38 +758,41 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
                   : 'bg-amber-600'
               }`}
             >
-              <IconCheckCircle className="w-3.5 h-3.5" />
+              <IconCheckCircle className="w-3.5 h-3.5 shrink-0" />
               <span>Daily Quiz: {activeDay.correctCount}/{activeDay.questionsCount} ({getQuizScore(activeDay)}%)</span>
             </span>
 
             {/* Cumulative Topic Proficiency Badge */}
-            <span className={`text-xs font-bold px-2.5 py-1 rounded-md bg-white border font-mono ${
-              isEconomics ? 'text-emerald-900 border-emerald-200' : 'text-indigo-900 border-indigo-200'
+            <span className={`text-xs font-bold px-2.5 py-1 rounded-md bg-white dark:bg-slate-800 border font-mono ${
+              isEconomics
+                ? 'text-emerald-900 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700/60'
+                : 'text-indigo-900 dark:text-indigo-300 border-indigo-200 dark:border-indigo-700/60'
             }`}>
               Cumulative Mastery: {getCumulativeProficiency(activeDay)}%
             </span>
           </div>
 
-          <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <h4 className="text-sm font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-2">
             <span>Quiz: {activeDay.quizTitle}</span>
-            <span className="text-[11px] font-normal text-slate-500">
+            <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
               ({activeDay.timeSpentMinutes} min completion)
             </span>
           </h4>
 
-          <p className="text-xs text-slate-600">
-            <strong>Key Concept Mastered: </strong>
-            <span className={`font-medium ${isEconomics ? 'text-emerald-950' : 'text-indigo-950'}`}>
+          <p className="text-xs text-slate-600 dark:text-slate-300">
+            <strong className="text-slate-700 dark:text-slate-200">Key Concept Mastered: </strong>
+            <span className={`font-medium ${isEconomics ? 'text-emerald-950 dark:text-emerald-300' : 'text-indigo-950 dark:text-indigo-300'}`}>
               {activeDay.keyConceptMastered}
             </span>
           </p>
         </div>
 
         {/* 7-Day Day Selector Buttons */}
-        <div className="flex items-center gap-1 shrink-0 overflow-x-auto pb-1 md:pb-0">
+        <div className="w-full lg:w-auto grid grid-cols-7 sm:flex sm:items-center gap-1.5 shrink-0">
           {quizzes.map((q, idx) => {
             const isCurrent = activeDayIndex === idx;
             const quizScore = getQuizScore(q);
+            const shortDay = q.dayName.slice(0, 3);
             return (
               <button
                 key={idx}
@@ -792,23 +802,23 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
                   setSelectedDayIndex(idx);
                   setHoveredDayIndex(idx);
                 }}
-                className={`w-9 h-11 rounded-lg text-xs font-bold transition-all cursor-pointer btn-tactile flex flex-col items-center justify-center gap-0.5 ${
+                className={`min-w-0 sm:min-w-[48px] h-12 px-1 sm:px-2 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer btn-tactile flex flex-col items-center justify-center text-center gap-0.5 border ${
                   isCurrent
                     ? isEconomics
-                      ? 'bg-emerald-700 text-white shadow-xs ring-2 ring-emerald-600/30'
-                      : 'bg-indigo-600 text-white shadow-xs ring-2 ring-indigo-600/30'
-                    : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+                      ? 'bg-emerald-700 dark:bg-emerald-600 text-white border-emerald-600 dark:border-emerald-500 shadow-xs ring-2 ring-emerald-600/30'
+                      : 'bg-indigo-600 dark:bg-indigo-500 text-white border-indigo-500 dark:border-indigo-400 shadow-xs ring-2 ring-indigo-600/30'
+                    : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
                 }`}
                 title={`${q.dayName}: ${q.correctCount}/${q.questionsCount} (${quizScore}%)`}
               >
-                <span>{q.dayName[0]}</span>
+                <span className="text-[11px] font-semibold leading-tight block text-center w-full">{shortDay}</span>
                 <span
-                  className={`text-[9px] font-mono leading-none ${
+                  className={`text-[9px] font-mono leading-none block text-center w-full ${
                     isCurrent
                       ? 'text-white font-bold'
                       : quizScore === 100
-                      ? 'text-emerald-600 font-bold'
-                      : 'text-slate-400'
+                      ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+                      : 'text-slate-400 dark:text-slate-400'
                   }`}
                 >
                   {quizScore}%

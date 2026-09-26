@@ -158,7 +158,7 @@ function getDefaultExplanation(topic: string, subject: 'Chemistry' | 'Economics'
       subject: 'Economics',
       analogyTitle: 'The Saturday Afternoon Dilemma',
       analogyStory:
-        'You have exactly 3 hours of free time on Saturday afternoon. You can spend those 3 hours preparing for your chemistry competition, working a tutoring shift earning $45, or playing video games. If your next best choice after studying was earning $45 tutoring, the true economic cost of studying is NOT $0—it is the $45 tutoring income you voluntarily sacrificed!',
+        'You have exactly 3 hours of free time on Saturday afternoon. You can spend those 3 hours preparing for your chemistry competition, working a tutoring shift earning $45, or playing video games. If your next best choice after studying was earning $45 tutoring, the true economic cost of studying is NOT $0 - it is the $45 tutoring income you voluntarily sacrificed!',
       stepByStepExample: {
         problemStatement: 'A bakery has enough flour and oven time to bake either 20 loaves of artisan sourdough or 40 sweet cinnamon rolls in an afternoon. What is the opportunity cost of baking 1 sourdough loaf?',
         steps: [

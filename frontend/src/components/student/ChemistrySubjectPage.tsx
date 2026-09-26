@@ -351,7 +351,7 @@ export const ChemistrySubjectPage: React.FC = () => {
       </section>
 
       {/* SECTION 4: Start Your Personalized Learning Platform */}
-      <section className="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-lg space-y-6">
+      <section className="bg-slate-900 dark:bg-slate-900/95 rounded-2xl p-6 sm:p-8 text-white shadow-xs border border-indigo-900/40 space-y-6">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-indigo-800/80 pb-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-300 bg-indigo-900/60 px-3 py-1 rounded-md border border-indigo-700">

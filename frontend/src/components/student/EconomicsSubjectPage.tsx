@@ -338,7 +338,7 @@ export const EconomicsSubjectPage: React.FC = () => {
       </section>
 
       {/* SECTION 4: Start Your Personalized Learning Platform (Economics) */}
-      <section className="bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 rounded-2xl p-6 sm:p-8 text-white shadow-lg space-y-6">
+      <section className="bg-slate-900 dark:bg-slate-900/95 rounded-2xl p-6 sm:p-8 text-white shadow-xs border border-emerald-900/40 space-y-6">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-emerald-800/80 pb-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-300 bg-emerald-900/60 px-3 py-1 rounded-md border border-emerald-700">

@@ -183,7 +183,7 @@ export const OpportunitiesHubEconomics: React.FC<OpportunitiesHubEconomicsProps>
           </div>
 
           <div className="space-y-2 max-w-md mx-auto">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold">
               <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
               <span>Searching Economic-Based Opportunities & Competitions</span>
             </div>

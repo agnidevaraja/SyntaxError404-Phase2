@@ -93,6 +93,30 @@ interface AppContextType {
   loginPersona: (targetRole: 'student' | 'facilitator') => void;
   logout: () => void;
 
+  // Dark / Light Theme
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
+
+  // Appearance & Accessibility Settings
+  appearanceMode: 'light' | 'dark' | 'sepia';
+  setAppearanceMode: (mode: 'light' | 'dark' | 'sepia') => void;
+  fontFamily: 'editorial' | 'sans' | 'dyslexic' | 'mono';
+  setFontFamily: (font: 'editorial' | 'sans' | 'dyslexic' | 'mono') => void;
+  fontScale: 'compact' | 'normal' | 'large';
+  setFontScale: (scale: 'compact' | 'normal' | 'large') => void;
+  equationFormatting: boolean;
+  setEquationFormatting: (enable: boolean) => void;
+  isSettingsOpen: boolean;
+  setIsSettingsOpen: (open: boolean) => void;
+
+  // Facilitator Cognitive Behavioral Calibration
+  hesitationThreshold: number;
+  setHesitationThreshold: (val: number) => void;
+  doubtBurstThreshold: number;
+  setDoubtBurstThreshold: (val: number) => void;
+  cognitiveFreezeMs: number;
+  setCognitiveFreezeMs: (val: number) => void;
+
   // Notifications
   toast: ToastData | null;
   showToast: (title: string, body: string, type?: 'success' | 'info' | 'warning' | 'alert') => void;
@@ -126,6 +150,84 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (savedRole === 'facilitator') return 'facilitator_portal';
     return 'landing';
   });
+
+  const [appearanceMode, setAppearanceMode] = useState<'light' | 'dark' | 'sepia'>(() => {
+    const saved = localStorage.getItem('outstand_appearance');
+    if (saved === 'dark' || saved === 'light' || saved === 'sepia') return saved;
+    const oldTheme = localStorage.getItem('outstand_theme');
+    if (oldTheme === 'dark') return 'dark';
+    if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+    return 'light';
+  });
+
+  const theme: 'light' | 'dark' = appearanceMode === 'dark' ? 'dark' : 'light';
+
+  const [fontFamily, setFontFamily] = useState<'editorial' | 'sans' | 'dyslexic' | 'mono'>(() => {
+    const saved = localStorage.getItem('outstand_font');
+    if (saved === 'editorial' || saved === 'sans' || saved === 'dyslexic' || saved === 'mono') return saved;
+    return 'editorial';
+  });
+
+  const [fontScale, setFontScale] = useState<'compact' | 'normal' | 'large'>(() => {
+    const saved = localStorage.getItem('outstand_scale');
+    if (saved === 'compact' || saved === 'normal' || saved === 'large') return saved;
+    return 'normal';
+  });
+
+  const [equationFormatting, setEquationFormatting] = useState<boolean>(() => {
+    const saved = localStorage.getItem('outstand_equation_fmt');
+    return saved !== null ? saved === 'true' : true;
+  });
+
+  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+
+  // Facilitator Cognitive Calibration Parameters
+  const [hesitationThreshold, setHesitationThreshold] = useState<number>(() => {
+    const saved = localStorage.getItem('outstand_calib_hesitation');
+    return saved ? parseFloat(saved) : 2.8;
+  });
+  const [doubtBurstThreshold, setDoubtBurstThreshold] = useState<number>(() => {
+    const saved = localStorage.getItem('outstand_calib_doubt');
+    return saved ? parseInt(saved) : 3;
+  });
+  const [cognitiveFreezeMs, setCognitiveFreezeMs] = useState<number>(() => {
+    const saved = localStorage.getItem('outstand_calib_freeze');
+    return saved ? parseInt(saved) : 3200;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('outstand_appearance', appearanceMode);
+    localStorage.setItem('outstand_theme', appearanceMode === 'dark' ? 'dark' : 'light');
+    document.documentElement.classList.toggle('dark', appearanceMode === 'dark');
+    document.documentElement.classList.toggle('theme-sepia', appearanceMode === 'sepia');
+    document.documentElement.setAttribute('data-theme', appearanceMode);
+  }, [appearanceMode]);
+
+  useEffect(() => {
+    localStorage.setItem('outstand_font', fontFamily);
+    document.documentElement.setAttribute('data-font', fontFamily);
+  }, [fontFamily]);
+
+  useEffect(() => {
+    localStorage.setItem('outstand_scale', fontScale);
+    document.documentElement.setAttribute('data-scale', fontScale);
+  }, [fontScale]);
+
+  useEffect(() => {
+    localStorage.setItem('outstand_equation_fmt', String(equationFormatting));
+  }, [equationFormatting]);
+
+  useEffect(() => {
+    localStorage.setItem('outstand_calib_hesitation', String(hesitationThreshold));
+    localStorage.setItem('outstand_calib_doubt', String(doubtBurstThreshold));
+    localStorage.setItem('outstand_calib_freeze', String(cognitiveFreezeMs));
+  }, [hesitationThreshold, doubtBurstThreshold, cognitiveFreezeMs]);
+
+  const toggleTheme = () => {
+    setAppearanceMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [authModalInitialRole, setAuthModalInitialRole] = useState<'student' | 'facilitator'>('student');
@@ -812,6 +914,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setSelectedStudentForInspect,
         loginPersona,
         logout,
+        theme,
+        toggleTheme,
+        appearanceMode,
+        setAppearanceMode,
+        fontFamily,
+        setFontFamily,
+        fontScale,
+        setFontScale,
+        equationFormatting,
+        setEquationFormatting,
+        isSettingsOpen,
+        setIsSettingsOpen,
+        hesitationThreshold,
+        setHesitationThreshold,
+        doubtBurstThreshold,
+        setDoubtBurstThreshold,
+        cognitiveFreezeMs,
+        setCognitiveFreezeMs,
         toast,
         showToast,
         dismissToast,

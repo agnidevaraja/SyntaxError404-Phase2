@@ -15,7 +15,7 @@ import {
   IconRefreshCw,
   IconAtom,
 } from '../common/Icons';
-import { Video, Play, ExternalLink, Clock, Award, Layers, CheckCircle2, Lock, Lightbulb, MessageSquare } from 'lucide-react';
+import { Video, Play, ExternalLink, Clock, Award, Layers, CheckCircle2, Lock, Lightbulb, MessageSquare, Volume2, VolumeX, Pause, RotateCcw, MonitorPlay, Sparkles } from 'lucide-react';
 import { OpportunitiesHub } from './OpportunitiesHub';
 import { RealLifeAnalogyExplorer } from './RealLifeAnalogyExplorer';
 import { AdaptiveConceptExplainerModal } from './AdaptiveConceptExplainerModal';
@@ -62,6 +62,38 @@ export const PersonalizedLearningPage: React.FC = () => {
   const [selectedFocusId, setSelectedFocusId] = useState<string>(getDefaultFocusId);
   const [videoTimestamp, setVideoTimestamp] = useState<number>(0);
   const [showSecondaryModules, setShowSecondaryModules] = useState<boolean>(false);
+
+  // Dual-Mode Interactive Studio Walkthrough & YouTube Stream Player
+  const [videoPlayMode, setVideoPlayMode] = useState<'walkthrough' | 'youtube'>('walkthrough');
+  const [walkthroughStep, setWalkthroughStep] = useState<number>(0);
+  const [isNarrating, setIsNarrating] = useState<boolean>(false);
+  const [customAbundanceCl35, setCustomAbundanceCl35] = useState<number>(75.77);
+  const [customActualYield, setCustomActualYield] = useState<number>(42.5);
+
+  const toggleNarration = (text: string) => {
+    if (!('speechSynthesis' in window)) return;
+    if (isNarrating) {
+      window.speechSynthesis.cancel();
+      setIsNarrating(false);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.95;
+    utterance.pitch = 1.0;
+    utterance.onend = () => setIsNarrating(false);
+    utterance.onerror = () => setIsNarrating(false);
+    setIsNarrating(true);
+    window.speechSynthesis.speak(utterance);
+  };
+
+  useEffect(() => {
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   // Sync selectedFocusId if diagnosticSubmission updates (e.g. after quiz submission)
   useEffect(() => {
@@ -222,7 +254,7 @@ export const PersonalizedLearningPage: React.FC = () => {
           </div>
 
           <div className="space-y-3 max-w-xl mx-auto">
-            <span className="text-xs font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full">
+            <span className="text-xs font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-md">
               Prerequisite Calibration Required
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -336,7 +368,7 @@ export const PersonalizedLearningPage: React.FC = () => {
       </div>
 
       {/* Calibration Status Strip */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-900 text-white shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 card-hover">
+      <div className="p-4 sm:p-5 rounded-2xl bg-slate-900 dark:bg-slate-900/95 border border-indigo-900/40 text-white shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 card-hover">
         <div className="flex items-center gap-3.5">
           <div className="p-2.5 rounded-xl bg-indigo-600/70 border border-indigo-400/40 text-white shrink-0 shadow-2xs">
             <IconSparkles className="w-5 h-5" />
@@ -373,7 +405,7 @@ export const PersonalizedLearningPage: React.FC = () => {
       {diagnosticSubmission ? (
         isPerfectScore ? (
           /* Perfect Score 10/10 Banner */
-          <div className="p-6 rounded-2xl bg-gradient-to-r from-emerald-950 via-teal-950 to-slate-900 border border-emerald-500/40 text-white shadow-xs space-y-4">
+          <div className="p-6 rounded-2xl bg-slate-900 dark:bg-slate-900/95 border border-emerald-500/40 text-white shadow-xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start sm:items-center gap-3.5">
                 <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 flex items-center justify-center shrink-0 shadow-xs">
@@ -726,83 +758,327 @@ export const PersonalizedLearningPage: React.FC = () => {
         </div>
       </section>
 
-      {/* SECTION 2: Understandable Curated Video Lesson (Interactive YouTube Tutorial) */}
-      <section className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+      {/* SECTION 2: Dual-Mode Interactive Studio Walkthrough & YouTube Stream Player */}
+      <section className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-xs space-y-6 transition-colors">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-red-100 text-red-600 shrink-0 shadow-2xs">
-              <Video className="w-6 h-6" />
+            <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 shrink-0 border border-indigo-100 dark:border-indigo-900 shadow-2xs">
+              <MonitorPlay className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-red-700 bg-red-50 px-2 py-0.5 rounded border border-red-200">
-                  Curated Video Tutorial
+                <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-800">
+                  {videoPlayMode === 'walkthrough' ? 'Interactive Studio Walkthrough' : 'Curated Video Stream'}
                 </span>
-                <span className="text-xs text-slate-400">·</span>
-                <span className="text-xs text-slate-500 font-mono flex items-center gap-1">
+                <span className="text-xs text-slate-400 dark:text-slate-600">·</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-mono flex items-center gap-1">
                   <Clock className="w-3.5 h-3.5 text-slate-400" />
                   {currentPackage.videoLesson.duration}
                 </span>
               </div>
-              <h2 className="text-lg font-bold text-slate-900 mt-0.5">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white mt-0.5">
                 {currentPackage.videoLesson.title}
               </h2>
             </div>
           </div>
 
-          <a
-            href={`https://www.youtube.com/watch?v=${currentPackage.videoLesson.youtubeId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0 btn-tactile"
-          >
-            <ExternalLink className="w-4 h-4" />
-            <span>Open in YouTube ↗</span>
-          </a>
+          {/* Mode Switcher Tabs */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-xs">
+              <button
+                type="button"
+                onClick={() => setVideoPlayMode('walkthrough')}
+                className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  videoPlayMode === 'walkthrough'
+                    ? 'bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-2xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                <MonitorPlay className="w-3.5 h-3.5" />
+                <span>Studio Walkthrough</span>
+                <span className="w-1.5 h-1.5 rounded-xs bg-emerald-500 inline-block" title="100% Reliable, Zero Dependency" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setVideoPlayMode('youtube')}
+                className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  videoPlayMode === 'youtube'
+                    ? 'bg-white dark:bg-slate-700 text-red-600 dark:text-red-400 shadow-2xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                <Video className="w-3.5 h-3.5" />
+                <span>YouTube Stream</span>
+              </button>
+            </div>
+
+            <a
+              href={`https://www.youtube.com/watch?v=${currentPackage.videoLesson.youtubeId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs rounded-xl border border-slate-200 dark:border-slate-700 transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Open in YouTube ↗</span>
+            </a>
+          </div>
         </div>
 
         {/* Video Player + Chapters Split Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
-          {/* Left: Embedded YouTube Player */}
+          {/* Left Column: Player Display */}
           <div className="lg:col-span-8 space-y-3">
-            <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-md">
-              <iframe
-                key={`${currentPackage.videoLesson.youtubeId}-${videoTimestamp}`}
-                className="w-full h-full"
-                src={`https://www.youtube-nocookie.com/embed/${currentPackage.videoLesson.youtubeId}?autoplay=${videoTimestamp > 0 ? 1 : 0}&start=${videoTimestamp}&rel=0`}
-                title={currentPackage.videoLesson.title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
-            </div>
+            {videoPlayMode === 'walkthrough' ? (
+              /* INTERACTIVE STUDIO WALKTHROUGH PLAYER */
+              <div className="w-full rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950 text-white shadow-md flex flex-col justify-between min-h-[380px]">
+                {/* Walkthrough Header & Step Indicator */}
+                <div className="p-4 bg-slate-900/90 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-1.5 overflow-x-auto">
+                    {[
+                      { step: 0, label: '1. Trap Analysis' },
+                      { step: 1, label: '2. Interactive Lab' },
+                      { step: 2, label: '3. Step Derivation' },
+                      { step: 3, label: '4. Golden Anchor' },
+                    ].map((st) => (
+                      <button
+                        key={st.step}
+                        type="button"
+                        onClick={() => setWalkthroughStep(st.step)}
+                        className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                          walkthroughStep === st.step
+                            ? 'bg-indigo-600 text-white shadow-2xs'
+                            : 'bg-slate-800/80 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                        }`}
+                      >
+                        {st.label}
+                      </button>
+                    ))}
+                  </div>
 
-            <div className="flex flex-wrap items-center justify-between text-xs text-slate-500 pt-1">
+                  {/* Audio Narration Toggle */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const texts = [
+                        `Step 1: Identified Cognitive Trap. ${currentPackage.identifiedTrap}`,
+                        `Step 2: Core Conceptual Rule. ${currentPackage.coreRule}`,
+                        `Step 3: Derivation Steps. ${currentPackage.studyGuide.goldenSteps.join('. ')}`,
+                        `Step 4: Golden Formula Anchor. ${currentPackage.formulaSnippet}`,
+                      ];
+                      toggleNarration(texts[walkthroughStep] || currentPackage.coreRule);
+                    }}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+                      isNarrating
+                        ? 'bg-rose-600 text-white animate-pulse'
+                        : 'bg-slate-800 hover:bg-slate-700 text-slate-200'
+                    }`}
+                  >
+                    {isNarrating ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                    <span>{isNarrating ? 'Mute Audio' : 'Audio Narration'}</span>
+                  </button>
+                </div>
+
+                {/* Walkthrough Interactive Stage */}
+                <div className="p-6 flex-1 flex flex-col justify-center">
+                  {/* Step 0: The Trap Breakdown */}
+                  {walkthroughStep === 0 && (
+                    <div className="space-y-4 max-w-xl mx-auto text-center">
+                      <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 flex items-center justify-center mx-auto">
+                        <IconAlertTriangle className="w-6 h-6" />
+                      </div>
+                      <span className="text-xs font-mono uppercase tracking-wider text-rose-400 font-bold block">
+                        Identified Diagnostic Misconception
+                      </span>
+                      <h3 className="text-base sm:text-lg font-bold text-white">
+                        {currentPackage.identifiedTrap}
+                      </h3>
+                      <p className="text-xs text-slate-400 leading-relaxed max-w-md mx-auto">
+                        In the diagnostic assessment, standard arithmetic logic was mistakenly applied. Let's inspect why Nature operates differently.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Step 1: Interactive Lab Model */}
+                  {walkthroughStep === 1 && (
+                    <div className="space-y-4 max-w-xl mx-auto w-full">
+                      {currentPackage.id === 'atomic_structure' ? (
+                        <div className="p-4 bg-slate-900 rounded-xl border border-slate-800 space-y-3">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-slate-400">Chlorine-35 Abundance:</span>
+                            <span className="font-mono font-bold text-indigo-400">{customAbundanceCl35}%</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="10"
+                            max="90"
+                            step="0.01"
+                            value={customAbundanceCl35}
+                            onChange={(e) => setCustomAbundanceCl35(parseFloat(e.target.value))}
+                            className="w-full accent-indigo-500 cursor-pointer"
+                          />
+                          <div className="flex items-center justify-between text-[11px] text-slate-500">
+                            <span>Cl-35: 35.00 amu ({customAbundanceCl35}%)</span>
+                            <span>Cl-37: 37.00 amu ({(100 - customAbundanceCl35).toFixed(2)}%)</span>
+                          </div>
+                          <div className="p-3 bg-slate-950 rounded-lg border border-slate-800 text-center">
+                            <span className="text-[11px] text-slate-400 block">Computed Weighted Atomic Mass:</span>
+                            <span className="text-xl font-bold font-mono text-emerald-400">
+                              {((35 * customAbundanceCl35 + 37 * (100 - customAbundanceCl35)) / 100).toFixed(2)} amu
+                            </span>
+                          </div>
+                        </div>
+                      ) : currentPackage.id === 'percent_yield' ? (
+                        <div className="p-4 bg-slate-900 rounded-xl border border-slate-800 space-y-3">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-slate-400">Actual Isolated Product:</span>
+                            <span className="font-mono font-bold text-emerald-400">{customActualYield}g</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="10"
+                            max="50"
+                            step="0.5"
+                            value={customActualYield}
+                            onChange={(e) => setCustomActualYield(parseFloat(e.target.value))}
+                            className="w-full accent-emerald-500 cursor-pointer"
+                          />
+                          <div className="p-3 bg-slate-950 rounded-lg border border-slate-800 text-center">
+                            <span className="text-[11px] text-slate-400 block">Reaction Percent Yield:</span>
+                            <span className="text-xl font-bold font-mono text-emerald-400">
+                              {((customActualYield / 50.0) * 100).toFixed(1)}%
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-4 bg-slate-900 rounded-xl border border-slate-800 space-y-2 text-center">
+                          <span className="text-xs font-mono uppercase tracking-wider text-indigo-400 font-bold block">
+                            Conceptual Model
+                          </span>
+                          <p className="text-xs text-slate-300 leading-relaxed">
+                            {currentPackage.studyGuide.conceptualModel || currentPackage.studyGuide.summary}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Step 2: Step-by-Step Derivation */}
+                  {walkthroughStep === 2 && (
+                    <div className="space-y-3 max-w-xl mx-auto w-full">
+                      <span className="text-xs font-mono uppercase tracking-wider text-indigo-400 font-bold block">
+                        Golden Derivation Steps
+                      </span>
+                      <div className="space-y-2 text-xs">
+                        {currentPackage.studyGuide.goldenSteps.map((step, idx) => (
+                          <div key={idx} className="p-2.5 bg-slate-900 rounded-lg border border-slate-800 flex items-start gap-2.5">
+                            <span className="w-5 h-5 rounded-md bg-indigo-900/60 border border-indigo-700 text-indigo-300 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
+                              {idx + 1}
+                            </span>
+                            <span className="text-slate-300 leading-relaxed">{step}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 3: Golden Rule & Formula */}
+                  {walkthroughStep === 3 && (
+                    <div className="space-y-4 max-w-xl mx-auto text-center">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto">
+                        <IconCheckCircle className="w-6 h-6" />
+                      </div>
+                      <span className="text-xs font-mono uppercase tracking-wider text-emerald-400 font-bold block">
+                        Mastery Anchor Formula
+                      </span>
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 font-mono text-xs text-emerald-300">
+                        {currentPackage.formulaSnippet}
+                      </div>
+                      <p className="text-xs text-slate-300 leading-relaxed">
+                        {currentPackage.coreRule}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Walkthrough Footer Navigation */}
+                <div className="p-4 bg-slate-900/90 border-t border-slate-800 flex items-center justify-between text-xs">
+                  <button
+                    type="button"
+                    disabled={walkthroughStep === 0}
+                    onClick={() => setWalkthroughStep((prev) => Math.max(0, prev - 1))}
+                    className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed text-slate-300 font-semibold cursor-pointer transition-colors"
+                  >
+                    ← Previous Step
+                  </button>
+                  <span className="text-slate-500 font-mono text-[11px]">
+                    Step {walkthroughStep + 1} of 4
+                  </span>
+                  <button
+                    type="button"
+                    disabled={walkthroughStep === 3}
+                    onClick={() => setWalkthroughStep((prev) => Math.min(3, prev + 1))}
+                    className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold cursor-pointer transition-colors"
+                  >
+                    Next Step →
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* EMBEDDED YOUTUBE PLAYER */
+              <div className="space-y-2">
+                <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-md">
+                  <iframe
+                    key={`${currentPackage.videoLesson.youtubeId}-${videoTimestamp}`}
+                    className="w-full h-full"
+                    src={`https://www.youtube-nocookie.com/embed/${currentPackage.videoLesson.youtubeId}?autoplay=${videoTimestamp > 0 ? 1 : 0}&start=${videoTimestamp}&rel=0`}
+                    title={currentPackage.videoLesson.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                </div>
+                {/* Fallback Notice */}
+                <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-300">
+                  <span className="text-[11px]">
+                    If your network blocks YouTube embeds, switch to the <strong>Studio Walkthrough</strong> tab above.
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setVideoPlayMode('walkthrough')}
+                    className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] rounded-lg transition-colors cursor-pointer"
+                  >
+                    Switch to Studio Walkthrough
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-wrap items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1">
               <span>
-                Instructor: <strong className="text-slate-700">{currentPackage.videoLesson.instructor}</strong> · {currentPackage.videoLesson.channel}
+                Instructor: <strong className="text-slate-700 dark:text-slate-200">{currentPackage.videoLesson.instructor}</strong> · {currentPackage.videoLesson.channel}
               </span>
-              <span className="text-[11px] bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-medium">
-                HD Player with Step-by-Step Audio Explanation
+              <span className="text-[11px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300 font-medium">
+                HD Audio Walkthrough & Curated Video
               </span>
             </div>
           </div>
 
-          {/* Right: Key Concepts & Jump-to Timestamps */}
-          <div className="lg:col-span-4 bg-slate-50 rounded-2xl border border-slate-200/90 p-5 space-y-4 flex flex-col justify-between">
+          {/* Right Column: Key Concepts & Jump-to Chapters */}
+          <div className="lg:col-span-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/90 dark:border-slate-700/60 p-5 space-y-4 flex flex-col justify-between">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Play className="w-4 h-4 text-red-600 fill-red-600" />
-                <h3 className="text-sm font-bold text-slate-900">
+                <Play className="w-4 h-4 text-indigo-600 dark:text-indigo-400 fill-indigo-600 dark:fill-indigo-400" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                   Concept Chapters
                 </h3>
               </div>
 
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                 {currentPackage.videoLesson.description}
               </p>
 
-              <div className="space-y-2 pt-2 border-t border-slate-200/80">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+              <div className="space-y-2 pt-2 border-t border-slate-200/80 dark:border-slate-700/60">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 block">
                   Click to Jump Directly:
                 </span>
                 {currentPackage.videoLesson.keyTimestamps.map((item, idx) => {
@@ -812,20 +1088,24 @@ export const PersonalizedLearningPage: React.FC = () => {
                   return (
                     <button
                       key={idx}
-                      onClick={() => setVideoTimestamp(seconds)}
+                      type="button"
+                      onClick={() => {
+                        setVideoTimestamp(seconds);
+                        setWalkthroughStep(Math.min(3, idx));
+                      }}
                       className={`w-full text-left p-2.5 rounded-lg border text-xs transition-all flex items-center justify-between cursor-pointer btn-tactile ${
                         isCurrent
-                          ? 'bg-red-50 border-red-300 text-red-950 font-bold'
-                          : 'bg-white border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-100/70'
+                          ? 'bg-indigo-50 dark:bg-indigo-950/60 border-indigo-300 dark:border-indigo-700 text-indigo-950 dark:text-indigo-200 font-bold'
+                          : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100/70 dark:hover:bg-slate-700'
                       }`}
                     >
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold">
+                        <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold">
                           {item.time}
                         </span>
                         <span className="line-clamp-1">{item.label}</span>
                       </div>
-                      <Play className="w-3 h-3 text-slate-400 shrink-0" />
+                      <Play className="w-3 h-3 text-slate-400 dark:text-slate-500 shrink-0" />
                     </button>
                   );
                 })}
@@ -833,8 +1113,8 @@ export const PersonalizedLearningPage: React.FC = () => {
             </div>
 
             {/* Quick Diagnostic Connection Tip */}
-            <div className="p-3 rounded-xl bg-amber-50 border border-amber-200/90 text-amber-900 text-xs mt-3">
-              <span className="font-bold block text-[10px] uppercase tracking-wider text-amber-800 mb-0.5">
+            <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/90 dark:border-amber-800/50 text-amber-900 dark:text-amber-300 text-xs mt-3">
+              <span className="font-bold block text-[10px] uppercase tracking-wider text-amber-800 dark:text-amber-400 mb-0.5">
                 Targeted Remediation Tip:
               </span>
               <p className="leading-snug text-[11px]">
@@ -1133,10 +1413,6 @@ export const PersonalizedLearningPage: React.FC = () => {
               </p>
             </div>
           </div>
-          <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Live Firestore Sync</span>
-          </span>
         </div>
 
         <PersonalizedChatView

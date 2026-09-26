@@ -22,7 +22,7 @@ export const FacilitatorSubjectSelectPage: React.FC = () => {
       
       {/* Header Banner */}
       <div className="text-center space-y-3">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold uppercase tracking-wider">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold uppercase tracking-wider">
           <IconShield className="w-3.5 h-3.5 text-indigo-600" />
           <span>Educator & Facilitator Hub</span>
         </div>
@@ -51,7 +51,7 @@ export const FacilitatorSubjectSelectPage: React.FC = () => {
               <div className="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs group-hover:bg-indigo-700 transition-colors">
                 <IconAtom className="w-6 h-6" />
               </div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-full">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-md">
                 Active Department
               </span>
             </div>
@@ -112,7 +112,7 @@ export const FacilitatorSubjectSelectPage: React.FC = () => {
               <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs group-hover:bg-emerald-700 transition-colors">
                 <TrendingUp className="w-6 h-6" />
               </div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-md">
                 Active Department
               </span>
             </div>

@@ -80,7 +80,7 @@ export const AdaptiveConceptExplainerModal: React.FC<AdaptiveConceptExplainerMod
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
                   subject === 'Chemistry'
                     ? 'bg-indigo-100 text-indigo-800'
                     : 'bg-emerald-100 text-emerald-800'

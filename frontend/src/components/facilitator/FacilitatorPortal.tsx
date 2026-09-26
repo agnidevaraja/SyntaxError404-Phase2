@@ -1198,7 +1198,7 @@ export const FacilitatorPortal: React.FC = () => {
                 <div className="p-6 overflow-y-auto space-y-6">
 
                   {/* 2. Facilitator AI Advisory Engine (4-Line Diagnostic) */}
-                  <div className="bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 rounded-2xl p-5 sm:p-6 text-white space-y-4 shadow-sm border border-indigo-800/60">
+                  <div className="bg-slate-900 dark:bg-slate-900/95 rounded-2xl p-5 sm:p-6 text-white space-y-4 shadow-xs border border-indigo-800/40">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div className="flex items-center gap-2.5">
                         <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
@@ -1207,7 +1207,7 @@ export const FacilitatorPortal: React.FC = () => {
                         <div>
                           <h4 className="text-sm font-bold text-white flex items-center gap-2">
                             <span>Facilitator AI Advisory Engine</span>
-                            <span className="text-[10px] font-mono uppercase bg-indigo-500/30 text-indigo-200 px-2 py-0.5 rounded-full border border-indigo-400/30">
+                            <span className="text-[10px] font-mono uppercase bg-indigo-500/30 text-indigo-200 px-2 py-0.5 rounded-md border border-indigo-400/30">
                               4-Line Diagnostic
                             </span>
                           </h4>

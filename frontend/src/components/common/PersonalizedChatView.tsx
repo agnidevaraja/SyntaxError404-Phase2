@@ -109,7 +109,7 @@ export const PersonalizedChatView: React.FC<PersonalizedChatViewProps> = ({
               <h3 className="text-xs sm:text-sm font-bold text-slate-900">
                 {isFacilitator ? `Direct Intervention: ${studentName}` : `1-on-1 Support: ${instructorName}`}
               </h3>
-              <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${
+              <span className={`text-[10px] font-mono px-2 py-0.5 rounded-md font-bold ${
                 subject === 'Chemistry'
                   ? 'bg-indigo-100 text-indigo-800 border border-indigo-200'
                   : 'bg-emerald-100 text-emerald-800 border border-emerald-200'

@@ -177,7 +177,7 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
           </div>
 
           <div className="space-y-3 max-w-xl mx-auto">
-            <span className="text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-100/70 border border-amber-300 px-3 py-1 rounded-full">
+            <span className="text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-100/70 border border-amber-300 px-3 py-1 rounded-md">
               Prerequisite Calibration Required
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -640,10 +640,6 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
               </p>
             </div>
           </div>
-          <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Live Firestore Sync</span>
-          </span>
         </div>
 
         <PersonalizedChatView

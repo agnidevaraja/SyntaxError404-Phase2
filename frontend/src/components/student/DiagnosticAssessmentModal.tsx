@@ -61,12 +61,49 @@ export const DiagnosticAssessmentModal: React.FC = () => {
     'tactile_model' | 'socratic_voice' | 'step_scaffolder' | 'confidence_dial'
   >('tactile_model');
 
-  // Real-time input telemetry tracking states
-  const [idleSeconds, setIdleSeconds] = useState<number>(0);
-  const [backspaceTimestamps, setBackspaceTimestamps] = useState<number[]>([]);
-  const [backspaceBurstCount, setBackspaceBurstCount] = useState<number>(0);
-  const [optionFlips, setOptionFlips] = useState<number>(0);
-  const [lastSelectedOption, setLastSelectedOption] = useState<number | null>(null);
+  // Optimized high-performance telemetry via ref (0ms input lag, zero component re-renders while typing)
+  const telemetryRef = useRef<{
+    idleSeconds: number;
+    maxDwellSeconds: number;
+    questionStartTimes: Record<number, number>;
+    firstInteractionTimes: Record<number, number>;
+    backspaceBurstCount: number;
+    recentBackspaceTimestamps: number[];
+    keystrokeTimestamps: number[];
+    interKeystrokeIntervals: number[];
+    optionFlips: number;
+    lastSelectedOption: number | null;
+    hesitationFlagged: boolean;
+  }>({
+    idleSeconds: 0,
+    maxDwellSeconds: 0,
+    questionStartTimes: { 0: Date.now() },
+    firstInteractionTimes: {},
+    backspaceBurstCount: 0,
+    recentBackspaceTimestamps: [],
+    keystrokeTimestamps: [],
+    interKeystrokeIntervals: [],
+    optionFlips: 0,
+    lastSelectedOption: null,
+    hesitationFlagged: false,
+  });
+
+  // Finalized behavioral metrics profile computed upon submission for results review
+  const [telemetryProfile, setTelemetryProfile] = useState<{
+    affectivePauseFlagged: boolean;
+    maxDwellSec: number;
+    burstCount: number;
+    optionFlips: number;
+    avgIkiMs: number;
+    totalKeystrokes: number;
+  }>({
+    affectivePauseFlagged: false,
+    maxDwellSec: 0,
+    burstCount: 0,
+    optionFlips: 0,
+    avgIkiMs: 180,
+    totalKeystrokes: 0,
+  });
 
   // Metacognitive Confidence Dial state
   const [confidenceLevel, setConfidenceLevel] = useState<number>(85);
@@ -87,6 +124,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioStreamRef = useRef<MediaStream | null>(null);
   const animFrameRef = useRef<number | null>(null);
+  const voiceTranscriptRef = useRef<string>('');
 
   // -------------------------------------------------------------
   // Dedicated State for Tactile Interactive Models (Q1 to Q10)
@@ -149,35 +187,38 @@ export const DiagnosticAssessmentModal: React.FC = () => {
     }
   }, [isDiagnosticOpen, isEconomics, economicsDiagnosticSubmission, diagnosticSubmission]);
 
-  // Telemetry idle hesitation timer
+  // Telemetry idle hesitation timer (runs silently without forcing component re-renders)
   useEffect(() => {
     if (!isDiagnosticOpen || localSubmission) return;
 
     const interval = setInterval(() => {
-      setIdleSeconds((prev) => {
-        const next = prev + 1;
-        if (next === 7) {
-          const studentUid = authUser?.uid || 'std-rohan';
-          syncStudentProgress(studentUid, isEconomics ? 'Economics' : 'Chemistry', {
-            recentScore: 6,
-            strugglingTopic: questionsList[currentIndex]?.topic || 'Conceptual Evaluation',
-            hesitationLevel: 'high',
-          });
-        }
-        return next;
-      });
+      const tel = telemetryRef.current;
+      tel.idleSeconds += 1;
+      if (tel.idleSeconds > tel.maxDwellSeconds) {
+        tel.maxDwellSeconds = tel.idleSeconds;
+      }
+      if (tel.idleSeconds === 7 && !tel.hesitationFlagged) {
+        tel.hesitationFlagged = true;
+        const studentUid = authUser?.uid || 'std-rohan';
+        syncStudentProgress(studentUid, isEconomics ? 'Economics' : 'Chemistry', {
+          recentScore: 6,
+          strugglingTopic: questionsList[currentIndex]?.topic || 'Conceptual Evaluation',
+          hesitationLevel: 'high',
+        });
+      }
     }, 1000);
 
     return () => clearInterval(interval);
   }, [isDiagnosticOpen, localSubmission, currentIndex, authUser?.uid, isEconomics, questionsList]);
 
-  // Reset telemetry upon question change
+  // Reset question telemetry upon question change
   useEffect(() => {
-    setIdleSeconds(0);
-    setBackspaceTimestamps([]);
-    setBackspaceBurstCount(0);
-    setOptionFlips(0);
-    setLastSelectedOption(null);
+    const tel = telemetryRef.current;
+    tel.idleSeconds = 0;
+    tel.hesitationFlagged = false;
+    tel.questionStartTimes[currentIndex] = Date.now();
+    tel.recentBackspaceTimestamps = [];
+    tel.lastSelectedOption = null;
     setStealthModeActive(false);
     setVoiceAnalysisResult(null);
     setIsRecordingVoice(false);
@@ -212,12 +253,16 @@ export const DiagnosticAssessmentModal: React.FC = () => {
 
   const handleSelectOption = (optionIndex: number) => {
     if (localSubmission) return;
-    setIdleSeconds(0);
+    const tel = telemetryRef.current;
+    tel.idleSeconds = 0;
 
-    if (lastSelectedOption !== null && lastSelectedOption !== optionIndex) {
-      setOptionFlips((prev) => prev + 1);
+    if (!tel.firstInteractionTimes[currentIndex]) {
+      tel.firstInteractionTimes[currentIndex] = Date.now();
     }
-    setLastSelectedOption(optionIndex);
+    if (tel.lastSelectedOption !== null && tel.lastSelectedOption !== optionIndex) {
+      tel.optionFlips += 1;
+    }
+    tel.lastSelectedOption = optionIndex;
 
     setAnswers((prev) => ({
       ...prev,
@@ -227,22 +272,35 @@ export const DiagnosticAssessmentModal: React.FC = () => {
 
   const handleTextChange = (text: string) => {
     if (localSubmission) return;
-    setIdleSeconds(0);
+    telemetryRef.current.idleSeconds = 0;
     setAnswers((prev) => ({
       ...prev,
       [currentIndex]: text,
     }));
   };
 
-  // Keystroke listener for backspaces
+  // High-performance keystroke listener (0ms overhead, tracks IKI and doubt backspace bursts without re-renders)
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    setIdleSeconds(0);
+    const now = Date.now();
+    const tel = telemetryRef.current;
+    tel.idleSeconds = 0;
+
+    if (!tel.firstInteractionTimes[currentIndex]) {
+      tel.firstInteractionTimes[currentIndex] = now;
+    }
+
+    if (tel.keystrokeTimestamps.length > 0) {
+      const lastKeyTime = tel.keystrokeTimestamps[tel.keystrokeTimestamps.length - 1];
+      const iki = now - lastKeyTime;
+      tel.interKeystrokeIntervals.push(iki);
+    }
+    tel.keystrokeTimestamps.push(now);
+
     if (e.key === 'Backspace') {
-      const now = Date.now();
-      const recent = [...backspaceTimestamps, now].filter((t) => now - t <= 1200);
-      setBackspaceTimestamps(recent);
-      if (recent.length >= 3) {
-        setBackspaceBurstCount((prev) => prev + 1);
+      tel.recentBackspaceTimestamps.push(now);
+      tel.recentBackspaceTimestamps = tel.recentBackspaceTimestamps.filter((t) => now - t <= 1200);
+      if (tel.recentBackspaceTimestamps.length >= 3) {
+        tel.backspaceBurstCount += 1;
       }
     }
   };
@@ -253,6 +311,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
   const handleStartVoiceProbe = async () => {
     setIsRecordingVoice(true);
     setVoiceElapsedSec(0);
+    voiceTranscriptRef.current = '';
     setVoiceTranscript('');
     setVoiceAnalysisResult(null);
 
@@ -309,6 +368,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
             }
           }
           const fullText = (accumulated + ' ' + interim).trim();
+          voiceTranscriptRef.current = fullText;
           setVoiceTranscript(fullText);
         };
 
@@ -323,7 +383,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
     }
   };
 
-  const handleStopVoiceProbe = () => {
+  const handleStopVoiceProbe = (overrideText?: string) => {
     setIsRecordingVoice(false);
     if (recognitionRef.current) {
       try {
@@ -340,7 +400,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
     }
     setVoiceAudioLevel(0);
 
-    analyzeVoiceExplanation();
+    analyzeVoiceExplanation(overrideText);
   };
 
   // 15-second timer countdown
@@ -360,14 +420,15 @@ export const DiagnosticAssessmentModal: React.FC = () => {
     return () => clearInterval(timer);
   }, [isRecordingVoice]);
 
-  const analyzeVoiceExplanation = () => {
-    let transcriptText = voiceTranscript.trim();
+  const analyzeVoiceExplanation = (overrideText?: string) => {
+    let transcriptText = (overrideText !== undefined ? overrideText : voiceTranscriptRef.current || voiceTranscript).trim();
     if (!transcriptText) {
       transcriptText = isEconomics
         ? 'Because human wants are unlimited while productive economic resources like land, labor, and capital are finite, individuals and societies face perpetual scarcity, requiring trade-offs at every decision margin.'
         : 'Because matter cannot be created or destroyed according to the Law of Conservation of Mass, the number of atoms on the reactant side must exactly balance the atoms in the product side before mole conversion.';
-      setVoiceTranscript(transcriptText);
     }
+    voiceTranscriptRef.current = transcriptText;
+    setVoiceTranscript(transcriptText);
 
     const lower = transcriptText.toLowerCase();
 
@@ -482,6 +543,23 @@ export const DiagnosticAssessmentModal: React.FC = () => {
   };
 
   const handleSubmit = () => {
+    // Finalize telemetry profile metrics
+    const tel = telemetryRef.current;
+    const ikiTotal = tel.interKeystrokeIntervals.reduce((a, b) => a + b, 0);
+    const avgIki =
+      tel.interKeystrokeIntervals.length > 0
+        ? Math.round(ikiTotal / tel.interKeystrokeIntervals.length)
+        : 180;
+
+    setTelemetryProfile({
+      affectivePauseFlagged: tel.maxDwellSeconds >= 6,
+      maxDwellSec: tel.maxDwellSeconds,
+      burstCount: tel.backspaceBurstCount,
+      optionFlips: tel.optionFlips,
+      avgIkiMs: avgIki,
+      totalKeystrokes: tel.keystrokeTimestamps.length,
+    });
+
     const submission = isEconomics
       ? submitEconomicsDiagnostic(answers)
       : submitDiagnostic(answers);
@@ -498,6 +576,19 @@ export const DiagnosticAssessmentModal: React.FC = () => {
   };
 
   const handleRetake = () => {
+    telemetryRef.current = {
+      idleSeconds: 0,
+      maxDwellSeconds: 0,
+      questionStartTimes: { 0: Date.now() },
+      firstInteractionTimes: {},
+      backspaceBurstCount: 0,
+      recentBackspaceTimestamps: [],
+      keystrokeTimestamps: [],
+      interKeystrokeIntervals: [],
+      optionFlips: 0,
+      lastSelectedOption: null,
+      hesitationFlagged: false,
+    };
     setAnswers({});
     setSolvedViaStealth({});
     setCurrentIndex(0);
@@ -728,33 +819,33 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                           <button
                             key={optIdx}
                             onClick={() => handleSelectOption(optIdx)}
-                            className={`w-full text-left p-4 rounded-xl border-2 transition-all flex items-start gap-3 cursor-pointer btn-tactile ${
+                            className={`w-full text-left p-3.5 sm:p-4 rounded-xl border-2 transition-all flex items-center gap-3 cursor-pointer btn-tactile ${
                               isChecked
                                 ? isEconomics
-                                  ? 'border-emerald-600 bg-emerald-50/70 text-emerald-950 font-semibold'
-                                  : 'border-indigo-600 bg-indigo-50/70 text-indigo-950 font-semibold'
-                                : 'border-slate-200 hover:border-slate-300 bg-white text-slate-700'
+                                  ? 'border-emerald-600 bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-200 font-semibold'
+                                  : 'border-indigo-600 bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-950 dark:text-indigo-200 font-semibold'
+                                : 'border-slate-200 hover:border-slate-300 dark:border-slate-800 dark:hover:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300'
                             }`}
                           >
                             <div
-                              className={`w-5 h-5 rounded-md border flex items-center justify-center text-xs shrink-0 mt-0.5 ${
+                              className={`w-6 h-6 rounded-md border font-bold text-xs shrink-0 flex items-center justify-center transition-colors ${
                                 isChecked
                                   ? isEconomics
                                     ? 'border-emerald-600 bg-emerald-600 text-white'
                                     : 'border-indigo-600 bg-indigo-600 text-white'
-                                  : 'border-slate-300 text-slate-400'
+                                  : 'border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800'
                               }`}
                             >
                               {String.fromCharCode(65 + optIdx)}
                             </div>
-                            <span className="text-xs sm:text-sm">{option}</span>
+                            <span className="text-xs sm:text-sm flex-1 leading-snug">{option}</span>
                           </button>
                         );
                       })}
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      <label className="text-xs font-semibold text-slate-600 block">
+                      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 block">
                         Your Calculated Numerical Response:
                       </label>
                       <input
@@ -763,7 +854,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                         onChange={(e) => handleTextChange(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder={currentQ.placeholderHint || 'Enter your calculated answer...'}
-                        className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 focus:border-indigo-600 focus:bg-white rounded-xl text-sm text-slate-900 font-mono transition-all outline-none"
+                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 focus:border-indigo-600 dark:focus:border-indigo-400 focus:bg-white dark:focus:bg-slate-900 rounded-xl text-sm text-slate-900 dark:text-white font-mono transition-all outline-none"
                       />
                       <p className="text-[11px] text-slate-400">
                         Type your final value. Include units if indicated in the prompt.
@@ -1631,7 +1722,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                             <div className="absolute inset-0 rounded-full bg-rose-500/30 animate-ping" />
                           )}
                           <button
-                            onClick={isRecordingVoice ? handleStopVoiceProbe : handleStartVoiceProbe}
+                            onClick={isRecordingVoice ? () => handleStopVoiceProbe() : handleStartVoiceProbe}
                             className={`w-16 h-16 rounded-full flex items-center justify-center text-white transition-all cursor-pointer shadow-lg ${
                               isRecordingVoice ? 'bg-rose-600 hover:bg-rose-700' : 'bg-indigo-600 hover:bg-indigo-500'
                             }`}
@@ -1646,7 +1737,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                             {isRecordingVoice ? `Listening... ${15 - voiceElapsedSec}s remaining` : 'Click to begin 15-second probe'}
                           </span>
                           {isRecordingVoice && (
-                            <div className="w-32 h-1.5 bg-slate-800 rounded-full overflow-hidden mx-auto mt-2">
+                            <div className="w-32 h-1.5 bg-slate-800 rounded-md overflow-hidden mx-auto mt-2">
                               <div
                                 className="h-full bg-rose-500 transition-all duration-1000"
                                 style={{ width: `${(voiceElapsedSec / 15) * 100}%` }}
@@ -1661,7 +1752,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                             {[12, 28, 45, 80, 55, 30, 65, 90, 40, 20, 70, 35].map((h, i) => (
                               <div
                                 key={i}
-                                className="w-1 bg-emerald-400 rounded-full transition-all duration-75"
+                                className="w-1 bg-emerald-400 rounded-xs transition-all duration-75"
                                 style={{ height: `${Math.max(4, (h * voiceAudioLevel) / 100)}px` }}
                               />
                             ))}
@@ -1669,15 +1760,74 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                         )}
                       </div>
 
-                      {/* Live Speech-to-Text Transcript Display */}
-                      <div className="p-3.5 rounded-xl bg-slate-800/90 border border-slate-700 space-y-1.5 text-xs">
+                      {/* Live Speech-to-Text Transcript Display & Quick Concepts */}
+                      <div className="p-3.5 rounded-xl bg-slate-800/90 border border-slate-700 space-y-2 text-xs">
                         <div className="flex items-center justify-between text-[11px] text-slate-400">
                           <span>Live Voice Transcript:</span>
-                          <span className="font-mono text-[10px]">SpeechRecognition Active</span>
+                          <span className="font-mono text-[10px] text-emerald-400 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-xs bg-emerald-400 inline-block animate-pulse" />
+                            {isRecordingVoice ? 'Listening...' : 'SpeechRecognition Ready'}
+                          </span>
                         </div>
-                        <p className="text-slate-200 italic font-sans min-h-[40px] leading-relaxed">
-                          {voiceTranscript || 'Start speaking to see real-time transcription...'}
-                        </p>
+                        
+                        {isRecordingVoice ? (
+                          <p className="text-slate-200 italic font-sans min-h-[44px] leading-relaxed p-2 bg-slate-900/60 rounded-lg border border-slate-800">
+                            {voiceTranscript || 'Start speaking to see real-time transcription...'}
+                          </p>
+                        ) : (
+                          <div className="space-y-2">
+                            <textarea
+                              value={voiceTranscript}
+                              onChange={(e) => {
+                                setVoiceTranscript(e.target.value);
+                                voiceTranscriptRef.current = e.target.value;
+                              }}
+                              placeholder="Spoken transcript will appear here, or type your conceptual reasoning directly..."
+                              className="w-full h-16 bg-slate-900/80 border border-slate-700 text-slate-200 text-xs p-2.5 rounded-lg focus:outline-hidden focus:border-indigo-500 font-sans resize-none"
+                            />
+                            
+                            {/* Quick Conceptual Key Phrases Chips */}
+                            <div className="space-y-1">
+                              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">
+                                Quick Conceptual Key Phrases:
+                              </span>
+                              <div className="flex flex-wrap gap-1.5">
+                                {(isEconomics ? [
+                                  'Infinite human wants vs finite resources',
+                                  'Opportunity cost represents the next best alternative',
+                                  'Equilibrium price balances market supply and demand',
+                                ] : [
+                                  'Weighted average of isotopic mass and abundance',
+                                  'Conservation of mass requires balancing atoms',
+                                  'Limiting reactant determines maximum theoretical yield',
+                                ]).map((phrase, pIdx) => (
+                                  <button
+                                    key={pIdx}
+                                    type="button"
+                                    onClick={() => {
+                                      setVoiceTranscript(phrase);
+                                      voiceTranscriptRef.current = phrase;
+                                      analyzeVoiceExplanation(phrase);
+                                    }}
+                                    className="px-2 py-1 rounded bg-slate-700 hover:bg-indigo-600 text-slate-200 hover:text-white text-[11px] font-medium transition-colors cursor-pointer text-left"
+                                  >
+                                    + {phrase}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            {voiceTranscript && !voiceAnalysisResult && (
+                              <button
+                                type="button"
+                                onClick={() => analyzeVoiceExplanation(voiceTranscript)}
+                                className="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-lg transition-colors cursor-pointer"
+                              >
+                                Analyze & Verify Reasoning
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
 
                       {/* Analysis Result Card */}
@@ -1844,10 +1994,10 @@ export const DiagnosticAssessmentModal: React.FC = () => {
 
               {/* Primary Action Button to Go to the Dedicated Page */}
               <div
-                className={`p-5 rounded-2xl text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-md ${
+                className={`p-5 rounded-2xl text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs border ${
                   isEconomics
-                    ? 'bg-gradient-to-r from-emerald-900 to-slate-900'
-                    : 'bg-gradient-to-r from-indigo-900 to-slate-900'
+                    ? 'bg-slate-900 border-emerald-800/40'
+                    : 'bg-slate-900 border-indigo-800/40'
                 }`}
               >
                 <div className="space-y-1">
@@ -1893,10 +2043,10 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                       Affective Latency Index
                     </span>
                     <span className="font-bold text-slate-100 block">
-                      {idleSeconds >= 6 ? 'Cognitive Dwell Pause Flagged' : 'Fluid Cognitive Pace'}
+                      {telemetryProfile.affectivePauseFlagged ? 'Cognitive Dwell Pause Flagged' : 'Fluid Cognitive Pace'}
                     </span>
                     <p className="text-[11px] text-slate-400 leading-relaxed">
-                      {idleSeconds >= 6
+                      {telemetryProfile.affectivePauseFlagged
                         ? 'Observed initial reading pause (>6s) on multi-step concepts; no off-task distraction.'
                         : 'Consistent dwell latency across all conceptual stems with zero freeze paralysis.'}
                     </p>
@@ -1907,12 +2057,12 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                       Doubt Velocity & Revision
                     </span>
                     <span className="font-bold text-slate-100 block">
-                      {optionFlips > 1 || backspaceBurstCount > 0
+                      {telemetryProfile.optionFlips > 1 || telemetryProfile.burstCount > 0
                         ? 'Imposter Second-Guessing Noted'
                         : 'High Answer Certainty'}
                     </span>
                     <p className="text-[11px] text-slate-400 leading-relaxed">
-                      {optionFlips > 1 || backspaceBurstCount > 0
+                      {telemetryProfile.optionFlips > 1 || telemetryProfile.burstCount > 0
                         ? 'Initial intuitive reasoning was correct; confidence reassurance prompt delivered.'
                         : 'Clean direct responses with minimal backspace friction or option oscillation.'}
                     </p>
