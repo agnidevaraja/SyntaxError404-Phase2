@@ -795,7 +795,7 @@ export const PersonalizedLearningPage: React.FC = () => {
                   key={idx}
                   className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 text-xs text-slate-800 flex items-start gap-2.5"
                 >
-                  <span className="w-5 h-5 rounded-full bg-indigo-600 text-white font-mono text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="w-5 h-5 rounded-md bg-indigo-600 text-white font-mono text-[10px] flex items-center justify-center shrink-0 mt-0.5">
                     {idx + 1}
                   </span>
                   <span className="leading-relaxed">{step}</span>
@@ -877,11 +877,11 @@ export const PersonalizedLearningPage: React.FC = () => {
                           }`}
                         >
                           <div
-                            className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
+                            className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 ${
                               selected ? 'border-indigo-600 bg-indigo-600' : 'border-slate-300'
                             }`}
                           >
-                            {selected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                            {selected && <div className="w-2 h-2 rounded-xs bg-white" />}
                           </div>
                           <span>{opt}</span>
                         </button>

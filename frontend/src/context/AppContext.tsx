@@ -279,7 +279,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             diagnosticScore: score,
             commonMistakes: mistakesList,
             recommendedFocus: isPerfectScore
-              ? 'None (100% Mastery Achieved) — Olympiad Extension'
+              ? 'None (100% Mastery Achieved) - Olympiad Extension'
               : priorityArea,
             tasksCompleted: 3,
           };
@@ -301,7 +301,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           diagnosticScore: score,
           commonMistakes: mistakesList,
           recommendedFocus: isPerfectScore
-            ? 'None (100% Mastery Achieved) — Olympiad Extension'
+            ? 'None (100% Mastery Achieved) - Olympiad Extension'
             : priorityArea,
           tasksCompleted: 3,
         };

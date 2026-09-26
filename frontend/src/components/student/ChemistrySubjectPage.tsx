@@ -439,7 +439,7 @@ export const ChemistrySubjectPage: React.FC = () => {
         ) : (
           <div className="p-5 rounded-xl bg-white/5 border border-white/10 text-xs text-indigo-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
+              <span className="w-2.5 h-2.5 rounded-xs bg-amber-400 animate-pulse shrink-0" />
               <span>
                 Your platform is ready. Take this week's 10-question diagnostic to calibrate custom study materials, or open your personalized learning platform directly.
               </span>

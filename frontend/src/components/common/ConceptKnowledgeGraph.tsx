@@ -210,15 +210,15 @@ export const ConceptKnowledgeGraph: React.FC<ConceptKnowledgeGraphProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-3 pt-2 text-[11px] text-slate-500 border-t border-slate-100">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+            <span className="w-2.5 h-2.5 rounded-xs bg-emerald-500" />
             <span>Mastered (0 Missed)</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
+            <span className="w-2.5 h-2.5 rounded-xs bg-rose-500" />
             <span>Remediation Target (&gt;=1 Missed)</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
+            <span className="w-2.5 h-2.5 rounded-xs bg-indigo-500" />
             <span>Currently Selected</span>
           </div>
         </div>

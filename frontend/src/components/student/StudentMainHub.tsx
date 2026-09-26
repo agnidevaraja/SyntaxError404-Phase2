@@ -237,7 +237,7 @@ export const StudentMainHub: React.FC = () => {
                 <div className="space-y-1">
                   {sub.units.map((u) => (
                     <div key={u.unitCode} className="text-[11px] text-slate-600 flex items-center gap-1.5 truncate">
-                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0" />
+                      <span className="w-1.5 h-1.5 rounded-xs bg-indigo-500 shrink-0" />
                       <span className="truncate">{u.title}</span>
                     </div>
                   ))}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { IconX, IconChevronLeft, IconChevronRight, IconBookOpen, IconFileText } from '../common/Icons';
+import { IconX, IconChevronLeft, IconChevronRight, IconBookOpen, IconFileText, IconSparkles } from '../common/Icons';
 
 export const SlidePreviewModal: React.FC = () => {
   const { activeSlidePreviewDeck, setActiveSlidePreviewDeck } = useApp();
@@ -99,7 +99,7 @@ export const SlidePreviewModal: React.FC = () => {
             <div className="space-y-3">
               {currentSlide.contentBullets.map((bullet, idx) => (
                 <div key={idx} className="flex items-start gap-3">
-                  <span className="w-2 h-2 rounded-full bg-indigo-500 mt-2 shrink-0" />
+                  <span className="w-2 h-2 rounded-xs bg-indigo-500 mt-2 shrink-0" />
                   <p className="text-sm sm:text-base text-slate-200 leading-relaxed">
                     {bullet}
                   </p>
@@ -117,8 +117,9 @@ export const SlidePreviewModal: React.FC = () => {
 
             {/* Diagram or Callout */}
             {currentSlide.callout && (
-              <div className="p-3.5 rounded-xl bg-indigo-950/60 border border-indigo-800 text-xs text-indigo-200 font-medium">
-                💡 {currentSlide.callout}
+              <div className="p-3.5 rounded-xl bg-indigo-950/60 border border-indigo-800 text-xs text-indigo-200 font-medium flex items-start gap-2">
+                <IconSparkles className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+                <span>{currentSlide.callout}</span>
               </div>
             )}
           </div>
@@ -142,7 +143,7 @@ export const SlidePreviewModal: React.FC = () => {
                   <button
                     key={idx}
                     onClick={() => setCurrentSlidePage(pageNum)}
-                    className={`h-2 rounded-full transition-all cursor-pointer ${
+                    className={`h-1.5 rounded-xs transition-all cursor-pointer ${
                       pageNum === currentSlidePage
                         ? 'bg-indigo-400 w-6'
                         : 'bg-slate-700 hover:bg-slate-600 w-2'

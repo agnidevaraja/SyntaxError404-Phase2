@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { StudentProfile } from '../../types';
+import { StudentProfile, TeacherStrategy, CalibrationSettings } from '../../types';
 import {
   IconShield,
   IconCheckCircle,
@@ -9,10 +9,66 @@ import {
   IconX,
   IconFileText,
   IconBookOpen,
+  IconSliders,
+  IconSparkles,
+  IconRefreshCw,
+  IconAtom,
+  IconZap,
 } from '../common/Icons';
-import { User } from 'lucide-react';
+import { User, Plus, Check } from 'lucide-react';
 import { SevenDayProficiencyChart } from '../common/SevenDayProficiencyChart';
-import { COHORT_WEEKLY_PROGRESSIONS, ACHALESH_WEEKLY_PROGRESSION, ROHAN_WEEKLY_PROGRESSION } from '../../data/weeklyProficiencyData';
+import {
+  COHORT_WEEKLY_PROGRESSIONS,
+  ACHALESH_WEEKLY_PROGRESSION,
+  ROHAN_WEEKLY_PROGRESSION,
+} from '../../data/weeklyProficiencyData';
+
+const INITIAL_STRATEGIES: TeacherStrategy[] = [
+  {
+    id: 'strat-1',
+    name: 'Socratic Kitchen Recipe Analogy',
+    targetMisconception: 'Limiting Reagents: Direct Mass Comparison Trap (Q7)',
+    modality: 'analogical',
+    description:
+      'Compares chemical reagents to a sandwich recipe (2 slices bread + 1 slice cheese ➔ 1 sandwich). Forces students to determine limiting component by units rather than raw grams.',
+    empiricalRecoveryRate: 84,
+    recommendedDurationMins: 10,
+    author: 'Dr. Eleanor Vance',
+  },
+  {
+    id: 'strat-2',
+    name: 'Visual Subscript Fading Canvas',
+    targetMisconception: 'Polyatomic Subscript Distribution (Q2, Q3)',
+    modality: 'visual',
+    description:
+      'Applies color-coded bounding boxes around polyatomic clusters (e.g. SO₄ in Al₂(SO₄)₃) with progressive subscript fading to reinforce multiplying outside parentheses.',
+    empiricalRecoveryRate: 91,
+    recommendedDurationMins: 15,
+    author: 'Curriculum Team',
+  },
+  {
+    id: 'strat-3',
+    name: 'Interactive Kinetic Balance Sandbox',
+    targetMisconception: 'Conservation of Mass & Equation Balancing (Q6)',
+    modality: 'tactile',
+    description:
+      'A mechanical two-pan balance scale simulation where students physically drag atom clusters until reactant weights match product yields before numerical balancing.',
+    empiricalRecoveryRate: 78,
+    recommendedDurationMins: 12,
+    author: 'Dr. Eleanor Vance',
+  },
+  {
+    id: 'strat-4',
+    name: 'Avogadro Bridge Step-Ladder Scaffolding',
+    targetMisconception: 'Theoretical Yield & Inverted Mole Ratios (Q8)',
+    modality: 'scaffolded',
+    description:
+      'A structured 4-stage bridge diagram moving from Given Mass ➔ Moles ➔ Mole Ratio ➔ Product Mass with explicit dimensional analysis units.',
+    empiricalRecoveryRate: 88,
+    recommendedDurationMins: 20,
+    author: 'Specialist Panel',
+  },
+];
 
 export const FacilitatorPortal: React.FC = () => {
   const {
@@ -25,6 +81,28 @@ export const FacilitatorPortal: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
 
+  // Teacher Strategy Bank state
+  const [strategies, setStrategies] = useState<TeacherStrategy[]>(INITIAL_STRATEGIES);
+  const [selectedModality, setSelectedModality] = useState<string>('all');
+  const [isAddStrategyModalOpen, setIsAddStrategyModalOpen] = useState<boolean>(false);
+  const [assignedStrategyId, setAssignedStrategyId] = useState<string | null>(null);
+
+  // New Strategy Form state
+  const [newStrategyName, setNewStrategyName] = useState<string>('');
+  const [newTargetMisconception, setNewTargetMisconception] = useState<string>('');
+  const [newModality, setNewModality] = useState<'analogical' | 'visual' | 'tactile' | 'scaffolded'>('analogical');
+  const [newDescription, setNewDescription] = useState<string>('');
+  const [newDuration, setNewDuration] = useState<number>(15);
+
+  // Specialist / Psychologist Calibration state
+  const [calibrationSettings, setCalibrationSettings] = useState<CalibrationSettings>({
+    pauseFreezeThresholdSec: 6.5,
+    backspaceBurstSensitivity: 3,
+    fatigueToleranceMultiplier: 1.8,
+    secondGuessingThreshold: 2,
+  });
+  const [isCalibratedSaved, setIsCalibratedSaved] = useState<boolean>(false);
+
   const filteredStudents = cohortStudents.filter((s) => {
     const matchesSearch =
       s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -34,19 +112,72 @@ export const FacilitatorPortal: React.FC = () => {
     return matchesSearch && matchesStatus;
   });
 
+  const filteredStrategies = strategies.filter((st) => {
+    if (selectedModality === 'all') return true;
+    return st.modality === selectedModality;
+  });
+
+  const handleCreateCustomStrategy = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newStrategyName.trim() || !newDescription.trim()) return;
+
+    const newStrat: TeacherStrategy = {
+      id: `strat-custom-${Date.now()}`,
+      name: newStrategyName.trim(),
+      targetMisconception: newTargetMisconception.trim() || 'General Conceptual Misconception',
+      modality: newModality,
+      description: newDescription.trim(),
+      empiricalRecoveryRate: 85,
+      recommendedDurationMins: Number(newDuration) || 15,
+      author: 'Dr. Eleanor Vance (Custom)',
+      isCustom: true,
+    };
+
+    setStrategies((prev) => [newStrat, ...prev]);
+    setIsAddStrategyModalOpen(false);
+    setNewStrategyName('');
+    setNewTargetMisconception('');
+    setNewDescription('');
+    setNewDuration(15);
+  };
+
+  const handleAssignStrategyToCohort = (strategyId: string) => {
+    setAssignedStrategyId(strategyId);
+    setTimeout(() => {
+      setAssignedStrategyId(null);
+    }, 3500);
+  };
+
+  const handleSaveCalibration = () => {
+    setIsCalibratedSaved(true);
+    setTimeout(() => {
+      setIsCalibratedSaved(false);
+    }, 3500);
+  };
+
+  const handleResetCalibration = () => {
+    setCalibrationSettings({
+      pauseFreezeThresholdSec: 6.5,
+      backspaceBurstSensitivity: 3,
+      fatigueToleranceMultiplier: 1.8,
+      secondGuessingThreshold: 2,
+    });
+    setIsCalibratedSaved(false);
+  };
+
   return (
     <div className="space-y-8 pb-12">
       
       {/* Teacher Profile & Cohort Banner */}
       <div className="bg-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-start gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-indigo-600 border-2 border-indigo-400 flex items-center justify-center text-white text-xl font-bold shrink-0 shadow-md">
+          <div className="w-14 h-14 rounded-xl bg-indigo-600 border-2 border-indigo-400 flex items-center justify-center text-white text-xl font-bold shrink-0 shadow-md">
             EV
           </div>
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-xs font-semibold text-indigo-300">
               <IconShield className="w-4 h-4 text-emerald-400" />
-              <span>Facilitator Portal · Cohort Analysis</span>
+              <span>Facilitator Portal · Cohort Analysis & Adaptive Interventions</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
               Dr. Eleanor Vance
@@ -155,14 +286,281 @@ export const FacilitatorPortal: React.FC = () => {
               <p className="text-[11px] text-slate-600">
                 Common Trap: {item.trap}
               </p>
-              <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+              {/* Crisp progress bar with rounded-md */}
+              <div className="w-full h-1.5 bg-slate-200 rounded-md overflow-hidden">
                 <div
-                  className="h-full bg-rose-500 rounded-full"
+                  className="h-full bg-rose-500 rounded-md"
                   style={{ width: `${item.errorPct}%` }}
                 />
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* TEACHER STRATEGY BANK & CUSTOM WORKFLOW BUILDER */}
+      <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <IconBookOpen className="w-5 h-5 text-indigo-600" />
+              <h2 className="text-base font-bold text-slate-900">
+                Teacher Intervention Strategy Bank
+              </h2>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Empirically validated pedagogical strategies with measured misconception recovery rates. Add custom workflows and assign to the cohort.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            {/* Filter by modality */}
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg text-xs font-semibold text-slate-600">
+              {['all', 'analogical', 'visual', 'tactile', 'scaffolded'].map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setSelectedModality(m)}
+                  className={`px-2.5 py-1 rounded-md capitalize transition-colors cursor-pointer text-[11px] ${
+                    selectedModality === m
+                      ? 'bg-white text-indigo-950 font-bold shadow-xs'
+                      : 'hover:text-slate-900'
+                  }`}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setIsAddStrategyModalOpen(true)}
+              className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold text-xs rounded-lg shadow-xs transition-colors cursor-pointer flex items-center gap-1.5 shrink-0"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Create Custom Strategy</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Assigned Strategy Alert Banner */}
+        {assignedStrategyId && (
+          <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold flex items-center gap-2 animate-in fade-in">
+            <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>
+              Strategy successfully assigned to cohort! All students exhibiting matching misconception traps will receive this intervention.
+            </span>
+          </div>
+        )}
+
+        {/* Strategy Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredStrategies.map((strategy) => (
+            <div
+              key={strategy.id}
+              className="p-5 rounded-xl border border-slate-200 bg-white hover:border-indigo-300 hover:shadow-xs transition-all flex flex-col justify-between space-y-3"
+            >
+              <div className="space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-600 block">
+                      Target: {strategy.targetMisconception}
+                    </span>
+                    <h3 className="text-sm font-bold text-slate-900 mt-0.5">
+                      {strategy.name}
+                    </h3>
+                  </div>
+
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 capitalize shrink-0">
+                    {strategy.modality}
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  {strategy.description}
+                </p>
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-3">
+                  <span className="font-mono text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 text-[11px]">
+                    {strategy.empiricalRecoveryRate}% Recovery Rate
+                  </span>
+                  <span className="text-slate-400 text-[11px]">
+                    {strategy.recommendedDurationMins} Mins
+                  </span>
+                </div>
+
+                <button
+                  onClick={() => handleAssignStrategyToCohort(strategy.id)}
+                  className="px-3 py-1.5 bg-slate-900 hover:bg-indigo-600 text-white font-semibold text-xs rounded-lg transition-colors cursor-pointer flex items-center gap-1"
+                >
+                  <span>Assign to Cohort</span>
+                  <IconArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* SPECIALIST / EDUCATIONAL PSYCHOLOGIST CALIBRATION PANEL */}
+      <section className="bg-slate-900 text-white rounded-2xl border border-slate-800 p-6 sm:p-8 shadow-xs space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <IconSliders className="w-5 h-5 text-indigo-400" />
+              <h2 className="text-base font-bold text-white">
+                Specialist Diagnostics & Cognitive Dwell Calibration
+              </h2>
+            </div>
+            <p className="text-xs text-slate-400">
+              Fine-tune the real-time kinematic heuristics, reading freeze thresholds, and second-guessing detection sensitivities across diagnostic inputs.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleResetCalibration}
+              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-300 text-xs font-semibold rounded-lg border border-slate-700 transition-colors cursor-pointer"
+            >
+              Reset Clinical Defaults
+            </button>
+            <button
+              onClick={handleSaveCalibration}
+              className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+            >
+              <Check className="w-3.5 h-3.5" />
+              <span>Save & Calibrate Engine</span>
+            </button>
+          </div>
+        </div>
+
+        {isCalibratedSaved && (
+          <div className="p-3.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-semibold flex items-center gap-2">
+            <IconCheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>
+              Engine heuristics successfully synchronized. New hesitation freeze and backspace burst detection thresholds are active in quiz telemetry.
+            </span>
+          </div>
+        )}
+
+        {/* Calibration Sliders Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          {/* Pause Freeze Threshold */}
+          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-slate-300">
+                Blank Pause / Freeze Detection Threshold (T_pause)
+              </span>
+              <span className="font-mono font-bold text-indigo-400">
+                {calibrationSettings.pauseFreezeThresholdSec.toFixed(1)}s
+              </span>
+            </div>
+            <input
+              type="range"
+              min="2.0"
+              max="15.0"
+              step="0.5"
+              value={calibrationSettings.pauseFreezeThresholdSec}
+              onChange={(e) =>
+                setCalibrationSettings({
+                  ...calibrationSettings,
+                  pauseFreezeThresholdSec: parseFloat(e.target.value),
+                })
+              }
+              className="w-full accent-indigo-500 cursor-pointer"
+            />
+            <p className="text-[11px] text-slate-500">
+              Flags cognitive stall when student dwells on question input without activity for &gt; {calibrationSettings.pauseFreezeThresholdSec}s.
+            </p>
+          </div>
+
+          {/* Backspace Burst Sensitivity */}
+          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-slate-300">
+                Burst Backspace Rapid-Deletion Sensitivity
+              </span>
+              <span className="font-mono font-bold text-indigo-400">
+                {calibrationSettings.backspaceBurstSensitivity} keys / sec
+              </span>
+            </div>
+            <input
+              type="range"
+              min="1"
+              max="8"
+              step="1"
+              value={calibrationSettings.backspaceBurstSensitivity}
+              onChange={(e) =>
+                setCalibrationSettings({
+                  ...calibrationSettings,
+                  backspaceBurstSensitivity: parseInt(e.target.value),
+                })
+              }
+              className="w-full accent-indigo-500 cursor-pointer"
+            />
+            <p className="text-[11px] text-slate-500">
+              Detects answer doubt and rapid re-formulation when &gt;= {calibrationSettings.backspaceBurstSensitivity} backspaces occur within 1.2 seconds.
+            </p>
+          </div>
+
+          {/* Fatigue Tolerance Multiplier */}
+          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-slate-300">
+                Fatigue Dwell Multiplier (Late Assessment Factor)
+              </span>
+              <span className="font-mono font-bold text-indigo-400">
+                {calibrationSettings.fatigueToleranceMultiplier.toFixed(1)}x
+              </span>
+            </div>
+            <input
+              type="range"
+              min="1.0"
+              max="3.5"
+              step="0.1"
+              value={calibrationSettings.fatigueToleranceMultiplier}
+              onChange={(e) =>
+                setCalibrationSettings({
+                  ...calibrationSettings,
+                  fatigueToleranceMultiplier: parseFloat(e.target.value),
+                })
+              }
+              className="w-full accent-indigo-500 cursor-pointer"
+            />
+            <p className="text-[11px] text-slate-500">
+              Scales permitted dwell time towards the end of the 10-question sequence to account for natural cognitive fatigue.
+            </p>
+          </div>
+
+          {/* Second-Guessing Threshold */}
+          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-slate-300">
+                Option Flipping Doubt Sensitivity (Multiple Choice)
+              </span>
+              <span className="font-mono font-bold text-indigo-400">
+                {calibrationSettings.secondGuessingThreshold} Flips
+              </span>
+            </div>
+            <input
+              type="range"
+              min="1"
+              max="5"
+              step="1"
+              value={calibrationSettings.secondGuessingThreshold}
+              onChange={(e) =>
+                setCalibrationSettings({
+                  ...calibrationSettings,
+                  secondGuessingThreshold: parseInt(e.target.value),
+                })
+              }
+              className="w-full accent-indigo-500 cursor-pointer"
+            />
+            <p className="text-[11px] text-slate-500">
+              Triggers second-guessing telemetry flag when student changes selected radio button &gt; {calibrationSettings.secondGuessingThreshold} times.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -209,7 +607,7 @@ export const FacilitatorPortal: React.FC = () => {
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
-                  <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 text-slate-500 flex items-center justify-center shrink-0 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:border-indigo-200 transition-colors">
+                  <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 flex items-center justify-center shrink-0 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:border-indigo-200 transition-colors">
                     <User className="w-6 h-6" />
                   </div>
                   <div>
@@ -224,7 +622,7 @@ export const FacilitatorPortal: React.FC = () => {
 
                 <div className="text-right">
                   <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full capitalize ${
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-md capitalize ${
                       std.diagnosticStatus === 'completed'
                         ? 'bg-emerald-100 text-emerald-800'
                         : 'bg-amber-100 text-amber-800'
@@ -270,6 +668,117 @@ export const FacilitatorPortal: React.FC = () => {
         </div>
       </section>
 
+      {/* CREATE CUSTOM STRATEGY MODAL */}
+      {isAddStrategyModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col">
+            <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+              <h3 className="text-sm font-bold text-slate-900">
+                Create Custom Intervention Strategy
+              </h3>
+              <button
+                onClick={() => setIsAddStrategyModalOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+              >
+                <IconX className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateCustomStrategy} className="p-6 space-y-4">
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Strategy Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Socratic Balloon Pressure Demo"
+                  value={newStrategyName}
+                  onChange={(e) => setNewStrategyName(e.target.value)}
+                  className="w-full p-2.5 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Target Misconception or Question Trap
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Limiting Reagent Direct Mass Trap"
+                  value={newTargetMisconception}
+                  onChange={(e) => setNewTargetMisconception(e.target.value)}
+                  className="w-full p-2.5 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    Modality
+                  </label>
+                  <select
+                    value={newModality}
+                    onChange={(e) => setNewModality(e.target.value as any)}
+                    className="w-full p-2.5 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                  >
+                    <option value="analogical">Analogical</option>
+                    <option value="visual">Visual</option>
+                    <option value="tactile">Tactile / Kinetic</option>
+                    <option value="scaffolded">Scaffolded</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    Expected Duration (Mins)
+                  </label>
+                  <input
+                    type="number"
+                    min="5"
+                    max="60"
+                    value={newDuration}
+                    onChange={(e) => setNewDuration(parseInt(e.target.value) || 15)}
+                    className="w-full p-2.5 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Step-by-Step Pedagogical Protocol & Description
+                </label>
+                <textarea
+                  rows={4}
+                  required
+                  placeholder="Outline the steps, questions, and physical/analogical models used during the intervention..."
+                  value={newDescription}
+                  onChange={(e) => setNewDescription(e.target.value)}
+                  className="w-full p-2.5 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsAddStrategyModalOpen(false)}
+                  className="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-xs cursor-pointer"
+                >
+                  Save Strategy to Bank
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Individual Student Inspection Modal */}
       {selectedStudentForInspect && (() => {
         const studentProgression =
@@ -282,7 +791,7 @@ export const FacilitatorPortal: React.FC = () => {
               {/* Header */}
               <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
                     <User className="w-5 h-5" />
                   </div>
                   <div>

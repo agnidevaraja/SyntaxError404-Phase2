@@ -191,3 +191,32 @@ export interface StudentProfile {
   totalTasks: number;
   weeklyProgression?: StudentWeeklyProgression;
 }
+
+export interface TeacherStrategy {
+  id: string;
+  name: string;
+  targetMisconception: string;
+  modality: 'analogical' | 'visual' | 'tactile' | 'scaffolded';
+  description: string;
+  empiricalRecoveryRate: number; // e.g. 84%
+  recommendedDurationMins: number;
+  author: string;
+  isCustom?: boolean;
+}
+
+export interface CalibrationSettings {
+  pauseFreezeThresholdSec: number; // default 6.5s
+  backspaceBurstSensitivity: number; // default 3 bursts/sec
+  fatigueToleranceMultiplier: number; // default 1.8x
+  secondGuessingThreshold: number; // default 2 flips
+}
+
+export interface LiveTelemetrySnapshot {
+  hesitationState: 'nominal' | 'hesitant' | 'frozen';
+  doubtVelocity: 'stable' | 'moderate' | 'high_second_guessing';
+  idleTimeSec: number;
+  backspaceBurstCount: number;
+  optionFlipsCount: number;
+  kinematicStability: 'optimal' | 'revising' | 'hesitant';
+}
+
