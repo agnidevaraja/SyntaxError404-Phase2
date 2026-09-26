@@ -102,7 +102,7 @@ export const ConceptKnowledgeGraph: React.FC<ConceptKnowledgeGraphProps> = ({
       </div>
 
       {/* Nodes Visual Grid with Dependency Connectors */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-3.5 relative">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 relative">
         {nodes.map((node) => {
           const isSelected = selectedPackageId === node.packageId || (activeUnitId && activeUnitId === node.unitId);
           const isUnitMissed = weakUnits.includes(node.unitId);
@@ -162,7 +162,7 @@ export const ConceptKnowledgeGraph: React.FC<ConceptKnowledgeGraphProps> = ({
 
                 {/* Node Name */}
                 <div>
-                  <h4 className={`text-xs font-bold text-slate-900 dark:text-white transition-colors leading-snug line-clamp-2 ${
+                  <h4 className={`text-xs font-bold text-slate-900 dark:text-white transition-colors leading-snug ${
                     isEcon ? 'group-hover:text-emerald-700 dark:group-hover:text-emerald-400' : 'group-hover:text-indigo-600 dark:group-hover:text-indigo-400'
                   }`}>
                     {node.shortTitle}
@@ -172,7 +172,7 @@ export const ConceptKnowledgeGraph: React.FC<ConceptKnowledgeGraphProps> = ({
                   </span>
                 </div>
 
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed min-h-[3rem]">
                   {node.keyConcept}
                 </p>
               </div>

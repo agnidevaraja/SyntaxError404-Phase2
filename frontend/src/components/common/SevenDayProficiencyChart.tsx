@@ -86,6 +86,7 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
         type: 'scatter',
         mode: 'lines+markers+text',
         name: 'Cumulative Mastery',
+        cliponaxis: false,
         text: cumulativeScores.map((v) => `${v}%`),
         textposition: 'top center',
         textfont: {
@@ -120,6 +121,7 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
         type: 'scatter',
         mode: 'lines',
         name: '80% Benchmark',
+        cliponaxis: false,
         line: {
           dash: 'dash',
           color: isDark ? '#34d399' : '#059669',
@@ -142,6 +144,7 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
           y: dailyScores,
           type: 'bar',
           name: 'Daily Quiz Score',
+          cliponaxis: false,
           marker: {
             color: barColors,
             line: {
@@ -166,6 +169,7 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
           type: 'scatter',
           mode: 'lines',
           name: 'Target (80%)',
+          cliponaxis: false,
           line: {
             dash: 'dot',
             color: '#10b981',
@@ -182,6 +186,7 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
           type: 'scatter',
           mode: 'lines+markers+text',
           name: 'Daily Quiz Score',
+          cliponaxis: false,
           text: dailyScores.map((v) => `${v}%`),
           textposition: 'top center',
           textfont: {
@@ -214,19 +219,21 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
     }
 
     const layout: Partial<Plotly.Layout> = {
+      autosize: true,
       paper_bgcolor: 'transparent',
       plot_bgcolor: 'transparent',
       margin: {
-        l: 45,
-        r: 25,
-        t: 30,
-        b: 38,
+        l: 64,
+        r: 60,
+        t: 48,
+        b: 48,
       },
-      height: compact ? 230 : 270,
+      height: compact ? 260 : 320,
       showlegend: false,
       xaxis: {
         showgrid: false,
         zeroline: false,
+        automargin: true,
         tickfont: {
           family: 'Plus Jakarta Sans, sans-serif',
           size: 12,
@@ -235,11 +242,12 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
         fixedrange: true,
       },
       yaxis: {
-        range: [0, 115],
+        range: [0, 125],
         tickvals: [0, 25, 50, 75, 80, 100],
         ticktext: ['0%', '25%', '50%', '75%', '80%', '100%'],
         gridcolor: gridColor,
         zeroline: false,
+        automargin: true,
         tickfont: {
           family: 'JetBrains Mono, monospace',
           size: 11,
@@ -260,27 +268,69 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
                 showarrow: false,
                 xanchor: 'right',
                 yanchor: 'bottom',
+                yshift: 5,
                 font: {
                   family: 'Plus Jakarta Sans, sans-serif',
                   size: 10,
                   color: isDark ? '#34d399' : '#059669',
                 },
-                bgcolor: isDark ? 'rgba(6, 78, 59, 0.4)' : 'rgba(209, 250, 229, 0.8)',
+                bgcolor: isDark ? 'rgba(6, 78, 59, 0.7)' : 'rgba(209, 250, 229, 0.95)',
                 bordercolor: isDark ? '#065f46' : '#a7f3d0',
                 borderwidth: 1,
-                borderpad: 3,
+                borderpad: 5,
               },
             ]
-          : [],
+          : [
+              {
+                x: 'Sun',
+                y: 80,
+                xref: 'x',
+                yref: 'y',
+                text: 'Target (80%)',
+                showarrow: false,
+                xanchor: 'right',
+                yanchor: 'bottom',
+                yshift: 5,
+                font: {
+                  family: 'Plus Jakarta Sans, sans-serif',
+                  size: 10,
+                  color: isDark ? '#34d399' : '#059669',
+                },
+                bgcolor: isDark ? 'rgba(6, 78, 59, 0.7)' : 'rgba(209, 250, 229, 0.95)',
+                bordercolor: isDark ? '#065f46' : '#a7f3d0',
+                borderwidth: 1,
+                borderpad: 5,
+              },
+            ],
     };
 
     const config: Partial<Plotly.Config> = {
       responsive: true,
+      autosizable: true,
       displayModeBar: false,
       scrollZoom: false,
     };
 
-    Plotly.react(chartContainerRef.current, plotData, layout, config);
+    let timer1: ReturnType<typeof setTimeout>;
+    let timer2: ReturnType<typeof setTimeout>;
+    let timer3: ReturnType<typeof setTimeout>;
+
+    Plotly.react(chartContainerRef.current, plotData, layout, config).then(() => {
+      if (chartContainerRef.current) {
+        Plotly.Plots.resize(chartContainerRef.current);
+      }
+    });
+
+    // Schedule staged resizes to ensure modal & tab transitions adapt cleanly
+    timer1 = setTimeout(() => {
+      if (chartContainerRef.current) Plotly.Plots.resize(chartContainerRef.current);
+    }, 60);
+    timer2 = setTimeout(() => {
+      if (chartContainerRef.current) Plotly.Plots.resize(chartContainerRef.current);
+    }, 200);
+    timer3 = setTimeout(() => {
+      if (chartContainerRef.current) Plotly.Plots.resize(chartContainerRef.current);
+    }, 450);
 
     // Click handler to select day
     const plotEl = chartContainerRef.current as any;
@@ -318,8 +368,21 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
     };
     window.addEventListener('resize', handleResize);
 
+    const resizeObserver = new ResizeObserver(() => {
+      if (chartContainerRef.current) {
+        Plotly.Plots.resize(chartContainerRef.current);
+      }
+    });
+    if (chartContainerRef.current) {
+      resizeObserver.observe(chartContainerRef.current);
+    }
+
     return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
       window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
       if (plotEl) {
         plotEl.removeAllListeners?.('plotly_click');
         plotEl.removeAllListeners?.('plotly_hover');
@@ -515,8 +578,8 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
       </div>
 
       {/* Plotly Interactive Chart Container */}
-      <div className="relative rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/60 p-2 sm:p-3 overflow-hidden">
-        <div ref={chartContainerRef} className="w-full" style={{ minHeight: compact ? '230px' : '270px' }} />
+      <div className="relative rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/60 p-2 sm:p-3 overflow-visible">
+        <div ref={chartContainerRef} className="plotly-graph-container w-full overflow-visible" style={{ minHeight: compact ? '260px' : '320px', width: '100%' }} />
       </div>
 
       {/* Selected/Hovered Day Inspector Card */}

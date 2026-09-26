@@ -314,3 +314,32 @@ sup, .chem-sup {
   letter-spacing: 0.02em;
 }
 
+/* -------------------------------------------------------------
+   Plotly Graph Clipping Prevention & Responsiveness
+   ------------------------------------------------------------- */
+.plotly-graph-container,
+.plotly-graph-container .js-plotly-plot,
+.plotly-graph-container .plot-container,
+.plotly-graph-container .plotly {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+}
+
+.plotly-graph-container .svg-container {
+  overflow: visible !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+}
+
+.plotly-graph-container .main-svg {
+  overflow: visible !important;
+}
+
+.plotly-graph-container .scatterlayer .point,
+.plotly-graph-container .scatterlayer .text,
+.plotly-graph-container .barlayer .text,
+.plotly-graph-container .annotation-text {
+  shape-rendering: geometricPrecision;
+}
+

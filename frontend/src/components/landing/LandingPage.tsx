@@ -56,29 +56,6 @@ export const LandingPage: React.FC = () => {
             <span>Launch Facilitator Dashboard</span>
           </button>
         </div>
-
-        {/* Unboxed Metadata */}
-        <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-slate-500 dark:text-slate-400 pt-4">
-          <span className="inline-flex items-center gap-1.5">
-            <IconCheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            Syllabus Tracking
-          </span>
-          <span aria-hidden="true" className="text-slate-300 dark:text-slate-700">·</span>
-          <span className="inline-flex items-center gap-1.5">
-            <IconCheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            Weekly Diagnostic Calibration
-          </span>
-          <span aria-hidden="true" className="text-slate-300 dark:text-slate-700">·</span>
-          <span className="inline-flex items-center gap-1.5">
-            <IconCheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            Cognitive Misconception Analysis
-          </span>
-          <span aria-hidden="true" className="text-slate-300 dark:text-slate-700">·</span>
-          <span className="inline-flex items-center gap-1.5">
-            <IconCheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            Cohort Telemetry Stream
-          </span>
-        </div>
       </section>
 
       {/* 3 Core Workflow Pillars */}
