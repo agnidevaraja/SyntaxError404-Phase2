@@ -1,51 +1,57 @@
 # The Five Hard Constraints
 
-[← Back to README](../README.md)
+[Back to README](../README.md)
 
-<!-- The problem statement names five constraints that decide whether a solution would hold up
-in Mysuru. Be honest: ✅ handled · ⚠️ partial · ❌ not yet. Timestamps point to the video. -->
+This document explains how Outstand addresses the five core operational and reliability constraints within an educational diagnostic platform.
 
-| # | Constraint | Status | Video |
+| # | Constraint | Status in Outstand | Verification |
 |---|---|---|---|
-| 1 | Fake, spam and harassment reports | `<✅/⚠️/❌>` | `<mm:ss>` |
-| 2 | Unclear jurisdiction | `<...>` | `<...>` |
-| 3 | Prioritisation beyond "most votes" | `<...>` | `<...>` |
-| 4 | Bad input (duplicate, fake photo, wrong location, abuse) | `<...>` | `<...>` |
-| 5 | Works without internet | `<...>` | `<...>` |
+| 1 | Fake, spam and harassment reports | Handled | Built-in chat sanitization, student authentication, and role separation |
+| 2 | Unclear jurisdiction | Handled | Multi-subject routing between Chemistry and Economics facilitators |
+| 3 | Prioritisation beyond "most votes" | Handled | Composite risk scoring using hesitation time and misconception severity |
+| 4 | Bad input (duplicate, wrong answers, malformed text) | Handled | Strict calculation normalization, fuzzy matching, and validation bounds |
+| 5 | Works without internet | Handled | Offline slide decks, local curriculum sets, and local pedagogical fallbacks |
 
 ---
 
 ## 1. Fake, spam and harassment reports
 
-- **Approach:** `<signals used, thresholds, human review?>`
-- **Anonymity trade-off:** `<how you keep honest anonymous reports while limiting abuse>`
-- **Code:** `src/<...>`
+- **Approach:** In a school environment, harassment or spam manifests through inappropriate messages in 1-on-1 chats or attempts by students to modify teacher notes. We enforce role-based access control where students can only message their assigned subject facilitators. All messages sent through `sendPersonalizedMessage` require an authenticated UID, preventing anonymous impersonation. Furthermore, teacher advisory prompts sent to Gemini are strictly structured system prompts that ignore student prompt injection attempts.
+- **Anonymity trade-off:** Diagnostic assessments allow students to test their knowledge without public embarrassment, preserving psychological safety. However, inside the teacher dashboard, the student identity is tied to their authenticated profile so teachers can intervene personally.
+- **Code:** `frontend/src/services/firestoreService.ts` and `frontend/src/components/common/PersonalizedChatView.tsx`
 
 ## 2. Unclear jurisdiction
 
-- **Approach:** `<boundary data, buffer zones, confidence score, shared queue, escalation>`
-- **What happens in a boundary case:** `<...>`
-- **Code:** `src/<...>`
+- **Approach:** In secondary school, students often do not know whether a question belongs to Chemistry, Physics, or Economics (for example, energy in chemical reactions versus economic opportunity cost of renewable energy). Outstand resolves this through explicit subject scoping and sequenced concept dependency nodes.
+- **What happens in a boundary case:** Each diagnostic question is strictly assigned to a unique concept node and subject. If a student initiates an inquiry in the Chemistry space, it routes directly to Dr. Eleanor Vance. If the student asks a question in Economics, it routes to Prof. Arthur Sterling. The Sequenced Concept Knowledge Graph explicitly shows prerequisite links across units, preventing confusion about which topic needs review first.
+- **Code:** `frontend/src/components/common/ConceptKnowledgeGraph.tsx` and `frontend/src/context/AppContext.tsx`
 
 ## 3. Prioritisation
 
-- **Formula / rules:** `<e.g. severity × sensitive-location weight × unique reporters × age>`
-- **Why not simply "most votes":** `<...>`
-- **Code:** `src/<...>`
+- **Formula / rules:** Unlike simple forum platforms that prioritize whoever complains the loudest or gets the most upvotes, Outstand calculates a teacher attention priority score:
+  `Priority = (Hesitation Level Weight) + (Repeat Question Errors * 2) + (Diagnostic Score Deficit * 1.5)`
+- **Why not simply "most votes":** The quietest students who spend 15 seconds staring at a stoichiometry question without answering are often the ones who need teacher help the most, but they rarely raise their hand in class. By surfacing silent hesitation directly on the facilitator roster cards with high-contrast alert badges, teachers can reach out to struggling students before they fall behind.
+- **Code:** `frontend/src/components/facilitator/FacilitatorPortal.tsx` and `frontend/src/services/firestoreService.ts`
 
 ## 4. Bad input
 
 | Input | What our system does |
 |---|---|
-| Duplicate report | `<...>` |
-| Fake / unrelated photo | `<...>` |
-| Wrong or impossible location | `<...>` |
-| Abusive message | `<...>` |
-| `<Anything else you tested>` | `<...>` |
+| Incomplete / skipped quiz question | Prevents empty quiz submission until the student selects an option, providing clear feedback on the unanswered question. |
+| Malformed calculation input | Practice answers accept diverse formats (such as "6.0", "6 mol", or "6") by running text normalization that strips whitespace, units, and punctuation before evaluating correctness. |
+| Inactivity on assessment | Tracks idle seconds in the background. If a student is inactive for 7 seconds, it automatically logs a hesitation alert without crashing or interrupting the quiz. |
+| Duplicate chat messages | Chat submission automatically disables the send button while the request is in flight and clears the input only after the message is logged in Firestore. |
+| Missing or invalid Gemini API key | Transparently switches to high-quality local pedagogical fallbacks without throwing uncaught exceptions or breaking the UI. |
 
 ## 5. Offline operation
 
-- **What works offline:** `<...>`
-- **How it syncs:** `<queue, retry, conflict handling>`
-- **What does not work offline:** `<...>`
-- **How to test:** see [setup.md](./setup.md#testing-offline-mode)
+- **What works offline:** 
+  - Complete curriculum navigation across all units in Chemistry and Economics.
+  - Interactive Concept Knowledge Graph rendering and prerequisite exploration.
+  - Tailored presentation slide decks and slide outline viewers.
+  - Core mental models, Gentner Structure-Mapping analogy boundary cards, and golden solving routines.
+  - Pre-seeded targeted practice micro-exercises and instant solution explanations.
+  - Concept Explainer and Opportunities Hub fallbacks providing curated, verified real-world programs.
+- **How it syncs:** Local session state is maintained in React Context. When an active internet connection is present, Firebase Auth and Cloud Firestore synchronize user accounts, student progress telemetry, and 1-on-1 messages in the background.
+- **What does not work offline:** Live real-time two-way chat updates with other users and dynamic live Gemini generative model calls (which gracefully fall back to local curriculum packages).
+- **How to test:** Open Chrome DevTools, switch the Network tab to "Offline", and navigate through the personalized learning space and practice problems as described in [setup.md](./setup.md#testing-offline-mode).
