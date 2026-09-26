@@ -91,7 +91,7 @@ export const StudentGlobalOpportunitiesHub: React.FC = () => {
   };
 
   // Filter by tier
-  const filteredOpportunities = opportunities.filter((item) => {
+  const filteredOpportunities = (opportunities || []).filter((item) => {
     if (selectedTier === 'all') return true;
     return item.tier === selectedTier;
   });
@@ -326,14 +326,6 @@ export const StudentGlobalOpportunitiesHub: React.FC = () => {
                     >
                       {item.tier}
                     </span>
-                    {item.categoryTags?.slice(0, 2).map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700/80 text-slate-600 dark:text-slate-300"
-                      >
-                        {tag}
-                      </span>
-                    ))}
                   </div>
 
                   <div className="flex items-center gap-1 text-amber-500 text-xs font-bold">

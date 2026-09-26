@@ -13,6 +13,7 @@ import { DiagnosticAssessmentModal } from './components/student/DiagnosticAssess
 import { SlidePreviewModal } from './components/student/SlidePreviewModal';
 import { AuthModal } from './components/common/AuthModal';
 import { SettingsModal } from './components/common/SettingsModal';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { IconCheckCircle, IconAlertTriangle, IconX } from './components/common/Icons';
 
 export function AppContent() {
@@ -25,18 +26,32 @@ export function AppContent() {
 
       {/* Main Content Viewport - Optimized Edge-to-Edge Responsive Grid */}
       <main className="flex-1 w-full max-w-[1580px] mx-auto px-4 sm:px-6 lg:px-10 py-6">
-        {activeView === 'landing' && <LandingPage />}
-        {activeView === 'student_hub' && <StudentMainHub />}
-        {activeView === 'subject_chemistry' && <ChemistrySubjectPage />}
-        {activeView === 'personalized_learning' && <PersonalizedLearningPage />}
-        {activeView === 'subject_economics' && <EconomicsSubjectPage />}
-        {activeView === 'personalized_learning_economics' && <PersonalizedLearningPageEconomics />}
-        {activeView === 'facilitator_subject_select' && <FacilitatorSubjectSelectPage />}
-        {activeView === 'facilitator_portal' && <FacilitatorPortal />}
+        <ErrorBoundary fallbackTitle="View Rendering Error">
+          {activeView === 'landing' && <LandingPage />}
+          {activeView === 'student_hub' && <StudentMainHub />}
+          {activeView === 'subject_chemistry' && <ChemistrySubjectPage />}
+          {activeView === 'personalized_learning' && <PersonalizedLearningPage />}
+          {activeView === 'subject_economics' && <EconomicsSubjectPage />}
+          {activeView === 'personalized_learning_economics' && <PersonalizedLearningPageEconomics />}
+          {activeView === 'facilitator_subject_select' && <FacilitatorSubjectSelectPage />}
+          {activeView === 'facilitator_portal' && <FacilitatorPortal />}
+          {![
+            'landing',
+            'student_hub',
+            'subject_chemistry',
+            'personalized_learning',
+            'subject_economics',
+            'personalized_learning_economics',
+            'facilitator_subject_select',
+            'facilitator_portal',
+          ].includes(activeView) && <StudentMainHub />}
+        </ErrorBoundary>
       </main>
 
       {/* Modals & Overlays */}
-      <DiagnosticAssessmentModal />
+      <ErrorBoundary fallbackTitle="Diagnostic Modal Error">
+        <DiagnosticAssessmentModal />
+      </ErrorBoundary>
       <SlidePreviewModal />
       <AuthModal />
       <SettingsModal />
@@ -90,8 +105,10 @@ export function AppContent() {
 
 export default function App() {
   return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
+    <ErrorBoundary fallbackTitle="Application Error">
+      <AppProvider>
+        <AppContent />
+      </AppProvider>
+    </ErrorBoundary>
   );
 }

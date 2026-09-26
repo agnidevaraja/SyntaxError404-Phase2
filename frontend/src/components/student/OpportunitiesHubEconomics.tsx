@@ -46,7 +46,7 @@ export const OpportunitiesHubEconomics: React.FC<OpportunitiesHubEconomicsProps>
     const score = economicsDiagnosticSubmission?.score ?? 8;
     const totalQuestions = economicsDiagnosticSubmission?.total ?? 10;
     const isPerfect = economicsDiagnosticSubmission?.generatedLearningPlan?.isPerfectScore ?? (score === 10);
-    const weakTopics = economicsDiagnosticSubmission?.missedQuestions.map((m) => m.topic) || [];
+    const weakTopics = (economicsDiagnosticSubmission?.missedQuestions || []).map((m) => m.topic);
     const focusTopic =
       currentFocusTitle ||
       economicsDiagnosticSubmission?.generatedLearningPlan?.priorityArea ||
@@ -224,30 +224,28 @@ export const OpportunitiesHubEconomics: React.FC<OpportunitiesHubEconomicsProps>
                 onClick={() => setSelectedOpportunity(item)}
                 className="p-6 sm:p-7 rounded-2xl bg-white border border-slate-200 hover:border-emerald-300 card-hover hover:shadow-md transition-all flex flex-col justify-between space-y-4 cursor-pointer group"
               >
-                {/* Top Row: Category Tags on Left, 5 Star Rating on Right */}
+                {/* Top Row: Verified & Tier on Left, 5 Star Rating on Right */}
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex flex-wrap items-center gap-1.5">
-                    {item.categoryTags.map((tag) => {
-                      if (tag.toLowerCase() === 'verified') {
-                        return (
-                          <span
-                            key={tag}
-                            className="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-semibold flex items-center gap-1.5"
-                          >
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                            <span>Verified</span>
-                          </span>
-                        );
-                      }
-                      return (
-                        <span
-                          key={tag}
-                          className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200"
-                        >
-                          {tag}
-                        </span>
-                      );
-                    })}
+                    {(item.isVerified || item.categoryTags?.some((t) => t.toLowerCase() === 'verified')) && (
+                      <span className="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-semibold flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                        <span>Verified</span>
+                      </span>
+                    )}
+                    {item.tier && (
+                      <span
+                        className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${
+                          item.tier === 'elite'
+                            ? 'bg-purple-50 text-purple-700 border-purple-200'
+                            : item.tier === 'standard'
+                            ? 'bg-blue-50 text-blue-700 border-blue-200'
+                            : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        }`}
+                      >
+                        {item.tier}
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-0.5 text-amber-400 shrink-0">
@@ -326,20 +324,23 @@ export const OpportunitiesHubEconomics: React.FC<OpportunitiesHubEconomicsProps>
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-2">
                 <div className="flex flex-wrap items-center gap-1.5">
-                  {selectedOpportunity.categoryTags
-                    .filter((t) => t.toLowerCase() !== 'verified')
-                    .map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200"
-                      >
-                        {tag}
-                      </span>
-                    ))}
                   <span className="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-200 flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                     <span>Verified Program</span>
                   </span>
+                  {selectedOpportunity.tier && (
+                    <span
+                      className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${
+                        selectedOpportunity.tier === 'elite'
+                          ? 'bg-purple-50 text-purple-700 border-purple-200'
+                          : selectedOpportunity.tier === 'standard'
+                          ? 'bg-blue-50 text-blue-700 border-blue-200'
+                          : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      }`}
+                    >
+                      {selectedOpportunity.tier}
+                    </span>
+                  )}
                 </div>
 
                 <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 leading-snug">

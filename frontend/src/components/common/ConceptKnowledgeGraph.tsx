@@ -109,7 +109,7 @@ export const ConceptKnowledgeGraph: React.FC<ConceptKnowledgeGraphProps> = ({
           const isMastered = diagnosticSubmission ? !isUnitMissed : true;
           
           // Count mistakes specifically in this node's questions
-          const missedInNode = diagnosticSubmission?.missedQuestions.filter(
+          const missedInNode = (diagnosticSubmission?.missedQuestions || []).filter(
             (m) => node.questionNumbers.includes(m.questionNumber)
           ).length || 0;
 

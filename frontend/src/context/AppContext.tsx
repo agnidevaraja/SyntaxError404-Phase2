@@ -242,10 +242,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activeSlidePreviewDeck, setActiveSlidePreviewDeck] = useState<ClassSlideDeck | null>(null);
 
   const [isDiagnosticOpen, setIsDiagnosticOpen] = useState<boolean>(false);
+
+  const sanitizeSubmission = (raw: any): DiagnosticSubmission | null => {
+    if (!raw || typeof raw !== 'object') return null;
+    if (!Array.isArray(raw.missedQuestions)) raw.missedQuestions = [];
+    if (!Array.isArray(raw.weakUnitIds)) raw.weakUnitIds = [];
+    if (!raw.generatedLearningPlan || typeof raw.generatedLearningPlan !== 'object') {
+      raw.generatedLearningPlan = {
+        priorityArea: 'Conceptual Evaluation',
+        recommendedActions: ['Review foundational unit principles and formulas'],
+        focusUnits: ['Core Foundations'],
+        isPerfectScore: raw.score === 10,
+      };
+    }
+    return raw as DiagnosticSubmission;
+  };
+
   const [diagnosticSubmission, setDiagnosticSubmission] = useState<DiagnosticSubmission | null>(() => {
     try {
       const saved = localStorage.getItem('outstand_diagnostic_submission');
-      return saved ? JSON.parse(saved) : null;
+      return saved ? sanitizeSubmission(JSON.parse(saved)) : null;
     } catch {
       return null;
     }
@@ -253,7 +269,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [economicsDiagnosticSubmission, setEconomicsDiagnosticSubmission] = useState<DiagnosticSubmission | null>(() => {
     try {
       const saved = localStorage.getItem('outstand_economics_diagnostic_submission');
-      return saved ? JSON.parse(saved) : null;
+      return saved ? sanitizeSubmission(JSON.parse(saved)) : null;
     } catch {
       return null;
     }

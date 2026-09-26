@@ -435,13 +435,13 @@ export const ChemistrySubjectPage: React.FC = () => {
 
               <div className="p-3.5 rounded-lg bg-indigo-950/80 border border-indigo-800 space-y-2">
                 <span className="text-indigo-300 block font-semibold">Mistakes Identified:</span>
-                <span className={diagnosticSubmission.missedQuestions.length === 0 ? "text-emerald-300 font-bold text-sm block" : "text-rose-300 font-bold text-sm block"}>
-                  {diagnosticSubmission.missedQuestions.length === 0
+                <span className={(diagnosticSubmission?.missedQuestions?.length || 0) === 0 ? "text-emerald-300 font-bold text-sm block" : "text-rose-300 font-bold text-sm block"}>
+                  {(diagnosticSubmission?.missedQuestions?.length || 0) === 0
                     ? 'None (100% Mastery Achieved)'
-                    : `${diagnosticSubmission.missedQuestions.length} Misconceptions Isolated`}
+                    : `${diagnosticSubmission?.missedQuestions?.length || 0} Misconceptions Isolated`}
                 </span>
                 <p className="text-indigo-200 text-[11px] leading-relaxed">
-                  {diagnosticSubmission.missedQuestions.length === 0
+                  {(diagnosticSubmission?.missedQuestions?.length || 0) === 0
                     ? 'All 10 diagnostic questions answered flawlessly with zero errors.'
                     : 'Specific conceptual traps detected. Click below to review your answers.'}
                 </p>

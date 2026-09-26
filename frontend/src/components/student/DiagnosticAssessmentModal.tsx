@@ -214,7 +214,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
       }
       if (tel.idleSeconds === 7 && !tel.hesitationFlagged) {
         tel.hesitationFlagged = true;
-        const studentUid = authUser?.uid || 'std-rohan';
+        const studentUid = authUser?.uid || (isEconomics ? 'std-demo-student-econ' : 'std-demo-student');
         syncStudentProgress(studentUid, isEconomics ? 'Economics' : 'Chemistry', {
           recentScore: 6,
           strugglingTopic: questionsList[currentIndex]?.topic || 'Conceptual Evaluation',
@@ -1916,7 +1916,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                           </p>
                           <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
                             <span>Detected Key Concepts:</span>
-                            {voiceAnalysisResult.detectedKeywords.map((kw, i) => (
+                            {(voiceAnalysisResult.detectedKeywords || []).map((kw, i) => (
                               <span key={i} className="px-1.5 py-0.5 rounded bg-slate-700 text-indigo-200 font-mono">
                                 {kw}
                               </span>
@@ -2194,18 +2194,18 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                     Diagnostic Error Analysis & Conceptual Traps:
                   </h4>
                   <span className="text-xs font-mono text-slate-500">
-                    {localSubmission.missedQuestions.length} Concepts Routed to Personalized Study
+                    {(localSubmission?.missedQuestions || []).length} Concepts Routed to Personalized Study
                   </span>
                 </div>
 
-                {localSubmission.missedQuestions.length === 0 ? (
+                {(localSubmission?.missedQuestions || []).length === 0 ? (
                   <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold flex items-center gap-2">
                     <IconCheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
                     <span>Flawless setup! All 10 diagnostic questions answered accurately with zero traps.</span>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {localSubmission.missedQuestions.map((missed, i) => (
+                    {(localSubmission?.missedQuestions || []).map((missed, i) => (
                       <div
                         key={i}
                         className="p-4 rounded-xl border border-rose-200 bg-rose-50/50 space-y-2 text-xs"

@@ -419,10 +419,10 @@ export const EconomicsSubjectPage: React.FC = () => {
 
               <div className="p-3.5 rounded-lg bg-emerald-950/80 border border-emerald-800 space-y-2">
                 <span className="text-emerald-300 block font-semibold">Mistakes Identified:</span>
-                <span className={economicsDiagnosticSubmission.missedQuestions.length === 0 ? "text-emerald-300 font-bold text-sm block" : "text-amber-300 font-bold text-sm block"}>
-                  {economicsDiagnosticSubmission.missedQuestions.length === 0
+                <span className={(economicsDiagnosticSubmission?.missedQuestions?.length || 0) === 0 ? "text-emerald-300 font-bold text-sm block" : "text-amber-300 font-bold text-sm block"}>
+                  {(economicsDiagnosticSubmission?.missedQuestions?.length || 0) === 0
                     ? 'None (100% Mastery Achieved)'
-                    : `${economicsDiagnosticSubmission.missedQuestions.length} Misconceptions Isolated`}
+                    : `${economicsDiagnosticSubmission?.missedQuestions?.length || 0} Misconceptions Isolated`}
                 </span>
                 <button
                   onClick={handleOpenDiagnostic}
