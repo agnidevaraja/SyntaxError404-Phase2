@@ -184,9 +184,6 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               Unlock Your Personalized Economics Space
             </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              Your personalized learning space dynamically isolates your specific conceptual misconceptions, builds custom slide decks, and curates international competitions based on your diagnostic answers.
-            </p>
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
               Please take the 10-question Economics diagnostic test first to generate your tailored roadmap.
             </p>
@@ -289,7 +286,7 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
             className="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer btn-tactile"
           >
             <IconRefreshCw className="w-4 h-4" />
-            <span>{economicsDiagnosticSubmission ? 'Retake Economics Diagnostic' : 'Take 10-Question Diagnostic'}</span>
+            <span>{economicsDiagnosticSubmission ? 'Retake Economics Diagnostic' : 'Take 5-Question Diagnostic'}</span>
           </button>
         </div>
       </div>

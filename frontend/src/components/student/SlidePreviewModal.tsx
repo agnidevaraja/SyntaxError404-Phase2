@@ -47,19 +47,19 @@ export const SlidePreviewModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="relative w-full max-w-4xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between shrink-0">
+        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/90 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white shrink-0">
               <IconBookOpen className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-slate-900 line-clamp-1">
+              <h2 className="text-sm font-bold text-slate-900 dark:text-white line-clamp-1">
                 {activeSlidePreviewDeck.title}
               </h2>
-              <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+              <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 <span>{activeSlidePreviewDeck.filename}</span>
                 <span>·</span>
                 <span>{activeSlidePreviewDeck.fileSize}</span>
@@ -74,7 +74,7 @@ export const SlidePreviewModal: React.FC = () => {
               setActiveSlidePreviewDeck(null);
               setCurrentSlidePage(1);
             }}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer btn-tactile"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer btn-tactile"
             title="Close (Esc)"
           >
             <IconX className="w-5 h-5" />
@@ -171,9 +171,9 @@ export const SlidePreviewModal: React.FC = () => {
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+        <div className="px-6 py-3 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
           <div className="flex items-center gap-2">
-            <IconFileText className="w-4 h-4 text-slate-400" />
+            <IconFileText className="w-4 h-4 text-slate-400 dark:text-slate-500" />
             <span>Use Left/Right arrow keys to navigate · Esc to close</span>
           </div>
           <button
@@ -181,7 +181,7 @@ export const SlidePreviewModal: React.FC = () => {
               setActiveSlidePreviewDeck(null);
               setCurrentSlidePage(1);
             }}
-            className="text-xs font-semibold text-slate-700 hover:text-slate-900 cursor-pointer btn-tactile"
+            className="text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer btn-tactile"
           >
             Close Preview
           </button>

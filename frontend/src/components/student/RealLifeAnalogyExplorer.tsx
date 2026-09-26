@@ -274,10 +274,10 @@ export const RealLifeAnalogyExplorer: React.FC<Props> = ({ subject, className = 
   const activeAnalogy = analogies.find((a) => a.id === selectedAnalogyId) || analogies[0];
 
   return (
-    <div className={`bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6 ${className}`}>
+    <div className={`bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-xs space-y-6 transition-colors ${className}`}>
       
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
         <div className="flex items-center gap-3">
           <div
             className={`w-11 h-11 rounded-xl flex items-center justify-center text-white shrink-0 shadow-xs ${
@@ -288,26 +288,26 @@ export const RealLifeAnalogyExplorer: React.FC<Props> = ({ subject, className = 
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base sm:text-lg font-bold text-slate-900">
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
                 Learn with Real-Life Analogies
               </h3>
               <span
                 className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider ${
                   isEconomics
-                    ? 'bg-amber-50 text-amber-800 border-amber-200'
-                    : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                    ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800'
+                    : 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800'
                 }`}
               >
                 Jargon-Free Explorer
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Demystify complex {isEconomics ? 'economic' : 'chemical'} formulas using everyday scenarios and interactive models.
             </p>
           </div>
         </div>
 
-        <span className="text-xs font-semibold text-slate-500 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg shrink-0">
+        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg shrink-0">
           Switch concepts below ↓
         </span>
       </div>
@@ -325,7 +325,7 @@ export const RealLifeAnalogyExplorer: React.FC<Props> = ({ subject, className = 
                   ? isEconomics
                     ? 'bg-amber-600 text-white shadow-xs'
                     : 'bg-indigo-600 text-white shadow-xs'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80'
+                  : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700'
               }`}
             >
               <span>{item.term}</span>
@@ -341,17 +341,17 @@ export const RealLifeAnalogyExplorer: React.FC<Props> = ({ subject, className = 
         <div
           className={`p-5 rounded-2xl border space-y-2 ${
             isEconomics
-              ? 'bg-amber-50/60 border-amber-200/80'
-              : 'bg-indigo-50/60 border-indigo-200/80'
+              ? 'bg-amber-50/60 dark:bg-amber-950/30 border-amber-200/80 dark:border-amber-900/60'
+              : 'bg-indigo-50/60 dark:bg-indigo-950/30 border-indigo-200/80 dark:border-indigo-900/60'
           }`}
         >
           <div className="flex items-center gap-2">
-            <Compass className={`w-4 h-4 ${isEconomics ? 'text-amber-700' : 'text-indigo-600'}`} />
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+            <Compass className={`w-4 h-4 ${isEconomics ? 'text-amber-700 dark:text-amber-400' : 'text-indigo-600 dark:text-indigo-400'}`} />
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
               In Plain English (Zero Jargon Definition):
             </h4>
           </div>
-          <p className="text-sm font-medium text-slate-900 leading-relaxed">
+          <p className="text-sm font-medium text-slate-900 dark:text-slate-100 leading-relaxed">
             {activeAnalogy.noJargonDefinition}
           </p>
         </div>
@@ -386,15 +386,15 @@ export const RealLifeAnalogyExplorer: React.FC<Props> = ({ subject, className = 
         </div>
 
         {/* Row 3: Interactive Visual Model / Try-It-Yourself Simulation */}
-        <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+        <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Scale className={`w-4 h-4 ${isEconomics ? 'text-amber-600' : 'text-indigo-600'}`} />
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+              <Scale className={`w-4 h-4 ${isEconomics ? 'text-amber-600 dark:text-amber-400' : 'text-indigo-600 dark:text-indigo-400'}`} />
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
                 Interactive Model Simulator: See the Analogy in Action
               </h4>
             </div>
-            <span className="text-[11px] text-slate-500">Adjust variables below</span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">Adjust variables below</span>
           </div>
 
           {/* SIMULATION 1: Demand (Beach Ice Cream) */}
@@ -716,27 +716,27 @@ export const RealLifeAnalogyExplorer: React.FC<Props> = ({ subject, className = 
         {/* Row 4: Direct Mapping Table */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-slate-500" />
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+            <Layers className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
               Analogy to Academic Mapping Table:
             </h4>
           </div>
 
-          <div className="overflow-x-auto rounded-xl border border-slate-200">
+          <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+              <thead className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-800">
                 <tr>
                   <th className="py-2.5 px-4">Everyday Analogy Scenario</th>
                   <th className="py-2.5 px-4">{isEconomics ? 'Economics Concept' : 'Chemistry Concept'}</th>
                   <th className="py-2.5 px-4">Why It Matters</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {activeAnalogy.mappingTable.map((row, idx) => (
-                  <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3 px-4 text-slate-800 font-medium">{row.realLife}</td>
-                    <td className="py-3 px-4 font-bold text-indigo-700 font-mono">{row.academicConcept}</td>
-                    <td className="py-3 px-4 text-slate-600">{row.significance}</td>
+                  <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                    <td className="py-3 px-4 text-slate-800 dark:text-slate-200 font-medium">{row.realLife}</td>
+                    <td className="py-3 px-4 font-bold text-indigo-700 dark:text-indigo-400 font-mono">{row.academicConcept}</td>
+                    <td className="py-3 px-4 text-slate-600 dark:text-slate-400">{row.significance}</td>
                   </tr>
                 ))}
               </tbody>

@@ -123,23 +123,23 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
             </span>
           </div>
 
-          <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900">
+          <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white">
             Curated Chemistry Extracurriculars & Research Programs
           </h2>
-          <p className="text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
             Real-world 2026 chemistry olympiads, research fellowships, and science challenges matched specifically to your demonstrated Chemistry diagnostic standing.
           </p>
         </div>
 
         {/* Filter Tabs & Manual Refresh */}
         <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200">
+          <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
             <button
               onClick={() => setActiveFilter('all')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeFilter === 'all'
-                  ? 'bg-white text-indigo-700 font-bold shadow-xs border border-slate-200/60'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-400 font-bold shadow-xs border border-slate-200/60 dark:border-slate-700'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               All Matches
@@ -148,8 +148,8 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
               onClick={() => setActiveFilter('competition')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeFilter === 'competition'
-                  ? 'bg-white text-indigo-700 font-bold shadow-xs border border-slate-200/60'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-400 font-bold shadow-xs border border-slate-200/60 dark:border-slate-700'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               Competitions
@@ -158,8 +158,8 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
               onClick={() => setActiveFilter('research')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeFilter === 'research'
-                  ? 'bg-white text-indigo-700 font-bold shadow-xs border border-slate-200/60'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-400 font-bold shadow-xs border border-slate-200/60 dark:border-slate-700'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               Research
@@ -169,10 +169,10 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
           <button
             onClick={loadOpportunities}
             disabled={isLoading}
-            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 hover:text-indigo-600 transition-colors cursor-pointer disabled:opacity-50"
+            className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer disabled:opacity-50"
             title="Recalibrate recommendations using Gemini AI"
           >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-indigo-600' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-indigo-600 dark:text-indigo-400' : ''}`} />
           </button>
         </div>
       </div>
@@ -183,23 +183,23 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
           
           {/* Centered Circular Spinner */}
           <div className="relative w-12 h-12 flex items-center justify-center">
-            <div className="w-10 h-10 rounded-full border-3 border-indigo-100 border-t-indigo-600 animate-spin" />
+            <div className="w-10 h-10 rounded-full border-3 border-indigo-100 dark:border-indigo-950 border-t-indigo-600 animate-spin" />
           </div>
 
           {/* Dynamic Searching Text & Subtitle */}
           <div className="space-y-1.5 max-w-md mx-auto">
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
               Searching for "{searchQuery}"...
             </h3>
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
               Curating verified Chemistry competitions and prestigious research programs from ACS, RSC, and global science foundations.
             </p>
           </div>
 
           {/* Skeleton Preview Silhouettes */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl pt-4 pointer-events-none opacity-50">
-            <div className="h-60 rounded-2xl bg-slate-50 border border-slate-200 animate-pulse" />
-            <div className="h-60 rounded-2xl bg-slate-50 border border-slate-200 animate-pulse hidden md:block" />
+            <div className="h-60 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 animate-pulse" />
+            <div className="h-60 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 animate-pulse hidden md:block" />
           </div>
         </div>
       ) : filteredOpportunities.length === 0 ? (
@@ -321,7 +321,7 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
       {/* STATE 3: DETAIL MODAL POPUP */}
       {selectedOpportunity && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="relative w-full max-w-2xl bg-white rounded-2xl sm:rounded-3xl border border-slate-200 shadow-2xl p-6 sm:p-8 space-y-6 text-slate-900 max-h-[92vh] overflow-y-auto">
+          <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 sm:p-8 space-y-6 text-slate-900 dark:text-white max-h-[92vh] overflow-y-auto">
             
             {/* Modal Header */}
             <div className="flex items-start justify-between gap-4">
@@ -332,18 +332,18 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
                     .map((tag) => (
                       <span
                         key={tag}
-                        className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200"
+                        className="px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-semibold border border-slate-200 dark:border-slate-700"
                       >
                         {tag}
                       </span>
                     ))}
-                  <span className="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-200 flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                  <span className="px-2.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[11px] font-semibold border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                     <span>Verified Program</span>
                   </span>
                 </div>
 
-                <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 leading-snug">
+                <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white leading-snug">
                   {selectedOpportunity.title}
                 </h3>
               </div>
@@ -351,7 +351,7 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
               <button
                 type="button"
                 onClick={() => setSelectedOpportunity(null)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -361,65 +361,65 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
               
               {/* Badge 1: FORMAT */}
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-1">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex flex-col justify-between space-y-1">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">
                   Format
                 </span>
                 <div className="flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
-                  <span className="text-xs sm:text-sm font-bold text-slate-900">
+                  <MapPin className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                     {selectedOpportunity.format}
                   </span>
                 </div>
               </div>
 
               {/* Badge 2: COST */}
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-1">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex flex-col justify-between space-y-1">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">
                   Cost
                 </span>
                 <div className="flex items-center gap-1.5">
-                  <DollarSign className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
-                  <span className="text-xs sm:text-sm font-bold text-slate-900">
+                  <DollarSign className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                     {selectedOpportunity.cost}
                   </span>
                 </div>
               </div>
 
               {/* Badge 3: EFFORT */}
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-1">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex flex-col justify-between space-y-1">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">
                   Effort
                 </span>
                 <div className="flex items-center gap-1.5">
-                  <Zap className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
-                  <span className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                  <Zap className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
                     {selectedOpportunity.effort.replace(' Effort', '')}
                   </span>
                 </div>
               </div>
 
               {/* Badge 4: AGE GROUP */}
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-1">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex flex-col justify-between space-y-1">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">
                   Age Group
                 </span>
                 <div className="flex items-center gap-1.5">
-                  <Info className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
-                  <span className="text-xs sm:text-sm font-bold text-slate-900">
+                  <Info className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                     {selectedOpportunity.ageGroup}
                   </span>
                 </div>
               </div>
 
               {/* Badge 5: DEADLINE */}
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-1 col-span-2 sm:col-span-1">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex flex-col justify-between space-y-1 col-span-2 sm:col-span-1">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">
                   Deadline
                 </span>
                 <div className="flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
-                  <span className="text-xs font-bold text-slate-900 truncate">
+                  <Calendar className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                  <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
                     {selectedOpportunity.deadline}
                   </span>
                 </div>
@@ -430,13 +430,13 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
             {/* "Why this matches you" Section */}
             <div className="space-y-2 pt-1">
               <div className="flex items-center gap-2">
-                <Info className="w-4 h-4 text-indigo-600 shrink-0" />
-                <h4 className="text-sm font-bold text-slate-900">
+                <Info className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white">
                   Why this matches you
                 </h4>
               </div>
 
-              <div className="p-4 sm:p-5 rounded-xl bg-indigo-50/70 border border-indigo-100 text-indigo-950 text-xs sm:text-sm leading-relaxed italic">
+              <div className="p-4 sm:p-5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 text-indigo-950 dark:text-indigo-200 text-xs sm:text-sm leading-relaxed italic">
                 "{selectedOpportunity.whyItMatches}"
               </div>
             </div>
@@ -447,10 +447,10 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
                 href={selectedOpportunity.learnMoreUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="py-3 px-5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-slate-200 transition-colors cursor-pointer"
+                className="py-3 px-5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
               >
                 <span>Learn More about Opportunity</span>
-                <ExternalLink className="w-4 h-4 text-slate-700" />
+                <ExternalLink className="w-4 h-4 text-slate-700 dark:text-slate-300" />
               </a>
 
               <a

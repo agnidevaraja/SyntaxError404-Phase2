@@ -396,7 +396,7 @@ export const EconomicsSubjectPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <IconCheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                  Active Platform Calibration: Score {economicsDiagnosticSubmission.score}/10
+                  Active Platform Calibration: Score {economicsDiagnosticSubmission.score}/{economicsDiagnosticSubmission.total || 10}
                 </h3>
               </div>
               <span className="text-xs font-mono text-slate-500 dark:text-emerald-300">
@@ -441,14 +441,14 @@ export const EconomicsSubjectPage: React.FC = () => {
             <div className="flex items-center gap-3">
               <span className="w-2.5 h-2.5 rounded-xs bg-amber-500 animate-pulse shrink-0" />
               <span>
-                <strong>Prerequisite Calibration:</strong> Take this week's 10-question diagnostic to identify your misconception traps and generate your personalized Economics learning space.
+                <strong>Prerequisite Calibration:</strong> Take this week's 5-question diagnostic to identify your misconception traps and generate your personalized Economics learning space.
               </span>
             </div>
             <button
               onClick={handleOpenDiagnostic}
               className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg shrink-0 transition-colors cursor-pointer"
             >
-              Start Diagnostic (10 Questions)
+              Start Diagnostic (5 Questions)
             </button>
           </div>
         )}

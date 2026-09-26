@@ -453,7 +453,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const currentStudentUid = authUser?.uid || 'std-demo-student';
     const topStruggle = missedQuestions[0]?.topic || priorityArea;
     const calcHesitation: 'low' | 'moderate' | 'high' =
-      score >= 8 ? 'low' : score >= 5 ? 'moderate' : 'high';
+      score >= 4 ? 'low' : score >= 3 ? 'moderate' : 'high';
 
     syncStudentProgress(currentStudentUid, 'Chemistry', {
       recentScore: score,
@@ -477,7 +477,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             recommendedFocus: isPerfectScore
               ? 'None (100% Mastery Achieved) - Olympiad Extension'
               : priorityArea,
-            tasksCompleted: isPerfectScore ? 4 : Math.max(1, Math.round((score / 10) * 3)),
+            tasksCompleted: isPerfectScore ? 4 : Math.max(1, Math.round((score / 5) * 3)),
           };
         }
         return s;
@@ -499,7 +499,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           recommendedFocus: isPerfectScore
             ? 'None (100% Mastery Achieved) - Olympiad Extension'
             : priorityArea,
-          tasksCompleted: isPerfectScore ? 4 : Math.max(1, Math.round((score / 10) * 3)),
+          tasksCompleted: isPerfectScore ? 4 : Math.max(1, Math.round((score / 5) * 3)),
         };
       }
       return prev;
@@ -512,15 +512,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     if (isPerfectScore) {
       showToast(
-        'Flawless 10/10 Score!',
+        'Flawless 5/5 Score!',
         '100% Mastery achieved! Advanced Olympiad Honors module unlocked.',
         'success'
       );
     } else {
       showToast(
         'Diagnostic Calibrated!',
-        `You scored ${score}/10. ${missedQuestions.length} conceptual area(s) isolated for targeted remediation.`,
-        score >= 7 ? 'success' : 'info'
+        `You scored ${score}/5 (${Math.round((score / 5) * 100)}%). ${missedQuestions.length} conceptual area(s) isolated for targeted remediation.`,
+        score >= 4 ? 'success' : 'info'
       );
     }
 
@@ -649,7 +649,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const currentStudentUid = authUser?.uid || 'std-demo-student-econ';
     const topEconStruggle = missedQuestions[0]?.topic || priorityArea;
     const calcEconHesitation: 'low' | 'moderate' | 'high' =
-      score >= 8 ? 'low' : score >= 5 ? 'moderate' : 'high';
+      score >= 4 ? 'low' : score >= 3 ? 'moderate' : 'high';
 
     syncStudentProgress(currentStudentUid, 'Economics', {
       recentScore: score,
@@ -673,7 +673,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             recommendedFocus: isPerfectScore
               ? 'None (100% Mastery Achieved) - Olympiad Extension'
               : priorityArea,
-            tasksCompleted: isPerfectScore ? 4 : Math.max(1, Math.round((score / 10) * 3)),
+            tasksCompleted: isPerfectScore ? 4 : Math.max(1, Math.round((score / 5) * 3)),
           };
         }
         return s;
@@ -695,7 +695,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           recommendedFocus: isPerfectScore
             ? 'None (100% Mastery Achieved) - Olympiad Extension'
             : priorityArea,
-          tasksCompleted: isPerfectScore ? 4 : Math.max(1, Math.round((score / 10) * 3)),
+          tasksCompleted: isPerfectScore ? 4 : Math.max(1, Math.round((score / 5) * 3)),
         };
       }
       return prev;
@@ -703,15 +703,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     if (isPerfectScore) {
       showToast(
-        'Flawless 10/10 Score in Economics!',
+        'Flawless 5/5 Score in Economics!',
         '100% Mastery achieved! Advanced Economics Olympiad Honors module unlocked.',
         'success'
       );
     } else {
       showToast(
         'Economics Diagnostic Calibrated!',
-        `You scored ${score}/10. ${missedQuestions.length} conceptual area(s) isolated for targeted remediation.`,
-        score >= 7 ? 'success' : 'info'
+        `You scored ${score}/5 (${Math.round((score / 5) * 100)}%). ${missedQuestions.length} conceptual area(s) isolated for targeted remediation.`,
+        score >= 4 ? 'success' : 'info'
       );
     }
 

@@ -95,29 +95,29 @@ export const PersonalizedChatView: React.FC<PersonalizedChatViewProps> = ({
   const instructorName = subject === 'Chemistry' ? 'Dr. Eleanor Vance' : 'Prof. Arthur Sterling';
 
   const content = (
-    <div className={`flex flex-col ${isInlineCard ? 'h-[460px]' : 'h-full'} bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm`}>
+    <div className={`flex flex-col ${isInlineCard ? 'h-[460px]' : 'h-full'} bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm`}>
       {/* Header */}
-      <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
+      <div className="px-5 py-3.5 bg-slate-50 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-xs ${
-            isFacilitator ? 'bg-indigo-600' : 'bg-slate-900'
+            isFacilitator ? 'bg-indigo-600' : 'bg-slate-900 dark:bg-slate-800'
           }`}>
             <MessageSquare className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900">
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                 {isFacilitator ? `Direct Intervention: ${studentName}` : `1-on-1 Support: ${instructorName}`}
               </h3>
               <span className={`text-[10px] font-mono px-2 py-0.5 rounded-md font-bold ${
                 subject === 'Chemistry'
-                  ? 'bg-indigo-100 text-indigo-800 border border-indigo-200'
-                  : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                  ? 'bg-indigo-100 dark:bg-indigo-950/50 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900'
+                  : 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900'
               }`}>
                 {subject}
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>Real-time private intervention thread</span>
             </p>
@@ -127,7 +127,7 @@ export const PersonalizedChatView: React.FC<PersonalizedChatViewProps> = ({
         {onClose && (
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             title="Close"
           >
             <IconX className="w-4 h-4" />
@@ -136,7 +136,7 @@ export const PersonalizedChatView: React.FC<PersonalizedChatViewProps> = ({
       </div>
 
       {/* Message Thread Body */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 bg-slate-50/50">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 bg-slate-50/50 dark:bg-slate-950/50">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center h-full text-slate-400 space-y-2">
             <RefreshCw className="w-5 h-5 animate-spin text-indigo-500" />
@@ -144,14 +144,14 @@ export const PersonalizedChatView: React.FC<PersonalizedChatViewProps> = ({
           </div>
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center p-6 space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center shadow-2xs">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-2xs">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div className="max-w-xs space-y-1">
-              <h4 className="text-xs font-bold text-slate-800">
+              <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">
                 Private Academic Roadblock Thread
               </h4>
-              <p className="text-[11px] text-slate-500 leading-relaxed">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
                 {isFacilitator
                   ? `Provide tailored scaffolding, targeted advice, or assign specific practice routines for ${studentName}.`
                   : `Ask ${instructorName} questions about challenging questions, misconceptions, or request custom exercises.`}
@@ -180,7 +180,7 @@ export const PersonalizedChatView: React.FC<PersonalizedChatViewProps> = ({
                   className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-2.5 text-xs shadow-2xs leading-relaxed ${
                     isMe
                       ? 'bg-indigo-600 text-white rounded-br-xs'
-                      : 'bg-white text-slate-900 border border-slate-200 rounded-bl-xs'
+                      : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-bl-xs'
                   }`}
                 >
                   <p className="whitespace-pre-wrap">{msg.text}</p>
@@ -195,7 +195,7 @@ export const PersonalizedChatView: React.FC<PersonalizedChatViewProps> = ({
       {/* Input Field & Send Action */}
       <form
         onSubmit={handleSendMessage}
-        className="p-3 bg-white border-t border-slate-200 flex items-center gap-2 shrink-0"
+        className="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2 shrink-0"
       >
         <input
           type="text"
@@ -206,7 +206,7 @@ export const PersonalizedChatView: React.FC<PersonalizedChatViewProps> = ({
               ? `Message ${studentName} directly with guidance...`
               : `Ask ${instructorName} for targeted clarification...`
           }
-          className="flex-1 px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 focus:border-indigo-500 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-all"
+          className="flex-1 px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-800/80 focus:bg-white dark:focus:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:border-indigo-500 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900/50 transition-all"
         />
 
         <button
@@ -234,7 +234,7 @@ export const PersonalizedChatView: React.FC<PersonalizedChatViewProps> = ({
   // Modal / Drawer Presentation
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-[600px] max-h-[92vh]">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col h-[600px] max-h-[92vh]">
         {content}
       </div>
     </div>
