@@ -1,19 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   Sun,
   Moon,
   BookOpen,
   Type,
-  Maximize2,
   Sliders,
   Check,
   X,
   RotateCcw,
-  Sparkles,
   Eye,
   Activity,
   Atom,
+  Volume2,
+  Bell,
+  ShieldCheck,
+  Cpu,
+  Layers,
+  Sparkles,
 } from 'lucide-react';
 
 export const SettingsModal: React.FC = () => {
@@ -35,10 +39,51 @@ export const SettingsModal: React.FC = () => {
     setDoubtBurstThreshold,
     cognitiveFreezeMs,
     setCognitiveFreezeMs,
+    facilitatorSubject,
+    setFacilitatorSubject,
+    canSwitchSubject,
     showToast,
   } = useApp();
 
-  const [activeTab, setActiveTab] = useState<'display' | 'typography' | 'calibration'>('display');
+  // Student-specific study preferences with persistent localStorage
+  const [narrationSpeed, setNarrationSpeed] = useState<'0.8x' | '1.0x' | '1.25x'>(() => {
+    return (localStorage.getItem('outstand_narration_speed') as '0.8x' | '1.0x' | '1.25x') || '1.0x';
+  });
+  const [focusMode, setFocusMode] = useState<boolean>(() => {
+    return localStorage.getItem('outstand_focus_mode') === 'true';
+  });
+  const [autoExpandReasoning, setAutoExpandReasoning] = useState<boolean>(() => {
+    return localStorage.getItem('outstand_auto_reasoning') !== 'false';
+  });
+  const [soundFeedback, setSoundFeedback] = useState<boolean>(() => {
+    return localStorage.getItem('outstand_sound_feedback') !== 'false';
+  });
+
+  // Facilitator-specific preferences
+  const [priorityAlerts, setPriorityAlerts] = useState<boolean>(() => {
+    return localStorage.getItem('outstand_priority_alerts') !== 'false';
+  });
+  const [telemetryFrequency, setTelemetryFrequency] = useState<'1s' | '3s' | '5s'>(() => {
+    return (localStorage.getItem('outstand_telemetry_freq') as '1s' | '3s' | '5s') || '1s';
+  });
+
+  // Save student preferences
+  useEffect(() => {
+    localStorage.setItem('outstand_narration_speed', narrationSpeed);
+    localStorage.setItem('outstand_focus_mode', String(focusMode));
+    localStorage.setItem('outstand_auto_reasoning', String(autoExpandReasoning));
+    localStorage.setItem('outstand_sound_feedback', String(soundFeedback));
+  }, [narrationSpeed, focusMode, autoExpandReasoning, soundFeedback]);
+
+  // Save facilitator preferences
+  useEffect(() => {
+    localStorage.setItem('outstand_priority_alerts', String(priorityAlerts));
+    localStorage.setItem('outstand_telemetry_freq', telemetryFrequency);
+  }, [priorityAlerts, telemetryFrequency]);
+
+  // Active tab state: separate tabs for student vs facilitator
+  const [studentTab, setStudentTab] = useState<'display' | 'typography' | 'study'>('display');
+  const [facilitatorTab, setFacilitatorTab] = useState<'display' | 'calibration' | 'department'>('display');
 
   if (!isSettingsOpen) return null;
 
@@ -48,6 +93,8 @@ export const SettingsModal: React.FC = () => {
     setCognitiveFreezeMs(3200);
     showToast('Calibration Reset', 'Cognitive behavioral thresholds restored to standard clinical baseline.');
   };
+
+  const isFacilitator = role === 'facilitator';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150">
@@ -62,11 +109,18 @@ export const SettingsModal: React.FC = () => {
               <Sliders className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-white">
-                Platform Settings & Accessibility
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Personalize theme, dyslexia-friendly typography, scaling, and calibration
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                  {isFacilitator ? 'Educator Control & Calibration' : 'Student Settings & Accessibility'}
+                </h2>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-md font-bold uppercase tracking-wider bg-indigo-100 dark:bg-indigo-950/80 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                  {isFacilitator ? 'Teacher Mode' : 'Learner Mode'}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                {isFacilitator
+                  ? 'Calibrate behavioral cognitive metrics, department sync, and display'
+                  : 'Customize reading appearance, dyslexia-friendly fonts, and study preferences'}
               </p>
             </div>
           </div>
@@ -81,68 +135,105 @@ export const SettingsModal: React.FC = () => {
           </button>
         </div>
 
-        {/* Tab Switcher */}
+        {/* Tab Switcher: Strict Role Separation */}
         <div className="px-5 pt-3 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2 overflow-x-auto text-xs font-semibold">
+          {/* COMMON TAB 1: Display & Theme */}
           <button
             type="button"
-            onClick={() => setActiveTab('display')}
+            onClick={() => {
+              if (isFacilitator) setFacilitatorTab('display');
+              else setStudentTab('display');
+            }}
             className={`pb-3 border-b-2 transition-all flex items-center gap-1.5 cursor-pointer ${
-              activeTab === 'display'
+              (isFacilitator ? facilitatorTab === 'display' : studentTab === 'display')
                 ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 font-bold'
                 : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
           >
             <Eye className="w-3.5 h-3.5" />
-            <span>Display & Theme</span>
+            <span>Display & Contrast</span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab('typography')}
-            className={`pb-3 border-b-2 transition-all flex items-center gap-1.5 cursor-pointer ${
-              activeTab === 'typography'
-                ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 font-bold'
-                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-            }`}
-          >
-            <Type className="w-3.5 h-3.5" />
-            <span>Typography & Equations</span>
-          </button>
+          {/* STUDENT ONLY TAB 2: Typography & Equations */}
+          {!isFacilitator && (
+            <button
+              type="button"
+              onClick={() => setStudentTab('typography')}
+              className={`pb-3 border-b-2 transition-all flex items-center gap-1.5 cursor-pointer ${
+                studentTab === 'typography'
+                  ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 font-bold'
+                  : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+              }`}
+            >
+              <Type className="w-3.5 h-3.5" />
+              <span>Typography & Equations</span>
+            </button>
+          )}
 
-          <button
-            type="button"
-            onClick={() => setActiveTab('calibration')}
-            className={`pb-3 border-b-2 transition-all flex items-center gap-1.5 cursor-pointer ${
-              activeTab === 'calibration'
-                ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 font-bold'
-                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-            }`}
-          >
-            <Activity className="w-3.5 h-3.5" />
-            <span>Cognitive Calibration</span>
-            {role === 'facilitator' && (
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-bold">
-                Educator
-              </span>
-            )}
-          </button>
+          {/* STUDENT ONLY TAB 3: Study & Accessibility Preferences */}
+          {!isFacilitator && (
+            <button
+              type="button"
+              onClick={() => setStudentTab('study')}
+              className={`pb-3 border-b-2 transition-all flex items-center gap-1.5 cursor-pointer ${
+                studentTab === 'study'
+                  ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 font-bold'
+                  : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+              }`}
+            >
+              <Volume2 className="w-3.5 h-3.5" />
+              <span>Study & Audio Preferences</span>
+            </button>
+          )}
+
+          {/* FACILITATOR ONLY TAB 2: Cognitive Telemetry Calibration */}
+          {isFacilitator && (
+            <button
+              type="button"
+              onClick={() => setFacilitatorTab('calibration')}
+              className={`pb-3 border-b-2 transition-all flex items-center gap-1.5 cursor-pointer ${
+                facilitatorTab === 'calibration'
+                  ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 font-bold'
+                  : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+              }`}
+            >
+              <Activity className="w-3.5 h-3.5" />
+              <span>Cognitive Calibration</span>
+            </button>
+          )}
+
+          {/* FACILITATOR ONLY TAB 3: Department & Cohort Stream */}
+          {isFacilitator && (
+            <button
+              type="button"
+              onClick={() => setFacilitatorTab('department')}
+              className={`pb-3 border-b-2 transition-all flex items-center gap-1.5 cursor-pointer ${
+                facilitatorTab === 'department'
+                  ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 font-bold'
+                  : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Department & Cohort Stream</span>
+            </button>
+          )}
         </div>
 
         {/* Tab Body */}
         <div className="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
-          {/* TAB 1: DISPLAY & THEME */}
-          {activeTab === 'display' && (
+          {/* TAB: DISPLAY & CONTRAST (Available to Both Roles) */}
+          {((!isFacilitator && studentTab === 'display') || (isFacilitator && facilitatorTab === 'display')) && (
             <div className="space-y-5">
               <div>
                 <span className="text-xs font-bold text-slate-900 dark:text-white block mb-1">
-                  Color Appearance Mode
+                  Color Appearance & Contrast
                 </span>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
-                  Select your preferred contrast and brightness setting for low-strain studying.
+                  Select your preferred contrast and brightness setting for low-strain working.
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {/* Light Mode */}
+                  {/* Clean Light Mode */}
                   <button
                     type="button"
                     onClick={() => setAppearanceMode('light')}
@@ -164,7 +255,7 @@ export const SettingsModal: React.FC = () => {
                     </div>
                   </button>
 
-                  {/* High Contrast Dark Mode */}
+                  {/* Contrast Dark Mode */}
                   <button
                     type="button"
                     onClick={() => setAppearanceMode('dark')}
@@ -182,7 +273,7 @@ export const SettingsModal: React.FC = () => {
                     </div>
                     <div>
                       <span className="font-bold block text-xs text-slate-900 dark:text-white">Contrast Dark</span>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400">Obsidian slate surfaces</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">Deep obsidian surfaces</span>
                     </div>
                   </button>
 
@@ -204,7 +295,7 @@ export const SettingsModal: React.FC = () => {
                     </div>
                     <div>
                       <span className="font-bold block text-xs text-slate-900 dark:text-white">Warm Sepia</span>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400">Reduced blue-light tone</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">Soft reading paper tone</span>
                     </div>
                   </button>
                 </div>
@@ -213,30 +304,30 @@ export const SettingsModal: React.FC = () => {
               {/* Live Preview Sample Card */}
               <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 space-y-2">
                 <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">
-                  Live Palette Preview
+                  Live Theme & Typography Preview
                 </span>
                 <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-                  "Nature operates through weighted isotopic distributions rather than simple arithmetic averages."
+                  "Isotopic abundance is the relative proportion of each stable isotope of a chemical element occurring naturally on Earth."
                 </p>
                 <div className="flex items-center gap-2 pt-1 text-[11px]">
-                  <span className="px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-mono font-bold">
-                    Target Score: 85%
+                  <span className="px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-mono font-bold">
+                    Proficiency: 88%
                   </span>
-                  <span className="px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-300 font-mono font-bold">
-                    Grade 9 Chemistry
+                  <span className="px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-300 font-mono font-bold">
+                    Grade 9 Physical Sciences
                   </span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* TAB 2: TYPOGRAPHY & EQUATIONS */}
-          {activeTab === 'typography' && (
+          {/* STUDENT ONLY: TYPOGRAPHY & EQUATIONS */}
+          {!isFacilitator && studentTab === 'typography' && (
             <div className="space-y-5">
               {/* Font Family Switcher */}
               <div>
                 <span className="text-xs font-bold text-slate-900 dark:text-white block mb-1">
-                  Typography Typeface
+                  Reading Typeface
                 </span>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
                   Choose the reading font that optimizes your legibility and focus.
@@ -247,13 +338,13 @@ export const SettingsModal: React.FC = () => {
                     {
                       id: 'editorial',
                       name: 'Plus Jakarta Sans',
-                      subtitle: 'Editorial & Modern (Default)',
-                      sample: 'Clean geometric curves for textbook reading',
+                      subtitle: 'Modern & Balanced (Default)',
+                      sample: 'Clean geometric curves for academic reading',
                     },
                     {
                       id: 'sans',
                       name: 'Inter',
-                      subtitle: 'Technical & Neutral',
+                      subtitle: 'Technical & High Legibility',
                       sample: 'High x-height optimized for data density',
                     },
                     {
@@ -266,7 +357,7 @@ export const SettingsModal: React.FC = () => {
                       id: 'mono',
                       name: 'JetBrains Mono',
                       subtitle: 'Technical Monospace',
-                      sample: 'Fixed-width symbols for chemical precision',
+                      sample: 'Fixed-width characters for chemical formulas',
                     },
                   ].map((f) => (
                     <button
@@ -293,7 +384,7 @@ export const SettingsModal: React.FC = () => {
               {/* Font Scale Switcher */}
               <div>
                 <span className="text-xs font-bold text-slate-900 dark:text-white block mb-1">
-                  Interface Font Scale
+                  Interface Font Scaling
                 </span>
                 <div className="flex items-center gap-2 mt-2">
                   {[
@@ -308,7 +399,7 @@ export const SettingsModal: React.FC = () => {
                       className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex-1 border ${
                         fontScale === sc.id
                           ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
-                          : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50'
+                          : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
                       }`}
                     >
                       {sc.label}
@@ -329,12 +420,12 @@ export const SettingsModal: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setEquationFormatting(!equationFormatting)}
-                    className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${
+                    className={`w-11 h-6 rounded-md transition-colors relative cursor-pointer ${
                       equationFormatting ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'
                     }`}
                   >
                     <span
-                      className={`w-4 h-4 rounded-full bg-white transition-transform block absolute top-1 ${
+                      className={`w-4 h-4 rounded-xs bg-white transition-transform block absolute top-1 ${
                         equationFormatting ? 'left-6' : 'left-1'
                       }`}
                     />
@@ -355,8 +446,118 @@ export const SettingsModal: React.FC = () => {
             </div>
           )}
 
-          {/* TAB 3: COGNITIVE CALIBRATION */}
-          {activeTab === 'calibration' && (
+          {/* STUDENT ONLY: STUDY & AUDIO PREFERENCES */}
+          {!isFacilitator && studentTab === 'study' && (
+            <div className="space-y-5">
+              {/* Voice Narration Speed */}
+              <div>
+                <span className="text-xs font-bold text-slate-900 dark:text-white block mb-1">
+                  Voice Narration Speed
+                </span>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                  Control the playback pacing for audio explanations and read-aloud problem walkthroughs.
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: '0.8x', label: '0.8× Slow & Clear' },
+                    { id: '1.0x', label: '1.0× Normal Pace' },
+                    { id: '1.25x', label: '1.25× Accelerated' },
+                  ].map((spd) => (
+                    <button
+                      key={spd.id}
+                      type="button"
+                      onClick={() => setNarrationSpeed(spd.id as any)}
+                      className={`p-3 rounded-xl border text-center transition-all cursor-pointer font-bold text-xs ${
+                        narrationSpeed === spd.id
+                          ? 'border-indigo-600 bg-indigo-50/60 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 ring-2 ring-indigo-600/20'
+                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300'
+                      }`}
+                    >
+                      {spd.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Focus Mode Toggle */}
+              <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 flex items-center justify-between">
+                <div>
+                  <span className="font-bold text-slate-900 dark:text-white block text-xs">
+                    Distraction-Free Focus Mode
+                  </span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Mutes non-essential popups and side panels while answering diagnostic questions.
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFocusMode(!focusMode)}
+                  className={`w-11 h-6 rounded-md transition-colors relative cursor-pointer ${
+                    focusMode ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'
+                  }`}
+                >
+                  <span
+                    className={`w-4 h-4 rounded-xs bg-white transition-transform block absolute top-1 ${
+                      focusMode ? 'left-6' : 'left-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Step-by-Step Reasoning Auto-Expand */}
+              <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 flex items-center justify-between">
+                <div>
+                  <span className="font-bold text-slate-900 dark:text-white block text-xs">
+                    Auto-Expand Mathematical Reasoning Steps
+                  </span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Always reveal step-by-step stoichiometric and formula breakdowns in explanations.
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAutoExpandReasoning(!autoExpandReasoning)}
+                  className={`w-11 h-6 rounded-md transition-colors relative cursor-pointer ${
+                    autoExpandReasoning ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'
+                  }`}
+                >
+                  <span
+                    className={`w-4 h-4 rounded-xs bg-white transition-transform block absolute top-1 ${
+                      autoExpandReasoning ? 'left-6' : 'left-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Audio Feedback Chimes */}
+              <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 flex items-center justify-between">
+                <div>
+                  <span className="font-bold text-slate-900 dark:text-white block text-xs">
+                    Interactive Audio Feedback Chimes
+                  </span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Play gentle tactile tones upon locking answers or submitting assessments.
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSoundFeedback(!soundFeedback)}
+                  className={`w-11 h-6 rounded-md transition-colors relative cursor-pointer ${
+                    soundFeedback ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'
+                  }`}
+                >
+                  <span
+                    className={`w-4 h-4 rounded-xs bg-white transition-transform block absolute top-1 ${
+                      soundFeedback ? 'left-6' : 'left-1'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* FACILITATOR ONLY: COGNITIVE CALIBRATION */}
+          {isFacilitator && facilitatorTab === 'calibration' && (
             <div className="space-y-5">
               <div>
                 <span className="text-xs font-bold text-slate-900 dark:text-white block mb-1">
@@ -452,6 +653,118 @@ export const SettingsModal: React.FC = () => {
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>Reset to Clinical Defaults</span>
                 </button>
+              </div>
+            </div>
+          )}
+
+          {/* FACILITATOR ONLY: DEPARTMENT & COHORT STREAM */}
+          {isFacilitator && facilitatorTab === 'department' && (
+            <div className="space-y-5">
+              <div>
+                <span className="text-xs font-bold text-slate-900 dark:text-white block mb-1">
+                  Active Department & Telemetry Streaming
+                </span>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+                  Manage which curriculum stream feeds into your live cohort dashboard and tune distress alert rules.
+                </p>
+              </div>
+
+              {/* Department Focus Switcher */}
+              <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 space-y-3">
+                <span className="font-bold text-slate-900 dark:text-white block text-xs">
+                  Active Department View
+                </span>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFacilitatorSubject('chemistry');
+                      showToast('Department Updated', 'Cohort stream switched to Chemistry.');
+                    }}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                      facilitatorSubject === 'chemistry'
+                        ? 'border-indigo-600 bg-indigo-50/60 dark:bg-indigo-950/40 text-indigo-950 dark:text-white ring-2 ring-indigo-600/20'
+                        : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:border-slate-300'
+                    }`}
+                  >
+                    <div>
+                      <span className="font-bold text-xs block">Chemistry</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">Dr. Eleanor Vance</span>
+                    </div>
+                    {facilitatorSubject === 'chemistry' && <Check className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFacilitatorSubject('economics');
+                      showToast('Department Updated', 'Cohort stream switched to Economics.');
+                    }}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                      facilitatorSubject === 'economics'
+                        ? 'border-emerald-600 bg-emerald-50/60 dark:bg-emerald-950/40 text-emerald-950 dark:text-white ring-2 ring-emerald-600/20'
+                        : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:border-slate-300'
+                    }`}
+                  >
+                    <div>
+                      <span className="font-bold text-xs block">Economics</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">Prof. Arthur Sterling</span>
+                    </div>
+                    {facilitatorSubject === 'economics' && <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Priority Distress Alerts */}
+              <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 flex items-center justify-between">
+                <div>
+                  <span className="font-bold text-slate-900 dark:text-white block text-xs">
+                    Real-Time Student Distress Intervention Alerts
+                  </span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Flash urgent notifications when a student triggers both doubt velocity and high dwell time.
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPriorityAlerts(!priorityAlerts)}
+                  className={`w-11 h-6 rounded-md transition-colors relative cursor-pointer ${
+                    priorityAlerts ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'
+                  }`}
+                >
+                  <span
+                    className={`w-4 h-4 rounded-xs bg-white transition-transform block absolute top-1 ${
+                      priorityAlerts ? 'left-6' : 'left-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Telemetry Stream Sampling Frequency */}
+              <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 space-y-2">
+                <span className="font-bold text-slate-900 dark:text-white block text-xs">
+                  Cohort Live Telemetry Stream Frequency
+                </span>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: '1s', label: '1s (Real-Time)' },
+                    { id: '3s', label: '3s (Balanced)' },
+                    { id: '5s', label: '5s (Low Network)' },
+                  ].map((freq) => (
+                    <button
+                      key={freq.id}
+                      type="button"
+                      onClick={() => setTelemetryFrequency(freq.id as any)}
+                      className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer font-bold text-xs ${
+                        telemetryFrequency === freq.id
+                          ? 'border-indigo-600 bg-indigo-50/60 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 ring-2 ring-indigo-600/20'
+                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300'
+                      }`}
+                    >
+                      {freq.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
