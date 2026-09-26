@@ -117,7 +117,7 @@ export const OpportunitiesHubEconomics: React.FC<OpportunitiesHubEconomicsProps>
             </span>
             <span className="text-xs text-slate-300 dark:text-slate-700">·</span>
             <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
-              Profile: {performanceContext.studentName} ({performanceContext.diagnosticScore}/10 Mastery)
+              Profile: {performanceContext.studentName} ({performanceContext.diagnosticScore}/{performanceContext.totalQuestions || 10} Mastery)
             </span>
           </div>
 

@@ -365,7 +365,7 @@ export const StudentMainHub: React.FC = () => {
                 <span>
                   Diagnostic Calibration:{' '}
                   <strong className={diagnosticSubmission ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-300'}>
-                    {diagnosticSubmission ? `Calibrated (${diagnosticSubmission.score}/10)` : 'Ready to Start'}
+                    {diagnosticSubmission ? `Calibrated (${diagnosticSubmission.score}/${diagnosticSubmission.total || 10})` : 'Ready to Start'}
                   </strong>
                 </span>
               </div>
@@ -430,7 +430,7 @@ export const StudentMainHub: React.FC = () => {
                 <span>
                   Diagnostic Calibration:{' '}
                   <strong className={economicsDiagnosticSubmission ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-300'}>
-                    {economicsDiagnosticSubmission ? `Calibrated (${economicsDiagnosticSubmission.score}/10)` : 'Diagnostic Required'}
+                    {economicsDiagnosticSubmission ? `Calibrated (${economicsDiagnosticSubmission.score}/${economicsDiagnosticSubmission.total || 10})` : 'Diagnostic Required'}
                   </strong>
                 </span>
               </div>

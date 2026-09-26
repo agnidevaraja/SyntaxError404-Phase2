@@ -57,7 +57,7 @@ export const ChemistrySubjectPage: React.FC = () => {
 
   return (
     <div className="space-y-8 pb-12">
-      
+
       {/* Subject Header & Back Navigation */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6 transition-colors">
         <div>
@@ -266,7 +266,7 @@ export const ChemistrySubjectPage: React.FC = () => {
             Curated Online Video & Reference Links:
           </span>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            
+
             {/* Card 1: Curated YouTube Video */}
             <div className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-red-50/30 dark:bg-red-950/20 hover:bg-white dark:hover:bg-slate-800/60 hover:border-red-300 dark:hover:border-red-700 card-hover transition-all flex flex-col justify-between space-y-4 shadow-2xs">
               <div className="flex items-start gap-3.5">
@@ -365,7 +365,7 @@ export const ChemistrySubjectPage: React.FC = () => {
               Start Your Personalized Learning Platform
             </h2>
 
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-indigo-200 max-w-2xl leading-relaxed">
               This platform updates every week. Take the 10-question diagnostic to uncover where you made mistakes, analyze specific conceptual traps, and calibrate your weekly learning path.
             </p>
           </div>
@@ -395,7 +395,7 @@ export const ChemistrySubjectPage: React.FC = () => {
                 className="px-6 py-3.5 bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-bold text-xs sm:text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
               >
                 <IconSparkles className="w-4 h-4 text-amber-950" />
-                <span>Take Diagnostic to Unlock Platform (10 Questions)</span>
+                <span>Take Diagnostic to Unlock Platform (5 Questions)</span>
                 <IconArrowRight className="w-4 h-4" />
               </button>
             )}
@@ -407,9 +407,9 @@ export const ChemistrySubjectPage: React.FC = () => {
           <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-5 border border-slate-200 dark:border-slate-700 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <IconCheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                  Active Platform Calibration: Score {diagnosticSubmission.score}/{diagnosticSubmission.total || 10}
+                <IconCheckCircle className="w-5 h-5 text-emerald-400" />
+                <h3 className="text-sm font-bold text-white">
+                  Active Platform Calibration: Score {diagnosticSubmission.score}/10
                 </h3>
               </div>
               <span className="text-xs font-mono text-slate-500 dark:text-indigo-300">
@@ -442,7 +442,7 @@ export const ChemistrySubjectPage: React.FC = () => {
                     ? 'None (100% Mastery Achieved)'
                     : `${diagnosticSubmission.missedQuestions.length} Misconceptions Isolated`}
                 </span>
-                <p className="text-slate-600 dark:text-slate-300 text-[11px] leading-relaxed">
+                <p className="text-indigo-200 text-[11px] leading-relaxed">
                   {(diagnosticSubmission?.missedQuestions?.length || 0) === 0
                     ? 'All 10 diagnostic questions answered flawlessly with zero errors.'
                     : 'Specific conceptual traps detected. Click below to review your answers.'}
@@ -479,7 +479,7 @@ export const ChemistrySubjectPage: React.FC = () => {
       {isSyllabusModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
           <div className="relative w-full max-w-4xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh] transition-colors">
-            
+
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
@@ -521,11 +521,10 @@ export const ChemistrySubjectPage: React.FC = () => {
                 <button
                   key={topic.topicId}
                   onClick={() => setSelectedTopicId(topic.topicId)}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                    selectedTopicId === topic.topicId
-                      ? 'bg-indigo-600 text-white shadow-2xs'
-                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                  }`}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${selectedTopicId === topic.topicId
+                    ? 'bg-indigo-600 text-white shadow-2xs'
+                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`}
                 >
                   <span>Topic {topic.topicNumber}: {topic.title.split('&')[0]}</span>
                 </button>
