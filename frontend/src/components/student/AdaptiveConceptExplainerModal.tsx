@@ -87,7 +87,7 @@ export const AdaptiveConceptExplainerModal: React.FC<AdaptiveConceptExplainerMod
                 }`}>
                   Adaptive Concept Explainer · {subject}
                 </span>
-                <span className="text-xs text-slate-400">· Powered by Gemini AI</span>
+                <span className="text-xs text-slate-400">· Powered by Outstand AI</span>
               </div>
               <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight mt-0.5">
                 Break It Down: {topic}
@@ -109,7 +109,7 @@ export const AdaptiveConceptExplainerModal: React.FC<AdaptiveConceptExplainerMod
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-20 space-y-3 text-slate-500">
               <RefreshCw className="w-8 h-8 animate-spin text-indigo-600" />
-              <p className="text-xs font-semibold">Generating your tailored analogy and worked example with Gemini...</p>
+              <p className="text-xs font-semibold">Generating your tailored analogy and worked example with Outstand AI...</p>
               <span className="text-[11px] text-slate-400">Isolating intuition without academic jargon</span>
             </div>
           ) : data ? (

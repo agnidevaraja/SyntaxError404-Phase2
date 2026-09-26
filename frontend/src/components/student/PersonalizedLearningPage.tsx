@@ -18,6 +18,7 @@ import {
 import { Video, Play, ExternalLink, Clock, Award, Layers, CheckCircle2, Lock, Lightbulb, MessageSquare, Volume2, VolumeX, Pause, RotateCcw, MonitorPlay, Compass } from 'lucide-react';
 import { OpportunitiesHub } from './OpportunitiesHub';
 import { RealLifeAnalogyExplorer } from './RealLifeAnalogyExplorer';
+import { AutonomousModalityEngine } from './AutonomousModalityEngine';
 import { AdaptiveConceptExplainerModal } from './AdaptiveConceptExplainerModal';
 import { PersonalizedChatView } from '../common/PersonalizedChatView';
 import { syncStudentProgress } from '../../services/firestoreService';
@@ -549,6 +550,9 @@ export const PersonalizedLearningPage: React.FC = () => {
           setVideoTimestamp(0);
         }}
       />
+
+      {/* AUTONOMOUS COGNITIVE MODALITY ENGINE (4 LEARNING STYLES) */}
+      <AutonomousModalityEngine subject="chemistry" />
 
       {/* Focus Area Selector Tabs */}
       <section className="bg-white rounded-2xl border border-slate-200/90 p-6 sm:p-7 shadow-xs space-y-4">
@@ -1248,6 +1252,9 @@ export const PersonalizedLearningPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Autonomous Cognitive Modality Engine */}
+      <AutonomousModalityEngine subject="chemistry" />
+
       {/* Jargon-Free Real-Life Analogy Explorer */}
       <RealLifeAnalogyExplorer subject="chemistry" />
 
@@ -1416,12 +1423,12 @@ export const PersonalizedLearningPage: React.FC = () => {
         </div>
 
         <PersonalizedChatView
-          studentUid={authUser?.uid || 'std-rohan'}
-          studentName={authUser?.displayName || 'Student'}
+          studentUid={authUser?.uid || 'std-demo-student'}
+          studentName={authUser?.displayName || 'Demo Student'}
           subject="Chemistry"
           currentUserRole="student"
-          currentUserName={authUser?.displayName || 'Student'}
-          currentUserId={authUser?.uid || 'std-rohan'}
+          currentUserName={authUser?.displayName || 'Demo Student'}
+          currentUserId={authUser?.uid || 'std-demo-student'}
           isInlineCard={true}
         />
       </section>
@@ -1438,12 +1445,12 @@ export const PersonalizedLearningPage: React.FC = () => {
       {/* Slide-over Drawer / Modal for 1-on-1 Instructor Support */}
       {isChatDrawerOpen && (
         <PersonalizedChatView
-          studentUid={authUser?.uid || 'std-rohan'}
-          studentName={authUser?.displayName || 'Student'}
+          studentUid={authUser?.uid || 'std-demo-student'}
+          studentName={authUser?.displayName || 'Demo Student'}
           subject="Chemistry"
           currentUserRole="student"
-          currentUserName={authUser?.displayName || 'Student'}
-          currentUserId={authUser?.uid || 'std-rohan'}
+          currentUserName={authUser?.displayName || 'Demo Student'}
+          currentUserId={authUser?.uid || 'std-demo-student'}
           onClose={() => setIsChatDrawerOpen(false)}
         />
       )}

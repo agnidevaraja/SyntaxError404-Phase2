@@ -28,6 +28,8 @@ export interface StudentProgressDoc {
   recentScore: number;
   strugglingTopic: string;
   hesitationLevel: 'low' | 'moderate' | 'high';
+  activeModality?: 'analogical' | 'visual' | 'tactile' | 'scaffolded';
+  recoveryRate?: number;
   lastUpdated?: any;
 }
 
@@ -127,21 +129,10 @@ export function listenToStudentUsers(callback: (students: FirestoreUser[]) => vo
  */
 /**
  * Normalizes student identifiers to guarantee facilitator and student connect to the exact same thread.
- * Both 'std-rohan', 'demo-std-demo', 'demo-student', etc. normalize to 'std-rohan'.
  */
 export function normalizeStudentChatId(studentUid: string): string {
-  if (!studentUid) return 'std-rohan';
-  const cleaned = studentUid.trim();
-  if (
-    cleaned === 'demo-std-demo' ||
-    cleaned === 'std-rohan' ||
-    cleaned === 'demo-std-rohan' ||
-    cleaned === 'demo-student' ||
-    cleaned === 'std-demo'
-  ) {
-    return 'std-rohan';
-  }
-  return cleaned;
+  if (!studentUid) return 'std-demo-student';
+  return studentUid.trim();
 }
 
 /**
@@ -154,6 +145,8 @@ export async function syncStudentProgress(
     recentScore: number;
     strugglingTopic: string;
     hesitationLevel: 'low' | 'moderate' | 'high';
+    activeModality?: 'analogical' | 'visual' | 'tactile' | 'scaffolded';
+    recoveryRate?: number;
   }
 ): Promise<void> {
   if (!studentUid) return;
@@ -170,6 +163,8 @@ export async function syncStudentProgress(
         recentScore: metrics.recentScore,
         strugglingTopic: metrics.strugglingTopic || 'None',
         hesitationLevel: metrics.hesitationLevel || 'low',
+        activeModality: metrics.activeModality,
+        recoveryRate: metrics.recoveryRate,
         lastUpdated: new Date().toISOString(),
       })
     );
@@ -194,6 +189,8 @@ export async function syncStudentProgress(
         recentScore: metrics.recentScore,
         strugglingTopic: metrics.strugglingTopic || 'None',
         hesitationLevel: metrics.hesitationLevel || 'low',
+        activeModality: metrics.activeModality || null,
+        recoveryRate: metrics.recoveryRate || null,
         lastUpdated: serverTimestamp(),
       },
       { merge: true }
@@ -221,8 +218,6 @@ export function listenToSubjectProgress(
             const data = JSON.parse(raw);
             if (data.studentId) {
               map[data.studentId] = data;
-              map['std-rohan'] = data;
-              map['demo-std-demo'] = data;
             }
           }
         }

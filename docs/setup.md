@@ -33,15 +33,17 @@ VITE_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
 VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
 VITE_GEMINI_API_KEY=your_gemini_api_key
+VITE_GEMINI_OPPORTUNITIES_API_KEY=your_gemini_opportunities_api_key
 ```
 
 | Variable | Required | Example Value | Purpose |
 |---|---|---|---|
 | `VITE_FIREBASE_API_KEY` | Yes | AIzaSy... | Authenticates Firebase Web SDK requests |
 | `VITE_FIREBASE_PROJECT_ID` | Yes | syntaxerror404-phase2 | Specifies target Cloud Firestore project |
-| `VITE_GEMINI_API_KEY` | Recommended | AIzaSy... | Powers Gemini 2.5 Flash for advisory and explanations |
+| `VITE_GEMINI_API_KEY` | Recommended | AIzaSy... | Powers Gemini 3.8 Flash for facilitator advisory and concept explanations |
+| `VITE_GEMINI_OPPORTUNITIES_API_KEY` | Recommended | AIzaSy... | Powers Gemini 3.8 Flash for Student Hub AI opportunity search & Olympiad curation |
 
-Note: If `VITE_GEMINI_API_KEY` is not supplied or runs into rate limits, Outstand automatically activates its built-in pedagogical fallback engine so all student and teacher features remain fully testable.
+Note: If API keys are not supplied or run into network limits, Outstand automatically activates its built-in pedagogical fallback engine and verified 2026 opportunity directory so all student and teacher features remain fully testable.
 
 ## 3. Install Dependencies
 

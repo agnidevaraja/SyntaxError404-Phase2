@@ -195,6 +195,9 @@ export interface StudentProfile {
   tasksCompleted: number;
   totalTasks?: number;
   weeklyProgression?: StudentWeeklyProgression;
+  activeModality?: 'analogical' | 'visual' | 'tactile' | 'scaffolded';
+  recoveryRate?: number;
+  triagePriority?: 'Critical Roadblock' | 'Moderate Gap' | 'Needs Practice' | 'Mastered' | 'Calibration Required';
 }
 
 export interface TeacherStrategy {

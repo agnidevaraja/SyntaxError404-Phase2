@@ -58,12 +58,12 @@
 |---|---|
 | 00:00 | Part 1: Problem statement and student perspective |
 | 00:45 | Part 1: Student diagnostic quiz, hesitation tracker, and personalized space |
-| 02:00 | Part 1: Break It Down with AI concept explainer and verified opportunities |
+| 02:00 | Part 1: Break It Down with AI concept explainer, subject opportunities, and global AI opportunities search |
 | 03:00 | Part 1: Facilitator portal with live roster, hesitation badges, and AI advisory |
 | 04:00 | Part 1: Real-time 1-on-1 instructor chat sync |
 | 05:00 | Part 2: System architecture and tech stack overview |
 | 06:15 | Part 2: Firebase authentication and Firestore data model |
-| 07:30 | Part 2: Google Gemini AI service architecture and prompt design |
+| 07:30 | Part 2: Google Gemini 3.8 Flash AI service architecture and prompt design |
 | 08:30 | Part 2: Handling edge cases, offline fallbacks, and security |
 | 09:15 | Part 2: AI usage disclosure and wrap-up |
 
@@ -88,7 +88,7 @@
 1. Open the app at http://localhost:3000 or http://localhost:3001 and click "Launch Student Demo".
 2. On the Student Hub, click on Chemistry or Economics, then click "Take Diagnostic Assessment".
 3. Answer the 10 questions. Notice that if you pause on a question for 7 seconds, the system logs silent hesitation telemetry.
-4. Submit the quiz to view your personalized learning space. Inspect the Sequenced Concept Knowledge Graph, the custom slide deck, and click "Break It Down with AI" on any concept.
+4. Submit the quiz to view your personalized learning space. Inspect the Sequenced Concept Knowledge Graph, the custom slide deck, click "Break It Down with AI" on any concept, or search for 2026 competitions using the new AI search bar on the Student Hub.
 5. In another tab or by logging out, click "Launch Facilitator Demo". View your live student card on the teacher roster with real-time hesitation badges.
 6. Click "Analyze Student Roadblock" to see the 4-line Gemini AI diagnostic advice, then click "Copy Action Plan to 1-on-1 Chat" and send a message. Switch back to the student view to verify the real-time sync.
 

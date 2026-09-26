@@ -33,6 +33,7 @@ AI tools are fully permitted at HackMysuru 1.0, and disclosing their role in bot
 | `frontend/src/components/facilitator/` | Medium: Layout design for roster cards and telemetry badges | Programmed the real-time Firestore listeners, hesitation thresholds, and chat drawer logic |
 | `frontend/src/services/aiAdvisoryService.ts` | High: Prompt formatting and SDK invocation | Designed the strict 4-line diagnostic format and implemented local pedagogical fallbacks |
 | `frontend/src/services/conceptExplainerService.ts` | High: Structured output JSON parsing | Formulated the 3-step worked problem structure and Gentner analogy boundary mapping |
+| `frontend/src/services/*Opportunities*.ts` | High: Structured JSON schema and prompt search | Designed verified 2026 competition benchmarks, eligibility tiers, and dynamic search prompts |
 | `frontend/src/data/diagnosticQuestions.ts` | None | Written by hand based on real Grade 9 Chemistry and Economics curriculum standards |
 | `frontend/src/data/mockEconomicsData.ts` | None | Authored by hand to represent realistic student misconception clusters and syllabus units |
 | Documentation files (`.md`) | Low: Structure and formatting | All content, reflections, trade-offs, and explanations written by our team |
@@ -41,15 +42,15 @@ AI tools are fully permitted at HackMysuru 1.0, and disclosing their role in bot
 
 | Model / API | What it does in our product | Hosted where | Trained / fine-tuned by us? |
 |---|---|---|---|
-| Google Gemini 2.5 Flash | Facilitator AI Advisory: analyzes student diagnostic performance and hesitation to output a 4-line intervention plan | Google AI Cloud | Prompt-engineered with strict pedagogical rules |
-| Google Gemini 2.5 Flash | Adaptive Concept Explainer: creates visual analogies, 3-step worked solutions, and checkpoint questions | Google AI Cloud | Prompt-engineered with JSON schema constraints |
-| Google Gemini 2.5 Flash | Opportunities Hub: searches and ranks verified high school STEM and Economics competitions | Google AI Cloud | Prompt-engineered with verification guidelines |
+| Google Gemini 3.8 Flash *(fallback: 2.5 Flash)* | Facilitator AI Advisory: analyzes student diagnostic performance and hesitation to output a 4-line intervention plan | Google AI Cloud | Prompt-engineered with strict pedagogical rules |
+| Google Gemini 3.8 Flash *(fallback: 2.5 Flash)* | Adaptive Concept Explainer: creates visual analogies, 3-step worked solutions, and checkpoint questions | Google AI Cloud | Prompt-engineered with JSON schema constraints |
+| Google Gemini 3.8 Flash | Student Hub & Subject Opportunities: custom AI prompt search and ranks verified 2026 competitions & Olympiads | Google AI Cloud | Prompt-engineered with JSON schema constraints (`VITE_GEMINI_OPPORTUNITIES_API_KEY`) |
 
 - **Accuracy we measured:** In our manual evaluations across 20 synthetic student profiles with varying error clusters, the Gemini 4-line advisory correctly identified the underlying misconception in 19 out of 20 test runs (95% diagnostic precision).
-- **What happens when the model is wrong or unavailable:** If the API key is missing, network is offline, or the response fails JSON parsing, the system immediately falls back to pre-authored pedagogical packages curated for that exact unit. The student or teacher is never left with an empty screen or error code.
+- **What happens when the model is wrong or unavailable:** If the API key is missing, network is offline, or the response fails JSON parsing, the system immediately falls back to pre-authored pedagogical packages curated for that exact unit or Gemini 2.5 Flash fallback. The student or teacher is never left with an empty screen or error code.
 - **Does it work offline?** The live Gemini API call requires internet connectivity. However, all curriculum units include complete offline fallbacks with analogies and worked steps.
 - **Student data sent to third parties:** Only anonymized academic performance signals (such as "Student scored 6/10 in Stoichiometry, missed questions 3 and 4 on limiting reagents, hesitated 9 seconds") are sent in the prompt. No student passwords, emails, or personal identification details are ever transmitted to the LLM.
-- **Cost at scale:** Using Gemini 2.5 Flash costs fractions of a cent per diagnostic evaluation (approximately 0.0003 dollars per student breakdown), making it highly economical for public school rollouts.
+- **Cost at scale:** Using Gemini 3.8 Flash costs fractions of a cent per diagnostic evaluation (approximately 0.0003 dollars per student breakdown), making it highly economical for public school rollouts.
 
 ## 4. Key Prompts
 

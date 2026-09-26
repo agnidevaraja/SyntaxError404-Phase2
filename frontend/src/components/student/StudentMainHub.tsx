@@ -22,6 +22,7 @@ import {
   Compass,
 } from 'lucide-react';
 import { GRADE_9_FULL_SYLLABUS_SUBJECTS } from '../../data/mockStudentHubData';
+import { StudentGlobalOpportunitiesHub } from './StudentGlobalOpportunitiesHub';
 
 export const StudentMainHub: React.FC = () => {
   const {
@@ -468,6 +469,9 @@ export const StudentMainHub: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* SECTION 4: Academic Opportunities & Global Competitions Hub (Outstand AI Search) */}
+      <StudentGlobalOpportunitiesHub />
 
       {/* FULL SYLLABUS INTERACTIVE DOCUMENT VIEWER MODAL */}
       {isDocModalOpen && (

@@ -19,6 +19,7 @@ import {
 import { DollarSign, Award, CheckCircle2, Lock, Lightbulb, MessageSquare } from 'lucide-react';
 import { OpportunitiesHubEconomics } from './OpportunitiesHubEconomics';
 import { RealLifeAnalogyExplorer } from './RealLifeAnalogyExplorer';
+import { AutonomousModalityEngine } from './AutonomousModalityEngine';
 import { EconomicsFocusAreaPackage } from '../../data/mockEconomicsData';
 import { AdaptiveConceptExplainerModal } from './AdaptiveConceptExplainerModal';
 import { PersonalizedChatView } from '../common/PersonalizedChatView';
@@ -305,6 +306,9 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
         }}
       />
 
+      {/* AUTONOMOUS COGNITIVE MODALITY ENGINE (4 LEARNING STYLES) */}
+      <AutonomousModalityEngine subject="economics" />
+
       {/* FOCUS AREA SELECTION GRID */}
       <section className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-4">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -489,6 +493,9 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
         </div>
       </section>
 
+      {/* Autonomous Cognitive Modality Engine */}
+      <AutonomousModalityEngine subject="economics" />
+
       {/* NEW: Jargon-Free Real-Life Analogy Explorer */}
       <RealLifeAnalogyExplorer subject="economics" />
 
@@ -643,12 +650,12 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
         </div>
 
         <PersonalizedChatView
-          studentUid={authUser?.uid || 'std-rohan'}
-          studentName={authUser?.displayName || 'Student'}
+          studentUid={authUser?.uid || 'std-demo-student-econ'}
+          studentName={authUser?.displayName || 'Demo Student'}
           subject="Economics"
           currentUserRole="student"
-          currentUserName={authUser?.displayName || 'Student'}
-          currentUserId={authUser?.uid || 'std-rohan'}
+          currentUserName={authUser?.displayName || 'Demo Student'}
+          currentUserId={authUser?.uid || 'std-demo-student-econ'}
           isInlineCard={true}
         />
       </section>
@@ -665,12 +672,12 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
       {/* Slide-over Drawer / Modal for 1-on-1 Instructor Support */}
       {isChatDrawerOpen && (
         <PersonalizedChatView
-          studentUid={authUser?.uid || 'std-rohan'}
-          studentName={authUser?.displayName || 'Student'}
+          studentUid={authUser?.uid || 'std-demo-student-econ'}
+          studentName={authUser?.displayName || 'Demo Student'}
           subject="Economics"
           currentUserRole="student"
-          currentUserName={authUser?.displayName || 'Student'}
-          currentUserId={authUser?.uid || 'std-rohan'}
+          currentUserName={authUser?.displayName || 'Demo Student'}
+          currentUserId={authUser?.uid || 'std-demo-student-econ'}
           onClose={() => setIsChatDrawerOpen(false)}
         />
       )}

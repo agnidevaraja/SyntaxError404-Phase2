@@ -119,7 +119,7 @@ export const PersonalizedChatView: React.FC<PersonalizedChatViewProps> = ({
             </div>
             <p className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Real-time private intervention thread (Firestore sync)</span>
+              <span>Real-time private intervention thread</span>
             </p>
           </div>
         </div>

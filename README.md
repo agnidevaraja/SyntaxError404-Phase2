@@ -35,12 +35,12 @@ Outstand is an intelligent learning portal that diagnoses conceptual roadblocks,
 **Core flow:**
 1. A student logs in and takes a 10-question diagnostic assessment in Chemistry or Economics. While they answer, the app measures response timing and flags questions where they hesitated.
 2. The system analyzes errors, maps them to a sequenced 5-node Concept Knowledge Graph, and unlocks a tailored study space with custom presentation slides, real-world analogies, and guided practice exercises.
-3. If a student struggles on a practice question, they can click "Break It Down with AI" to generate an everyday analogy, a worked solution, and an interactive checkpoint question using the Google Gemini API.
+3. If a student struggles on a practice question, they can click "Break It Down with AI" to generate an everyday analogy, a worked solution, and an interactive checkpoint question using the Google Gemini API. Students can also discover verified academic competitions and Olympiads through an interactive AI prompt search on their main learning hub.
 4. Meanwhile, the teacher sees a real-time cohort dashboard updated through Cloud Firestore. The dashboard highlights students with high hesitation, provides a 4-line AI advisory breakdown, and lets the teacher paste action plans directly into a 1-on-1 private intervention chat.
 
 ## 4. Architecture
 
-A React 19 single page application powered by Vite, Tailwind CSS, Google Gemini 2.5 Flash, Firebase Authentication, and Cloud Firestore real-time listeners.
+A React 19 single page application powered by Vite, Tailwind CSS, Google Gemini 3.8 Flash (with Gemini 2.5 Flash fallback), Firebase Authentication, and Cloud Firestore real-time listeners.
 
 Diagram, components, data model and APIs: **[docs/architecture.md](./docs/architecture.md)**
 
@@ -49,7 +49,7 @@ Diagram, components, data model and APIs: **[docs/architecture.md](./docs/archit
 **Stack:** React 19, TypeScript, Vite, Tailwind CSS 4, Firebase Auth, Cloud Firestore, Google Gemini API via @google/genai SDK (full details in [docs/architecture.md](./docs/architecture.md#tech-stack))
 
 **AI tools used in development:** Antigravity IDE, Claude, and Gemini for scaffolding code, debugging TypeScript types, and styling components.
-**AI inside the product:** Google Gemini 2.5 Flash for the Facilitator 4-Line Diagnostic Advisory Engine, the Adaptive Concept Explainer, and the Verified Opportunities Hub.
+**AI inside the product:** Google Gemini 3.8 Flash (with Gemini 2.5 Flash fallback) for the Facilitator 4-Line Diagnostic Advisory Engine, the Adaptive Concept Explainer, and the multi-disciplinary Opportunities Hub with custom AI prompt search.
 
 Full disclosure: **[ai.md](./ai.md)**
 

@@ -1,340 +1,261 @@
 import { GoogleGenAI } from '@google/genai';
 import { OpportunityItem, StudentPerformanceContext } from '../types/opportunities';
 
-// Verified Real-World 2026 Opportunities Database (Calibrated Fallbacks & Reference Targets)
-export const VERIFIED_2026_OPPORTUNITIES: Record<'elite' | 'standard' | 'accessible', OpportunityItem[]> = {
-  elite: [
-    {
-      id: 'usnco-olympiad-2026',
-      title: 'U.S. National Chemistry Olympiad (USNCO)',
-      categoryTags: ['Competition', 'Chemistry', 'Verified'],
-      isVerified: true,
-      rating: 5,
-      summaryQuote:
-        'Organized by the American Chemical Society, USNCO is a multi-tiered national chemistry competition designed to stimulate and recognize achievement in high school chemistry. Top national finalists attend the prestigious USNCO Study Camp to train for the International Chemistry Olympiad (IChO).',
-      format: 'In-Person',
-      cost: 'Free',
-      effort: 'High Effort',
-      ageGroup: '14-18',
-      deadline: 'April 22, 2026',
-      whyItMatches:
-        'Having demonstrated 100% mastery across all foundational chemistry nodes and unlocking the Olympiad Honors Module (Van der Waals non-ideal fluids and advanced reaction kinetics), USNCO is your natural competitive stage to convert classroom excellence into national academic distinction.',
-      learnMoreUrl: 'https://www.acs.org/education/olympiad.html',
-      registrationUrl: 'https://www.acs.org/education/olympiad/local-competitions.html',
-      tier: 'elite',
-    },
-    {
-      id: 'acs-chemclub-challenge-2026',
-      title: 'ACS National Chemistry Challenge',
-      categoryTags: ['Competition', 'Chemistry', 'Verified'],
-      isVerified: true,
-      rating: 5,
-      summaryQuote:
-        'Organized by the American Chemical Society, this national challenge invites high school students to investigate applied chemistry problems, solve advanced chemical synthesis scenarios, and demonstrate laboratory precision in analytical chemistry and limiting reactant stoichiometry.',
-      format: 'Online',
-      cost: 'Free',
-      effort: 'High Effort',
-      ageGroup: '13-18',
-      deadline: 'May 13, 2026',
-      whyItMatches:
-        'Your flawless 10/10 mastery in chemical stoichiometry and stoichiometric molar calculations shows top-tier quantitative aptitude. The ACS National Challenge offers a direct runway to apply molecular precision to real-world synthesis and analytical chemistry problems.',
-      learnMoreUrl: 'https://www.acs.org/education/chemclub.html',
-      registrationUrl: 'https://www.acs.org/education/chemclub/activities.html',
-      tier: 'elite',
-    },
-    {
-      id: 'icho-qualifying-2026',
-      title: 'International Chemistry Olympiad (IChO Qualifying Track)',
-      categoryTags: ['Olympiad', 'Chemistry', 'Verified'],
-      isVerified: true,
-      rating: 5,
-      summaryQuote:
-        'The premier international academic competition in chemistry for secondary school students. Participants tackle rigorous theoretical problems covering thermodynamics, reaction kinetics, molecular equilibrium, and inorganic reaction mechanisms.',
-      format: 'Hybrid',
-      cost: 'Free',
-      effort: 'High Effort',
-      ageGroup: '14-18',
-      deadline: 'May 15, 2026',
-      whyItMatches:
-        'Demonstrating top marks in reaction stoichiometry and multi-step mass-to-mole conversions establishes the exact analytical groundwork tested on IChO national qualifying examinations.',
-      learnMoreUrl: 'https://www.icho2026.org/',
-      registrationUrl: 'https://www.acs.org/education/olympiad.html',
-      tier: 'elite',
-    },
-    {
-      id: 'conrad-challenge-2026',
-      title: 'Conrad Challenge: Sustainable Chemistry & Clean Energy',
-      categoryTags: ['Competition', 'Chemistry', 'Verified'],
-      isVerified: true,
-      rating: 5,
-      summaryQuote:
-        'The Conrad Challenge is an annual innovation and entrepreneurship competition for high school students. Student teams design commercially-viable technological solutions addressing global clean energy, novel chemical recycling, and environmental sustainability.',
-      format: 'Online',
-      cost: 'Free',
-      effort: 'High Effort',
-      ageGroup: '13-18',
-      deadline: 'November 12, 2026',
-      whyItMatches:
-        'Your command of limiting reactants and quantitative percent yield metrics aligns directly with chemical process engineering challenges in clean energy synthesis and green catalytic reactions.',
-      learnMoreUrl: 'https://www.conradchallenge.org/',
-      registrationUrl: 'https://www.conradchallenge.org/register',
-      tier: 'elite',
-    },
-  ],
-  standard: [
-    {
-      id: 'mit-think-2026',
-      title: 'MIT THINK Scholars Program',
-      categoryTags: ['Research Program', 'STEM', 'Verified'],
-      isVerified: true,
-      rating: 5,
-      summaryQuote:
-        'An educational outreach program organized by MIT undergraduates that invites high school students to propose novel STEM research projects. Finalists receive weekly mentorship from MIT researchers and seed funding to execute their research.',
-      format: 'Online',
-      cost: 'Free',
-      effort: 'High Effort',
-      ageGroup: '14-18',
-      deadline: 'January 5, 2026',
-      whyItMatches:
-        'Based on your strong 8/10 performance in chemical stoichiometry and balanced equation dynamics, the THINK program provides structured university mentorship to develop your independent project proposal in sustainable chemical synthesis.',
-      learnMoreUrl: 'https://think.mit.edu/',
-      registrationUrl: 'https://think.mit.edu/apply/',
-      tier: 'standard',
-    },
-    {
-      id: 'stockholm-junior-water-2026',
-      title: 'Stockholm Junior Water Prize (SJWP)',
-      categoryTags: ['Competition', 'STEM', 'Verified'],
-      isVerified: true,
-      rating: 5,
-      summaryQuote:
-        'The worlds most prestigious youth award for water-related scientific research and water quality improvement projects. High school students investigate chemical contamination, microplastic filtration, and water conservation technologies.',
-      format: 'Hybrid',
-      cost: 'Free',
-      effort: 'Moderate Effort',
-      ageGroup: '15-18',
-      deadline: 'April 15, 2026',
-      whyItMatches:
-        'Water chemistry directly applies your learning on polyatomic ion charges, aqueous redox states, and molar concentration calculations. This competition allows you to apply core syllabus concepts to global clean water research.',
-      learnMoreUrl: 'https://www.wef.org/sjwp/',
-      registrationUrl: 'https://www.wef.org/sjwp-apply/',
-      tier: 'standard',
-    },
-    {
-      id: 'regeneron-isef-chem-2026',
-      title: 'Regeneron ISEF: Chemistry & Materials',
-      categoryTags: ['Competition', 'STEM', 'Verified'],
-      isVerified: true,
-      rating: 5,
-      summaryQuote:
-        'The Regeneron International Science and Engineering Fair is the worlds premier pre-college STEM competition. Thousands of student innovators compete for millions in scholarships through affiliated local and regional science fairs.',
-      format: 'Hybrid',
-      cost: 'Free',
-      effort: 'High Effort',
-      ageGroup: '14-18',
-      deadline: 'May 10, 2026',
-      whyItMatches:
-        'Your demonstrated laboratory problem-solving skills and multi-step mass-to-mole bridge understanding prepare you well to present structured experimental research through local ISEF-affiliated regional chemistry fairs.',
-      learnMoreUrl: 'https://www.societyforscience.org/isef/',
-      registrationUrl: 'https://www.societyforscience.org/isef/fair-network/',
-      tier: 'standard',
-    },
-    {
-      id: 'bio-builder-challenge-2026',
-      title: 'BioBuilder Idea Accelerator',
-      categoryTags: ['STEM', 'Competition', 'Verified'],
-      isVerified: true,
-      rating: 5,
-      summaryQuote:
-        'BioBuilder teaches students synthetic biology by engineering biological systems to solve human health and environmental issues. Teams receive feedback from leading bioengineers and synthetic chemistry mentors.',
-      format: 'Online',
-      cost: 'Free',
-      effort: 'Moderate Effort',
-      ageGroup: '13-18',
-      deadline: 'March 30, 2026',
-      whyItMatches:
-        'Connecting molecular structure and chemical bonds to biological engineering, BioBuilder offers an accessible entry point to convert your classroom chemistry knowledge into cutting-edge synthetic biology.',
-      learnMoreUrl: 'https://biobuilder.org/',
-      registrationUrl: 'https://biobuilder.org/programs/',
-      tier: 'standard',
-    },
-  ],
-  accessible: [
-    {
-      id: 'samsung-solve-for-tomorrow-2026',
-      title: 'Samsung Solve for Tomorrow',
-      categoryTags: ['Competition', 'STEM', 'Verified'],
-      isVerified: true,
-      rating: 5,
-      summaryQuote:
-        'A nationwide challenge for public school students in grades 6-12 to explore how STEM can be applied to solve pressing problems in their local community. Teams create hands-on prototypes with dedicated teacher mentorship.',
-      format: 'Hybrid',
-      cost: 'Free',
-      effort: 'Moderate Effort',
-      ageGroup: '13-18',
-      deadline: 'October 28, 2026',
-      whyItMatches:
-        'Designed to build confidence through practical, real-world team projects. Since your diagnostic flagged specific calculation traps in mole ratios, this competition focuses on qualitative design, hands-on experimentation, and practical community impact to reinforce core scientific principles without overwhelming math stress.',
-      learnMoreUrl: 'https://www.samsung.com/us/solvefortomorrow/',
-      registrationUrl: 'https://www.samsung.com/us/solvefortomorrow/apply/',
-      tier: 'accessible',
-    },
-    {
-      id: 'chemclub-community-project-2026',
-      title: 'ACS ChemClub Community Chemistry Initiative',
-      categoryTags: ['STEM', 'Fellowship', 'Verified'],
-      isVerified: true,
-      rating: 5,
-      summaryQuote:
-        'The American Chemical Society ChemClub program provides grants and project guides for high school students to conduct community chemistry workshops, household water testing, and interactive science demonstrations.',
-      format: 'In-Person',
-      cost: 'Free',
-      effort: 'Moderate Effort',
-      ageGroup: '13-18',
-      deadline: 'November 1, 2026',
-      whyItMatches:
-        'Targeted remediation in Unit 2 (valence electrons and polyatomic ions) is best supported by tangible, experiential chemistry. This initiative lets you build physical molecular models, run safe household reactions, and solidify foundational matter concepts.',
-      learnMoreUrl: 'https://www.acs.org/education/chemclub.html',
-      registrationUrl: 'https://www.acs.org/education/chemclub/start-a-club.html',
-      tier: 'accessible',
-    },
-    {
-      id: 'earth-echo-challenge-2026',
-      title: 'EarthEcho Water Challenge',
-      categoryTags: ['Research Program', 'STEM', 'Verified'],
-      isVerified: true,
-      rating: 5,
-      summaryQuote:
-        'An international citizen-science initiative that encourages young people to monitor their local water quality (pH, dissolved oxygen, turbidity) and take action to protect water resources across their community.',
-      format: 'Online',
-      cost: 'Free',
-      effort: 'Low Effort',
-      ageGroup: '12-18',
-      deadline: 'December 31, 2026',
-      whyItMatches:
-        'Measuring pH and chemical turbidity in local rivers gives tangible physical meaning to chemical formulas and polyatomic ion charges, directly targeting and resolving the conceptual traps highlighted in your diagnostic assessment.',
-      learnMoreUrl: 'https://www.monitorwater.org/',
-      registrationUrl: 'https://www.monitorwater.org/join',
-      tier: 'accessible',
-    },
-    {
-      id: 'regional-stem-maker-fair-2026',
-      title: 'Regional Youth STEM & Maker Challenge',
-      categoryTags: ['Competition', 'STEM', 'Verified'],
-      isVerified: true,
-      rating: 5,
-      summaryQuote:
-        'A supportive regional science and maker festival where beginner and intermediate students display hands-on science models, sustainable chemistry demos, and interactive STEM prototypes in a low-stakes, constructive setting.',
-      format: 'In-Person',
-      cost: 'Free',
-      effort: 'Moderate Effort',
-      ageGroup: '13-18',
-      deadline: 'September 18, 2026',
-      whyItMatches:
-        'A warm, highly supportive environment to rebuild enthusiasm for chemistry. Presenting your model builds mastery over stoichiometric relationships while receiving encouraging feedback from university student judges.',
-      learnMoreUrl: 'https://www.sciencefairs.org/',
-      registrationUrl: 'https://www.sciencefairs.org/register',
-      tier: 'accessible',
-    },
-  ],
+// Verified Multi-Disciplinary 2026 Academic Opportunities Database (For Student Learning Hub)
+export const VERIFIED_2026_STUDENT_GLOBAL_OPPORTUNITIES: OpportunityItem[] = [
+  {
+    id: 'usaco-olympiad-2026',
+    title: 'USA Computing Olympiad (USACO 2026)',
+    categoryTags: ['Competition', 'AI & CS', 'Verified'],
+    isVerified: true,
+    rating: 5,
+    summaryQuote:
+      'The premier secondary computer science competition in algorithmic thinking and data structures. Solvers advance through Bronze, Silver, Gold, and Platinum divisions toward the International Olympiad in Informatics (IOI).',
+    format: 'Online',
+    cost: 'Free',
+    effort: 'High Effort',
+    ageGroup: '13-18',
+    deadline: 'April 6, 2026',
+    whyItMatches:
+      'Rigorous algorithmic problem solving reinforces multi-step quantitative reasoning and systematic debugging across all computational sciences.',
+    learnMoreUrl: 'http://www.usaco.org/',
+    registrationUrl: 'http://www.usaco.org/index.php?page=contests',
+    tier: 'elite',
+  },
+  {
+    id: 'regeneron-isef-2026',
+    title: 'Regeneron International Science & Engineering Fair (ISEF)',
+    categoryTags: ['Competition', 'STEM', 'Verified'],
+    isVerified: true,
+    rating: 5,
+    summaryQuote:
+      'The worlds largest pre-college STEM research competition. More than 1,800 high school scientists from 75+ countries present groundbreaking original research in 21 scientific disciplines.',
+    format: 'Hybrid',
+    cost: 'Free',
+    effort: 'High Effort',
+    ageGroup: '14-18',
+    deadline: 'May 10, 2026',
+    whyItMatches:
+      'Direct pipeline to transform independent STEM exploration into internationally recognized research distinctions and global collegiate scholarships.',
+    learnMoreUrl: 'https://www.societyforscience.org/isef/',
+    registrationUrl: 'https://www.societyforscience.org/isef/fair-network/',
+    tier: 'elite',
+  },
+  {
+    id: 'john-locke-essay-2026',
+    title: 'John Locke Institute Global Essay Prize',
+    categoryTags: ['Competition', 'Economics', 'Writing', 'Verified'],
+    isVerified: true,
+    rating: 5,
+    summaryQuote:
+      'An annual global essay competition judged by senior academics from Oxford and Princeton. Evaluates student arguments in Economics, History, Politics, Philosophy, and Law.',
+    format: 'Online',
+    cost: 'Free',
+    effort: 'High Effort',
+    ageGroup: '14-18',
+    deadline: 'June 30, 2026',
+    whyItMatches:
+      'Hones lucid writing, critical inquiry, and analytical argumentation on real-world market dynamics and economic philosophies.',
+    learnMoreUrl: 'https://www.johnlockeinstitute.com/essay-competition',
+    registrationUrl: 'https://www.johnlockeinstitute.com/enter',
+    tier: 'elite',
+  },
+  {
+    id: 'conrad-challenge-global-2026',
+    title: 'The Conrad Challenge (Global Innovation Summit)',
+    categoryTags: ['Innovation', 'STEM', 'Entrepreneurship', 'Verified'],
+    isVerified: true,
+    rating: 5,
+    summaryQuote:
+      'An international innovation challenge where student teams develop commercially viable technologies addressing Aerospace, Cyber-Technology, Energy & Environment, and Health & Nutrition.',
+    format: 'Hybrid',
+    cost: 'Free',
+    effort: 'High Effort',
+    ageGroup: '13-18',
+    deadline: 'November 12, 2026',
+    whyItMatches:
+      'Fuses STEM scientific design with practical entrepreneurial economics and prototype development.',
+    learnMoreUrl: 'https://www.conradchallenge.org/',
+    registrationUrl: 'https://www.conradchallenge.org/register',
+    tier: 'elite',
+  },
+  {
+    id: 'mit-think-scholars-2026',
+    title: 'MIT THINK Scholars Research Program',
+    categoryTags: ['Research Program', 'STEM', 'Mentorship', 'Verified'],
+    isVerified: true,
+    rating: 5,
+    summaryQuote:
+      'Organized by MIT undergraduates to support high school students with innovative scientific proposals. Finalists receive $1,000 project funding and dedicated weekly research mentorship from MIT.',
+    format: 'Online',
+    cost: 'Free',
+    effort: 'High Effort',
+    ageGroup: '14-18',
+    deadline: 'January 5, 2026',
+    whyItMatches:
+      'Provides direct access to world-class university researchers to take theoretical science concepts into experimental realization.',
+    learnMoreUrl: 'https://think.mit.edu/',
+    registrationUrl: 'https://think.mit.edu/apply/',
+    tier: 'standard',
+  },
+  {
+    id: 'breakthrough-junior-challenge-2026',
+    title: 'Breakthrough Junior Challenge',
+    categoryTags: ['Competition', 'Science Comm', 'Verified'],
+    isVerified: true,
+    rating: 5,
+    summaryQuote:
+      'A global science video competition where high schoolers create a 90-second video explaining a complex concept or theory in Life Sciences, Physics, or Mathematics with dynamic visual analogies.',
+    format: 'Online',
+    cost: 'Free',
+    effort: 'Moderate Effort',
+    ageGroup: '13-18',
+    deadline: 'June 25, 2026',
+    whyItMatches:
+      'Cultivates conceptual mastery through vivid analogical explanation: the exact pedagogy powering Outstands adaptive learning engine.',
+    learnMoreUrl: 'https://breakthroughjuniorchallenge.org/',
+    registrationUrl: 'https://breakthroughjuniorchallenge.org/how-it-works',
+    tier: 'standard',
+  },
+  {
+    id: 'samsung-solve-tomorrow-2026',
+    title: 'Samsung Solve for Tomorrow',
+    categoryTags: ['Competition', 'STEM', 'Community', 'Verified'],
+    isVerified: true,
+    rating: 5,
+    summaryQuote:
+      'A nationwide competition fostering problem-based STEM learning. Public school teams engineer hands-on prototypes solving pressing social and environmental issues in their local community.',
+    format: 'Hybrid',
+    cost: 'Free',
+    effort: 'Moderate Effort',
+    ageGroup: '12-18',
+    deadline: 'October 28, 2026',
+    whyItMatches:
+      'Accessible, hands-on team engineering with school mentorship to apply scientific logic to community impact.',
+    learnMoreUrl: 'https://www.samsung.com/us/solvefortomorrow/',
+    registrationUrl: 'https://www.samsung.com/us/solvefortomorrow/apply/',
+    tier: 'accessible',
+  },
+  {
+    id: 'congressional-app-challenge-2026',
+    title: 'Congressional App Challenge',
+    categoryTags: ['Coding', 'CS', 'Civic Tech', 'Verified'],
+    isVerified: true,
+    rating: 5,
+    summaryQuote:
+      'The official computer science initiative of the U.S. House of Representatives. Students code applications using any programming language to address public needs or educational problems.',
+    format: 'Online',
+    cost: 'Free',
+    effort: 'Moderate Effort',
+    ageGroup: '13-18',
+    deadline: 'October 24, 2026',
+    whyItMatches:
+      'Great accessible pathway to showcase software applications, web apps, and machine learning tools with official congressional recognition.',
+    learnMoreUrl: 'https://www.congressionalappchallenge.us/',
+    registrationUrl: 'https://www.congressionalappchallenge.us/students/student-registration/',
+    tier: 'accessible',
+  },
+];
+
+// Backward-compatible alias
+export const VERIFIED_2026_OPPORTUNITIES = {
+  elite: VERIFIED_2026_STUDENT_GLOBAL_OPPORTUNITIES.filter((o) => o.tier === 'elite'),
+  standard: VERIFIED_2026_STUDENT_GLOBAL_OPPORTUNITIES.filter((o) => o.tier === 'standard'),
+  accessible: VERIFIED_2026_STUDENT_GLOBAL_OPPORTUNITIES.filter((o) => o.tier === 'accessible'),
 };
 
-// Generates dynamic search query based on performance profile
-export function getDynamicSearchQuery(context: StudentPerformanceContext): string {
-  if (context.isPerfectScore || context.diagnosticScore >= 9) {
-    return 'National Chemistry Olympiads & elite chemical research programs';
-  }
-  if (context.diagnosticScore >= 7) {
-    return 'Applied chemistry research & physical science competitions';
-  }
-  return 'Hands-on chemistry challenges & regional science fairs';
+/**
+ * Fetch default verified 2026 opportunities for the Student Learning Hub
+ */
+export async function fetchStudentGlobalOpportunities(): Promise<OpportunityItem[]> {
+  return VERIFIED_2026_STUDENT_GLOBAL_OPPORTUNITIES;
 }
 
-// Fetch or generate curated opportunities via Gemini AI API
-export async function fetchCuratedOpportunities(
-  context: StudentPerformanceContext
+/**
+ * Search and discover academic opportunities using Gemini AI (VITE_GEMINI_OPPORTUNITIES_API_KEY)
+ * Model: gemini-3.8-flash with JSON mode
+ */
+export async function searchOpportunitiesWithAI(
+  searchPrompt: string,
+  studentContext?: Partial<StudentPerformanceContext>
 ): Promise<OpportunityItem[]> {
+  const trimmed = searchPrompt.trim();
+  if (!trimmed) {
+    return VERIFIED_2026_STUDENT_GLOBAL_OPPORTUNITIES;
+  }
+
   const apiKey =
     (import.meta.env.VITE_GEMINI_OPPORTUNITIES_API_KEY as string) ||
     (import.meta.env.VITE_GEMINI_API_KEY as string) ||
     '';
 
-  const targetTier: 'elite' | 'standard' | 'accessible' =
-    context.isPerfectScore || context.diagnosticScore >= 9
-      ? 'elite'
-      : context.diagnosticScore >= 7
-      ? 'standard'
-      : 'accessible';
+  // Keyword-based fallback if no key or network offline
+  const keywordFallback = VERIFIED_2026_STUDENT_GLOBAL_OPPORTUNITIES.filter((opp) => {
+    const q = trimmed.toLowerCase();
+    return (
+      opp.title.toLowerCase().includes(q) ||
+      opp.categoryTags.some((t) => t.toLowerCase().includes(q)) ||
+      opp.summaryQuote.toLowerCase().includes(q)
+    );
+  });
 
-  const defaultOpportunities = VERIFIED_2026_OPPORTUNITIES[targetTier];
+  const fallbackResults = keywordFallback.length > 0 ? keywordFallback : VERIFIED_2026_STUDENT_GLOBAL_OPPORTUNITIES;
 
-  if (!apiKey || apiKey.trim().length === 0) {
-    console.log('[OpportunitiesService] No Gemini API key found, returning verified 2026 opportunities.');
-    return defaultOpportunities;
+  if (!apiKey) {
+    console.log('[OpportunitiesGeminiService] No API key found, returning curated matching opportunities.');
+    return fallbackResults;
   }
 
   try {
     const ai = new GoogleGenAI({ apiKey });
 
-    const prompt = `You are an elite academic advisor and scientific extracurricular curator for a Grade 9 Chemistry student named ${context.studentName}.
-Student Profile and Performance Data:
-- Diagnostic Chemistry Score: ${context.diagnosticScore} out of ${context.totalQuestions} (${Math.round(
-      (context.diagnosticScore / context.totalQuestions) * 100
-    )}% mastery)
-- Perfect Score / Olympiad Unlocked: ${context.isPerfectScore ? 'YES' : 'NO'}
-- Current Priority Chemistry Focus: "${context.focusTopic}"
-- Identified Weak Topics / Misconceptions: ${
-      context.weakTopics.length > 0 ? context.weakTopics.join(', ') : 'None (100% Mastery Achieved)'
-    }
-- Tasks Completed: ${context.completedTasksCount} of ${context.totalTasksCount}
+    const prompt = `You are a world-class academic advisor and extracurricular opportunity curator for secondary school students (Grades 8-12).
+The student has entered the following search query to discover academic opportunities:
+Query: "${trimmed}"
 
-Personalization Directives:
-${
-  context.isPerfectScore || context.diagnosticScore >= 9
-    ? '- HIGH MASTERY / 10 OUT OF 10: Curate prestigious elite Chemistry competitions and top-tier global chemical research programs (such as USNCO National Chemistry Olympiad, ACS National Chemistry Challenge, International Chemistry Olympiad (IChO), Regeneron ISEF Chemistry division, Conrad Challenge Sustainable Chemistry, MIT THINK Materials & Chemistry).'
-    : context.diagnosticScore >= 7
-    ? '- SOLID MASTERY: Curate applied chemistry research, aqueous chemical analysis competitions (e.g. Stockholm Junior Water Prize, You Be The Chemist), and university outreach programs.'
-    : '- STRUGGLING / REBUILDING: Curate accessible, hands-on chemistry challenges, community science projects (e.g. Samsung Solve for Tomorrow, ACS ChemClub citizen chemistry), and regional youth science fairs to rebuild confidence.'
-}
+Student Academic Level: Grade 9 Secondary School
+Context: Multi-disciplinary Student Learning Hub (STEM, Mathematics, Computer Science / AI, Economics, Writing, Olympiads, Research Programs, Hackathons).
 
-Strict Integrity Rules:
-- STRICT SUBJECT CONSTRAINT: ONLY return chemistry and physical chemical science opportunities. DO NOT return biomedical, genetic engineering, or biology competitions. This is strictly for the Chemistry student portal.
-1. ONLY return real-world, verified programs and competitions (NO fictional or placeholder programs).
-2. ALL deadlines MUST realistically fall within calendar year 2026 (e.g., May 13, 2026, May 15, 2026, June 1, 2026, Oct 20, 2026).
-3. The "whyItMatches" explanation MUST explicitly reference their demonstrated Chemistry diagnostic score (${context.diagnosticScore}/${context.totalQuestions}) and their specific performance in ${context.focusTopic}.
+Strict Requirements:
+1. ONLY return verified, real-world, reputable competitions, Olympiads, research internships, hackathons, or fellowship programs (NO fabricated or generic placeholder names).
+2. ALL deadlines MUST realistically be in calendar year 2026.
+3. Every entry MUST have a valid, realistic official URL for learnMoreUrl and registrationUrl.
+4. "whyItMatches": Write a tailored, inspiring 2-sentence rationale explicitly explaining why this opportunity aligns directly with the student's query "${trimmed}".
+5. Curate exactly 4 to 6 top-tier opportunities matching the query.
 
 Output Format:
-Return ONLY a valid JSON array of 4 opportunity objects with this exact structure:
+Return ONLY a valid JSON array of objects matching this exact TypeScript structure:
 [
   {
     "id": "unique-kebab-slug",
-    "title": "Exact Official Program Name",
-    "categoryTags": ["Competition", "STEM", "Verified"],
+    "title": "Exact Official Competition or Program Name",
+    "categoryTags": ["Tag1", "Tag2", "Verified"],
     "isVerified": true,
     "rating": 5,
-    "summaryQuote": "2-3 sentence overview describing the program in quotes.",
-    "format": "Online" or "In-Person" or "Hybrid",
+    "summaryQuote": "A concise 2-sentence official description of what the student will do and achieve.",
+    "format": "Online" | "In-Person" | "Hybrid",
     "cost": "Free",
-    "effort": "High Effort" or "Moderate Effort",
+    "effort": "High Effort" | "Moderate Effort" | "Low Effort",
     "ageGroup": "13-18",
     "deadline": "Month Day, 2026",
-    "whyItMatches": "Detailed personalized paragraph explaining why this program matches the student, explicitly citing their diagnostic performance and current standing.",
-    "learnMoreUrl": "https://official-program-url.org",
-    "registrationUrl": "https://official-program-url.org/register",
-    "tier": "${targetTier}"
+    "whyItMatches": "Detailed rationale connecting this program directly to the student's search prompt.",
+    "learnMoreUrl": "https://official-program-website.org",
+    "registrationUrl": "https://official-program-website.org/apply",
+    "tier": "elite" | "standard" | "accessible"
   }
 ]`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-3.8-flash',
       contents: prompt,
+      config: {
+        responseMimeType: 'application/json',
+      },
     });
 
-    const text = response.text || '';
-    // Extract JSON block if wrapped in markdown
-    const jsonMatch = text.match(/\[\s*\{[\s\S]*\}\s*\]/);
-    if (jsonMatch) {
-      const parsed: OpportunityItem[] = JSON.parse(jsonMatch[0]);
+    const text = response.text?.trim() || '';
+    if (text) {
+      const parsed = JSON.parse(text);
       if (Array.isArray(parsed) && parsed.length > 0) {
         return parsed.map((item) => ({
           ...item,
@@ -342,15 +263,32 @@ Return ONLY a valid JSON array of 4 opportunity objects with this exact structur
           isVerified: true,
           categoryTags: item.categoryTags?.includes('Verified')
             ? item.categoryTags
-            : [...(item.categoryTags || ['Competition', 'STEM']), 'Verified'],
+            : [...(item.categoryTags || ['Academic', 'Verified']), 'Verified'],
         }));
       }
     }
 
-    console.warn('[OpportunitiesService] Could not parse Gemini response as JSON array, using verified fallback.');
-    return defaultOpportunities;
+    return fallbackResults;
   } catch (error: any) {
-    console.warn('[OpportunitiesService] Gemini API call error:', error?.message || error);
-    return defaultOpportunities;
+    console.warn('[OpportunitiesGeminiService] Gemini AI search error:', error?.message || error);
+    return fallbackResults;
   }
+}
+
+// Backward-compatible alias for any legacy imports
+export async function fetchCuratedOpportunities(
+  context: StudentPerformanceContext
+): Promise<OpportunityItem[]> {
+  const targetTier: 'elite' | 'standard' | 'accessible' =
+    context.isPerfectScore || context.diagnosticScore >= 9
+      ? 'elite'
+      : context.diagnosticScore >= 7
+      ? 'standard'
+      : 'accessible';
+
+  return VERIFIED_2026_STUDENT_GLOBAL_OPPORTUNITIES.filter((o) => o.tier === targetTier);
+}
+
+export function getDynamicSearchQuery(context: StudentPerformanceContext): string {
+  return 'Global STEM and academic competitions';
 }

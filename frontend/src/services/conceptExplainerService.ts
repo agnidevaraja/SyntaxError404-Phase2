@@ -74,7 +74,7 @@ Return ONLY a valid JSON object matching this exact schema:
 
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.8-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -82,9 +82,9 @@ Return ONLY a valid JSON object matching this exact schema:
       });
       responseText = response.text?.trim() || '';
     } catch (e) {
-      console.warn('[ConceptExplainer] Fallback to gemini-1.5-flash:', e);
+      console.warn('[ConceptExplainer] Fallback to gemini-2.5-flash:', e);
       const fallbackResponse = await ai.models.generateContent({
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',

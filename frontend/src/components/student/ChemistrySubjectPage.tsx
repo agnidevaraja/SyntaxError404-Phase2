@@ -21,7 +21,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { SevenDayProficiencyChart } from '../common/SevenDayProficiencyChart';
-import { ACHALESH_WEEKLY_PROGRESSION } from '../../data/weeklyProficiencyData';
+import { DEMO_STUDENT_WEEKLY_PROGRESSION } from '../../data/weeklyProficiencyData';
 import { GRADE_9_CHEMISTRY_INTERRELATED_TOPICS } from '../../data/mockStudentHubData';
 
 export const ChemistrySubjectPage: React.FC = () => {
@@ -347,7 +347,7 @@ export const ChemistrySubjectPage: React.FC = () => {
 
       {/* SECTION 3: 7-Day Performance & Chemistry Proficiency Graph (Positioned BELOW Class Drive) */}
       <section className="space-y-4">
-        <SevenDayProficiencyChart progression={ACHALESH_WEEKLY_PROGRESSION} />
+        <SevenDayProficiencyChart progression={DEMO_STUDENT_WEEKLY_PROGRESSION} />
       </section>
 
       {/* SECTION 4: Start Your Personalized Learning Platform */}

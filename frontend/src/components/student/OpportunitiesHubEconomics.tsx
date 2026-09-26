@@ -168,7 +168,7 @@ export const OpportunitiesHubEconomics: React.FC<OpportunitiesHubEconomicsProps>
             onClick={loadOpportunities}
             disabled={isLoading}
             className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 hover:text-emerald-700 transition-colors cursor-pointer disabled:opacity-50"
-            title="Recalibrate recommendations using Gemini AI"
+            title="Recalibrate recommendations using Outstand AI"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-emerald-600' : ''}`} />
           </button>

@@ -24,6 +24,7 @@ import { DIAGNOSTIC_QUESTIONS } from '../data/diagnosticQuestions';
 import {
   ECONOMICS_DIAGNOSTIC_QUESTIONS,
   ECONOMICS_CONCEPT_NODES,
+  ECONOMICS_COHORT_STUDENTS_LIST,
 } from '../data/mockEconomicsData';
 import {
   FULL_EXAM_SYLLABUS,
@@ -86,8 +87,10 @@ interface AppContextType {
 
   // Facilitator Cohort Analysis
   cohortStudents: StudentProfile[];
+  economicsCohortStudents: StudentProfile[];
   selectedStudentForInspect: StudentProfile | null;
   setSelectedStudentForInspect: (student: StudentProfile | null) => void;
+  resetPlatformState: () => void;
 
   // Persona & Nav
   loginPersona: (targetRole: 'student' | 'facilitator') => void;
@@ -284,6 +287,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const [cohortStudents, setCohortStudents] = useState<StudentProfile[]>(COHORT_STUDENTS_LIST);
+  const [economicsCohortStudents, setEconomicsCohortStudents] = useState<StudentProfile[]>(ECONOMICS_COHORT_STUDENTS_LIST);
   const [selectedStudentForInspect, setSelectedStudentForInspect] = useState<StudentProfile | null>(null);
 
   const [toast, setToast] = useState<ToastData | null>(null);
@@ -407,7 +411,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         ];
 
     const submission: DiagnosticSubmission = {
-      studentId: 'std-rohan',
+      studentId: authUser?.uid || 'std-demo-student',
       submittedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       answers,
       score,
@@ -430,7 +434,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     // 1.C: Sync live student progress and telemetry to Firestore
-    const currentStudentUid = authUser?.uid || 'std-rohan';
+    const currentStudentUid = authUser?.uid || 'std-demo-student';
     const topStruggle = missedQuestions[0]?.topic || priorityArea;
     const calcHesitation: 'low' | 'moderate' | 'high' =
       score >= 8 ? 'low' : score >= 5 ? 'moderate' : 'high';
@@ -441,10 +445,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       hesitationLevel: calcHesitation,
     });
 
-    // Update Rohan Sharma in cohort students
+    // Update Demo Student in Chemistry cohort students
     setCohortStudents((prev) =>
       prev.map((s) => {
-        if (s.id === 'std-rohan' || s.id === 'std-achalesh') {
+        if (s.id === 'std-demo-student' || s.name === 'Demo Student' || (authUser && s.id === authUser.uid)) {
           const mistakesList = isPerfectScore
             ? []
             : missedQuestions.map((m) => `Question ${m.questionNumber} (${m.unitTitle}): ${m.trapIdentified}`);
@@ -457,16 +461,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             recommendedFocus: isPerfectScore
               ? 'None (100% Mastery Achieved) - Olympiad Extension'
               : priorityArea,
-            tasksCompleted: 3,
+            tasksCompleted: isPerfectScore ? 4 : Math.max(1, Math.round((score / 10) * 3)),
           };
         }
         return s;
       })
     );
 
-    // Keep inspector updated if currently inspecting Rohan
+    // Keep inspector updated if currently inspecting Demo Student
     setSelectedStudentForInspect((prev) => {
-      if (prev && (prev.id === 'std-rohan' || prev.id === 'std-achalesh')) {
+      if (prev && (prev.id === 'std-demo-student' || prev.name === 'Demo Student' || (authUser && prev.id === authUser.uid))) {
         const mistakesList = isPerfectScore
           ? []
           : missedQuestions.map((m) => `Question ${m.questionNumber} (${m.unitTitle}): ${m.trapIdentified}`);
@@ -479,7 +483,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           recommendedFocus: isPerfectScore
             ? 'None (100% Mastery Achieved) - Olympiad Extension'
             : priorityArea,
-          tasksCompleted: 3,
+          tasksCompleted: isPerfectScore ? 4 : Math.max(1, Math.round((score / 10) * 3)),
         };
       }
       return prev;
@@ -603,7 +607,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         ];
 
     const submission: DiagnosticSubmission = {
-      studentId: 'std-rohan',
+      studentId: authUser?.uid || 'std-demo-student-econ',
       submittedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       answers,
       score,
@@ -626,7 +630,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     // 1.C: Sync live student progress and telemetry to Firestore (Economics)
-    const currentStudentUid = authUser?.uid || 'std-rohan';
+    const currentStudentUid = authUser?.uid || 'std-demo-student-econ';
     const topEconStruggle = missedQuestions[0]?.topic || priorityArea;
     const calcEconHesitation: 'low' | 'moderate' | 'high' =
       score >= 8 ? 'low' : score >= 5 ? 'moderate' : 'high';
@@ -635,6 +639,50 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       recentScore: score,
       strugglingTopic: isPerfectScore ? 'None' : topEconStruggle,
       hesitationLevel: calcEconHesitation,
+    });
+
+    // Update Demo Student in Economics cohort students
+    setEconomicsCohortStudents((prev) =>
+      prev.map((s) => {
+        if (s.id === 'std-demo-student-econ' || s.name === 'Demo Student' || (authUser && s.id === authUser.uid)) {
+          const mistakesList = isPerfectScore
+            ? []
+            : missedQuestions.map((m) => `Question ${m.questionNumber} (${m.unitTitle}): ${m.trapIdentified}`);
+
+          return {
+            ...s,
+            diagnosticStatus: 'completed',
+            diagnosticScore: score,
+            commonMistakes: mistakesList,
+            recommendedFocus: isPerfectScore
+              ? 'None (100% Mastery Achieved) - Olympiad Extension'
+              : priorityArea,
+            tasksCompleted: isPerfectScore ? 4 : Math.max(1, Math.round((score / 10) * 3)),
+          };
+        }
+        return s;
+      })
+    );
+
+    // Keep inspector updated if inspecting Demo Student in Economics
+    setSelectedStudentForInspect((prev) => {
+      if (prev && (prev.id === 'std-demo-student-econ' || prev.name === 'Demo Student' || (authUser && prev.id === authUser.uid))) {
+        const mistakesList = isPerfectScore
+          ? []
+          : missedQuestions.map((m) => `Question ${m.questionNumber} (${m.unitTitle}): ${m.trapIdentified}`);
+
+        return {
+          ...prev,
+          diagnosticStatus: 'completed',
+          diagnosticScore: score,
+          commonMistakes: mistakesList,
+          recommendedFocus: isPerfectScore
+            ? 'None (100% Mastery Achieved) - Olympiad Extension'
+            : priorityArea,
+          tasksCompleted: isPerfectScore ? 4 : Math.max(1, Math.round((score / 10) * 3)),
+        };
+      }
+      return prev;
     });
 
     if (isPerfectScore) {
@@ -652,6 +700,54 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     return submission;
+  };
+
+  const resetPlatformState = () => {
+    // 1. Restore cohorts to original seed values
+    setCohortStudents(COHORT_STUDENTS_LIST);
+    setEconomicsCohortStudents(ECONOMICS_COHORT_STUDENTS_LIST);
+    setSelectedStudentForInspect(null);
+
+    // 2. Clear diagnostic submissions and tasks
+    setDiagnosticSubmission(null);
+    setEconomicsDiagnosticSubmission(null);
+    setStudentTasks(INITIAL_STUDENT_TASKS);
+
+    // 3. Purge all localStorage keys related to submissions, chats, and telemetry
+    try {
+      localStorage.removeItem('outstand_diagnostic_submission');
+      localStorage.removeItem('outstand_economics_diagnostic_submission');
+
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (
+          key.startsWith('outstand_progress_') ||
+          key.startsWith('outstand_chat_') ||
+          key.startsWith('outstand_task_') ||
+          key.startsWith('outstand_score_') ||
+          key.startsWith('outstand_modality_') ||
+          key.startsWith('outstand_user_progress_')
+        )) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach((k) => localStorage.removeItem(k));
+    } catch (e) {
+      console.warn('[Reset] Error clearing localStorage:', e);
+    }
+
+    // 4. Dispatch events to notify real-time bus listeners
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('outstand-progress-update', { detail: { reset: true } }));
+      window.dispatchEvent(new CustomEvent('outstand-chat-update', { detail: { reset: true } }));
+    }
+
+    showToast(
+      'Platform Reset Complete',
+      'All student profiles, test scores, chat logs, and telemetry have been restored to default seed values.',
+      'success'
+    );
   };
 
   // Sync auth state listener with Firebase
@@ -910,8 +1006,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         submitEconomicsDiagnostic,
         resetDiagnostic,
         cohortStudents,
+        economicsCohortStudents,
         selectedStudentForInspect,
         setSelectedStudentForInspect,
+        resetPlatformState,
         loginPersona,
         logout,
         theme,

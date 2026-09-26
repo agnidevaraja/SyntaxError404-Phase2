@@ -17,8 +17,8 @@ flowchart LR
     end
 
     subgraph AILayer [AI Intelligence Layer]
-        E[Google Gemini 2.5 Flash API<br/>Facilitator Advisory, Concept Explainer]
-        F[Local Pedagogical Fallbacks<br/>Curriculum Data, Worked Solutions]
+        E[Google Gemini 3.8 Flash API<br/>Facilitator Advisory, Concept Explainer, AI Opportunities Search]
+        F[Local Pedagogical Fallbacks<br/>Curriculum Data, Worked Solutions, Verified Directories]
     end
 
     A -->|Auth Tokens| C
@@ -50,9 +50,11 @@ Here is the exact end-to-end flow when a student takes an assessment and receive
 | Facilitator Portal | Real-time student roster, cohort health indicators, Gemini-powered advisory engine, and 1-on-1 chat | React 19, Lucide Icons | `frontend/src/components/facilitator/` |
 | Application Context | Global session state, user persona, active subject selection, modal management, and toast notifications | React Context API | `frontend/src/context/AppContext.tsx` |
 | Firestore Service | Real-time data synchronization for user accounts, telemetry, progress documents, and chat messages | Firebase SDK v12 | `frontend/src/services/firestoreService.ts` |
-| AI Advisory Service | Builds targeted prompts and calls Gemini API for teacher 4-line diagnostic advice | @google/genai SDK | `frontend/src/services/aiAdvisoryService.ts` |
-| Concept Explainer Service | Generates visual analogies, 3-step worked examples, and checkpoint questions for student remediation | @google/genai SDK | `frontend/src/services/conceptExplainerService.ts` |
-| Opportunities Service | Matches student focus areas to real-world STEM and Economics competitions | @google/genai SDK | `frontend/src/services/opportunitiesGeminiService.ts` |
+| AI Advisory Service | Builds targeted prompts and calls Gemini 3.8 Flash (fallback: 2.5 Flash) for teacher 4-line diagnostic advice | @google/genai SDK | `frontend/src/services/aiAdvisoryService.ts` |
+| Concept Explainer Service | Generates visual analogies, 3-step worked examples, and checkpoint questions using Gemini 3.8 Flash (fallback: 2.5 Flash) | @google/genai SDK | `frontend/src/services/conceptExplainerService.ts` |
+| Chemistry Opportunities Service | Curates verified Chemistry Olympiads and STEM challenges using Gemini 3.8 Flash | @google/genai SDK | `frontend/src/services/chemistryOpportunitiesService.ts` |
+| Economics Opportunities Service | Curates verified Economics Olympiads and business case contests using Gemini 3.8 Flash | @google/genai SDK | `frontend/src/services/economicsOpportunitiesService.ts` |
+| Student Hub Opportunities Service | Powers interactive AI prompt search for 2026 competitions across all academic disciplines using Gemini 3.8 Flash | @google/genai SDK | `frontend/src/services/opportunitiesGeminiService.ts` |
 
 ## Data Model
 
@@ -118,7 +120,7 @@ erDiagram
 | Cloud Firestore | `onSnapshot(collection("progress"))` | Real-time listener for student diagnostic scores and hesitation levels | Facilitator Role |
 | Cloud Firestore | `onSnapshot(collection("messages"))` | Real-time 2-way chat subscription between student and subject teacher | Authenticated Users |
 | Cloud Firestore | `setDoc` / `addDoc` | Writes user profiles, progress updates, and chat messages | Authenticated Users |
-| Google Gemini | `ai.models.generateContent` | Generates 4-line facilitator advisory, concept explanations, and competitions | Client API Key (`VITE_GEMINI_API_KEY`) |
+| Google Gemini | `ai.models.generateContent` | Generates 4-line facilitator advisory, concept explanations, and competitions | Client API Keys (`VITE_GEMINI_API_KEY`, `VITE_GEMINI_OPPORTUNITIES_API_KEY`) |
 
 ## Tech Stack
 
@@ -128,7 +130,7 @@ erDiagram
 | Styling | Tailwind CSS 4 | Allows us to build custom, accessible, and responsive user interfaces with consistent design tokens without writing thousands of lines of ad-hoc CSS. |
 | Database | Google Cloud Firestore | Provides real-time synchronization out of the box through `onSnapshot()`. This eliminates the need to build a custom WebSocket server for teacher rosters and student chats. |
 | Authentication | Firebase Auth | Handles secure Google Sign-In and email/password flows with minimal boilerplate, letting us focus on the core educational intelligence features. |
-| AI Integration | Google Gemini 2.5 Flash via @google/genai | Extremely fast response latency (under 1.5 seconds) which is essential for real-time concept breakdown while a student is actively studying. |
+| AI Integration | Google Gemini 3.8 Flash (fallback: 2.5 Flash) via @google/genai | Extremely fast response latency (under 800ms) with enhanced multi-step reasoning in STEM, prompt search, and structured JSON output. |
 | Hosting | Vite Static Preview / Local Node Server | Zero-config static output bundle that can be hosted on any static cloud provider or run locally with `npm run dev`. |
 
 ## Data Sources

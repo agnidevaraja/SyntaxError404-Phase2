@@ -2,9 +2,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { OpportunityItem, StudentPerformanceContext } from '../../types/opportunities';
 import {
-  fetchCuratedOpportunities,
+  fetchCuratedChemistryOpportunities as fetchCuratedOpportunities,
   getDynamicSearchQuery,
-} from '../../services/opportunitiesGeminiService';
+} from '../../services/chemistryOpportunitiesService';
 import {
   Compass,
   Calendar,
@@ -170,7 +170,7 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
             onClick={loadOpportunities}
             disabled={isLoading}
             className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 hover:text-indigo-600 transition-colors cursor-pointer disabled:opacity-50"
-            title="Recalibrate recommendations using Gemini AI"
+            title="Recalibrate recommendations using Outstand AI"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-indigo-600' : ''}`} />
           </button>

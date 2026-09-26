@@ -1,4 +1,4 @@
-# Video Guide — Pitch + System Design (45% of score rides on this)
+# Video Guide - Pitch + System Design (45% of score rides on this)
 
 [← Back to README](../README.md)
 
@@ -23,19 +23,19 @@
 
 ---
 
-## Part 1 — Product Pitch (2:00–3:00)
+## Part 1 - Product Pitch (2:00-3:00)
 
 | Time | Segment | Must show / say |
 |---|---|---|
-| 0:00–0:20 | **Hook & problem** | Team name, chosen sub-problem, one concrete Mysuru scenario |
-| 0:20–0:40 | **Who it's for** | Primary user(s) and their constraints (device, network, knowledge of jurisdiction) |
-| 0:40–1:50 | **Live core flow** | End-to-end on the running app: create → system decision (route/score/group/detect) → staff action → citizen sees result |
-| 1:50–2:30 | **Bad-input test** (see [`docs/constraints.md`](../docs/constraints.md)) | Submit at least one: duplicate report, wrong/impossible location, unrelated or fake photo, abusive text. Show what the system *actually* does. |
-| 2:30–3:00 | **Offline test** | Turn on airplane mode / DevTools Offline *on camera*, perform the core action, reconnect, show sync |
+| 0:00-0:20 | **Hook & problem** | Team name, chosen sub-problem, one concrete Mysuru scenario |
+| 0:20-0:40 | **Who it's for** | Primary user(s) and their constraints (device, network, knowledge of jurisdiction) |
+| 0:40-1:50 | **Live core flow** | End-to-end on the running app: create -> system decision (route/score/group/detect) -> staff action -> citizen sees result |
+| 1:50-2:30 | **Bad-input test** (see [`docs/constraints.md`](../docs/constraints.md)) | Submit at least one: duplicate report, wrong/impossible location, unrelated or fake photo, abusive text. Show what the system *actually* does. |
+| 2:30-3:00 | **Offline test** | Turn on airplane mode / DevTools Offline *on camera*, perform the core action, reconnect, show sync |
 
 > The problem statement says judges will test bad input and airplane mode live. In Phase 1 the video *is* your live demo, so these two segments are **mandatory**.
 
-## Part 2 — Code & System Design (5:00–7:00)
+## Part 2 - Code & System Design (5:00-7:00)
 
 | Time | Segment | Must show / say |
 |---|---|---|
