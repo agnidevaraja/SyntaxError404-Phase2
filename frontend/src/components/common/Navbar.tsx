@@ -4,16 +4,28 @@ import { IconAtom, IconChevronRight, IconUser, IconShield } from './Icons';
 import { LogOut } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
-  const { role, activeView, setActiveView, authUser, openAuthModal, logout } = useApp();
+  const {
+    role,
+    activeView,
+    setActiveView,
+    authUser,
+    openAuthModal,
+    logout,
+    facilitatorSubject,
+    setFacilitatorSubject,
+    canSwitchSubject,
+  } = useApp();
+
+  const isEconomicsFacilitator = facilitatorSubject === 'economics';
+  const defaultFacilitatorName = isEconomicsFacilitator ? 'Prof. Arthur Sterling' : 'Dr. Eleanor Vance';
+  const displayName = authUser?.displayName || (role === 'student' ? 'Demo Student' : defaultFacilitatorName);
 
   const getInitials = (name?: string | null) => {
-    if (!name) return role === 'student' ? 'AR' : 'EV';
+    if (!name) return role === 'student' ? 'DS' : (isEconomicsFacilitator ? 'AS' : 'EV');
     const parts = name.trim().split(/\s+/);
     if (parts.length >= 2) return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
     return name.slice(0, 2).toUpperCase();
   };
-
-  const displayName = authUser?.displayName || (role === 'student' ? 'Achalesh R.' : 'Dr. Eleanor Vance');
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
@@ -65,14 +77,54 @@ export const Navbar: React.FC = () => {
                   </span>
                 </>
               )}
+
+              {(activeView === 'subject_economics' || activeView === 'personalized_learning_economics') && (
+                <>
+                  <IconChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <button
+                    onClick={() => setActiveView('subject_economics')}
+                    className={`px-2 py-1 rounded-md transition-colors cursor-pointer hover:bg-slate-100 ${
+                      activeView === 'subject_economics' ? 'font-bold text-amber-700 bg-amber-50' : 'hover:text-slate-900'
+                    }`}
+                  >
+                    Economics
+                  </button>
+                </>
+              )}
+              {activeView === 'personalized_learning_economics' && (
+                <>
+                  <IconChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <span className="font-bold text-amber-700 bg-amber-50 px-2 py-1 rounded-md">
+                    Personalized Learning
+                  </span>
+                </>
+              )}
             </div>
           )}
 
           {role === 'facilitator' && (
             <div className="hidden sm:flex items-center gap-2 text-xs text-slate-500 border-l border-slate-200 pl-4 py-1">
-              <span className="font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded-md">Facilitator Portal</span>
+              <button
+                onClick={() => setActiveView('facilitator_portal')}
+                className="font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded-md cursor-pointer hover:bg-slate-200"
+              >
+                Facilitator Portal
+              </button>
               <span aria-hidden="true" className="text-slate-300">·</span>
-              <span className="text-slate-600">Cohort Analysis</span>
+              <span className="font-semibold text-slate-800 capitalize">
+                {facilitatorSubject} Department
+              </span>
+              {canSwitchSubject && (
+                <button
+                  onClick={() => {
+                    const nextSubj = facilitatorSubject === 'chemistry' ? 'economics' : 'chemistry';
+                    setFacilitatorSubject(nextSubj);
+                  }}
+                  className="ml-1 text-[11px] font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
+                >
+                  Switch to {facilitatorSubject === 'chemistry' ? 'Economics' : 'Chemistry'}
+                </button>
+              )}
             </div>
           )}
         </div>

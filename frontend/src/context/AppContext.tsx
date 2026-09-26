@@ -8,6 +8,7 @@ import {
   onAuthStateChanged,
 } from 'firebase/auth';
 import { auth, googleProvider } from '../services/firebase';
+import { syncUserToFirestore, syncStudentProgress } from '../services/firestoreService';
 import {
   Role,
   ActiveView,
@@ -20,6 +21,10 @@ import {
   AuthUser,
 } from '../types';
 import { DIAGNOSTIC_QUESTIONS } from '../data/diagnosticQuestions';
+import {
+  ECONOMICS_DIAGNOSTIC_QUESTIONS,
+  ECONOMICS_CONCEPT_NODES,
+} from '../data/mockEconomicsData';
 import {
   FULL_EXAM_SYLLABUS,
   INITIAL_STUDENT_TASKS,
@@ -40,6 +45,14 @@ interface AppContextType {
   activeView: ActiveView;
   setActiveView: (view: ActiveView) => void;
 
+  // Subject & Department Management
+  facilitatorSubject: 'chemistry' | 'economics';
+  setFacilitatorSubject: (subj: 'chemistry' | 'economics') => void;
+  canSwitchSubject: boolean;
+  setCanSwitchSubject: (can: boolean) => void;
+  activeDiagnosticSubject: 'chemistry' | 'economics';
+  setActiveDiagnosticSubject: (subj: 'chemistry' | 'economics') => void;
+
   // Firebase Authentication
   authUser: AuthUser | null;
   isAuthModalOpen: boolean;
@@ -49,7 +62,7 @@ interface AppContextType {
   loginWithGoogle: (targetRole: 'student' | 'facilitator') => Promise<void>;
   loginWithEmail: (email: string, pass: string, targetRole: 'student' | 'facilitator') => Promise<void>;
   registerWithEmail: (email: string, pass: string, name: string, targetRole: 'student' | 'facilitator') => Promise<void>;
-  loginDemoQuickFill: (targetRole: 'student' | 'facilitator') => void;
+  loginDemoQuickFill: (targetRole: 'student' | 'facilitator', subject?: 'chemistry' | 'economics') => void;
 
   // Student Main Hub state
   syllabusFocus: SyllabusFocusItem[];
@@ -67,6 +80,8 @@ interface AppContextType {
   setIsDiagnosticOpen: (open: boolean) => void;
   diagnosticSubmission: DiagnosticSubmission | null;
   submitDiagnostic: (answers: Record<number, string | number>) => DiagnosticSubmission;
+  economicsDiagnosticSubmission: DiagnosticSubmission | null;
+  submitEconomicsDiagnostic: (answers: Record<number, string | number>) => DiagnosticSubmission;
   resetDiagnostic: () => void;
 
   // Facilitator Cohort Analysis
@@ -122,7 +137,49 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activeSlidePreviewDeck, setActiveSlidePreviewDeck] = useState<ClassSlideDeck | null>(null);
 
   const [isDiagnosticOpen, setIsDiagnosticOpen] = useState<boolean>(false);
-  const [diagnosticSubmission, setDiagnosticSubmission] = useState<DiagnosticSubmission | null>(null);
+  const [diagnosticSubmission, setDiagnosticSubmission] = useState<DiagnosticSubmission | null>(() => {
+    try {
+      const saved = localStorage.getItem('outstand_diagnostic_submission');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [economicsDiagnosticSubmission, setEconomicsDiagnosticSubmission] = useState<DiagnosticSubmission | null>(() => {
+    try {
+      const saved = localStorage.getItem('outstand_economics_diagnostic_submission');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [activeDiagnosticSubject, setActiveDiagnosticSubject] = useState<'chemistry' | 'economics'>('chemistry');
+
+  const [facilitatorSubject, setFacilitatorSubjectState] = useState<'chemistry' | 'economics'>(() => {
+    return (localStorage.getItem('outstand_facilitator_subject') as 'chemistry' | 'economics') || 'chemistry';
+  });
+
+  const setFacilitatorSubject = (subj: 'chemistry' | 'economics') => {
+    setFacilitatorSubjectState(subj);
+    try {
+      localStorage.setItem('outstand_facilitator_subject', subj);
+    } catch (e) {
+      // ignore
+    }
+  };
+
+  const [canSwitchSubject, setCanSwitchSubjectState] = useState<boolean>(() => {
+    return localStorage.getItem('outstand_can_switch_subject') !== 'false';
+  });
+
+  const setCanSwitchSubject = (can: boolean) => {
+    setCanSwitchSubjectState(can);
+    try {
+      localStorage.setItem('outstand_can_switch_subject', String(can));
+    } catch (e) {
+      // ignore
+    }
+  };
 
   const [cohortStudents, setCohortStudents] = useState<StudentProfile[]>(COHORT_STUDENTS_LIST);
   const [selectedStudentForInspect, setSelectedStudentForInspect] = useState<StudentProfile | null>(null);
@@ -264,6 +321,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     setDiagnosticSubmission(submission);
+    try {
+      localStorage.setItem('outstand_diagnostic_submission', JSON.stringify(submission));
+    } catch (e) {
+      // ignore
+    }
+
+    // 1.C: Sync live student progress and telemetry to Firestore
+    const currentStudentUid = authUser?.uid || 'demo-std-demo';
+    const topStruggle = missedQuestions[0]?.topic || priorityArea;
+    const calcHesitation: 'low' | 'moderate' | 'high' =
+      score >= 8 ? 'low' : score >= 5 ? 'moderate' : 'high';
+
+    syncStudentProgress(currentStudentUid, 'Chemistry', {
+      recentScore: score,
+      strugglingTopic: isPerfectScore ? 'None' : topStruggle,
+      hesitationLevel: calcHesitation,
+    });
 
     // Update Rohan Sharma in cohort students
     setCohortStudents((prev) =>
@@ -333,6 +407,149 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const resetDiagnostic = () => {
     setDiagnosticSubmission(null);
+    setEconomicsDiagnosticSubmission(null);
+    try {
+      localStorage.removeItem('outstand_diagnostic_submission');
+      localStorage.removeItem('outstand_economics_diagnostic_submission');
+    } catch (e) {
+      // ignore
+    }
+  };
+
+  const submitEconomicsDiagnostic = (answers: Record<number, string | number>): DiagnosticSubmission => {
+    let score = 0;
+    const missedQuestions: DiagnosticSubmission['missedQuestions'] = [];
+
+    const normalize = (s: string) => s.trim().toLowerCase().replace(/[\s,-]/g, '');
+
+    ECONOMICS_DIAGNOSTIC_QUESTIONS.forEach((q, idx) => {
+      const studentVal = answers[idx];
+
+      if (q.questionType === 'multiple_choice') {
+        const selectedIndex = typeof studentVal === 'number' ? studentVal : parseInt(String(studentVal), 10);
+        const isCorrect = selectedIndex === q.correctAnswerIndex;
+        if (isCorrect) {
+          score += 1;
+        } else {
+          missedQuestions.push({
+            questionNumber: q.questionNumber,
+            unitId: q.unitId,
+            unitNumber: q.unitNumber,
+            unitTitle: q.unitTitle,
+            topic: q.topic,
+            studentAnswer:
+              selectedIndex !== undefined && q.options?.[selectedIndex]
+                ? q.options[selectedIndex]
+                : 'Skipped / Unanswered',
+            correctAnswer:
+              q.options && q.correctAnswerIndex !== undefined
+                ? q.options[q.correctAnswerIndex]
+                : '',
+            trapIdentified: q.misconceptionTrap,
+            explanation: q.explanation,
+          });
+        }
+      } else {
+        const textVal = String(studentVal ?? '').trim();
+        const normStudent = normalize(textVal);
+        const isCorrect =
+          normStudent.length > 0 &&
+          !!q.acceptedAnswers?.some((ans) => {
+            const normAns = normalize(ans);
+            return normStudent === normAns || normStudent.includes(normAns) || normAns.includes(normStudent);
+          });
+
+        if (isCorrect) {
+          score += 1;
+        } else {
+          missedQuestions.push({
+            questionNumber: q.questionNumber,
+            unitId: q.unitId,
+            unitNumber: q.unitNumber,
+            unitTitle: q.unitTitle,
+            topic: q.topic,
+            studentAnswer: textVal || 'No response provided',
+            correctAnswer: q.acceptedAnswers?.[0] || 'See explanation',
+            trapIdentified: q.misconceptionTrap,
+            explanation: q.explanation,
+          });
+        }
+      }
+    });
+
+    const isPerfectScore = score === ECONOMICS_DIAGNOSTIC_QUESTIONS.length;
+    const weakUnitIds = Array.from(new Set(missedQuestions.map((m) => m.unitId)));
+
+    const priorityArea = isPerfectScore
+      ? 'None (100% Mastery Achieved)'
+      : missedQuestions[0]?.unitTitle || 'Unit 1: Scarcity & The Economic Problem';
+
+    const focusUnits = isPerfectScore
+      ? ['Olympiad Honors Extension (Post-100% Mastery)']
+      : Array.from(new Set(missedQuestions.map((m) => m.unitTitle)));
+
+    const recommendedActions = isPerfectScore
+      ? [
+          'Explore Advanced IEO Extension: Game Theory & Nash Equilibrium Dynamics',
+          'Analyze Macroeconomic Monetary Policy & Central Bank Yield Curves',
+          'Review Economics Olympiad Honors slide deck for advanced theoretical insights',
+        ]
+      : [
+          `Review targeted presentation decks for ${weakUnitIds.length} identified misconception area(s)`,
+          'Work through the step-by-step golden routines and microeconomic decision trees',
+          'Complete interactive practice micro-exercises to verify mastery',
+        ];
+
+    const submission: DiagnosticSubmission = {
+      studentId: 'std-rohan',
+      submittedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      answers,
+      score,
+      total: ECONOMICS_DIAGNOSTIC_QUESTIONS.length,
+      missedQuestions,
+      weakUnitIds,
+      generatedLearningPlan: {
+        priorityArea,
+        recommendedActions,
+        focusUnits,
+        isPerfectScore,
+      },
+    };
+
+    setEconomicsDiagnosticSubmission(submission);
+    try {
+      localStorage.setItem('outstand_economics_diagnostic_submission', JSON.stringify(submission));
+    } catch (e) {
+      // ignore
+    }
+
+    // 1.C: Sync live student progress and telemetry to Firestore (Economics)
+    const currentStudentUid = authUser?.uid || 'demo-std-demo';
+    const topEconStruggle = missedQuestions[0]?.topic || priorityArea;
+    const calcEconHesitation: 'low' | 'moderate' | 'high' =
+      score >= 8 ? 'low' : score >= 5 ? 'moderate' : 'high';
+
+    syncStudentProgress(currentStudentUid, 'Economics', {
+      recentScore: score,
+      strugglingTopic: isPerfectScore ? 'None' : topEconStruggle,
+      hesitationLevel: calcEconHesitation,
+    });
+
+    if (isPerfectScore) {
+      showToast(
+        'Flawless 10/10 Score in Economics!',
+        '100% Mastery achieved! Advanced Economics Olympiad Honors module unlocked.',
+        'success'
+      );
+    } else {
+      showToast(
+        'Economics Diagnostic Calibrated!',
+        `You scored ${score}/10. ${missedQuestions.length} conceptual area(s) isolated for targeted remediation.`,
+        score >= 7 ? 'success' : 'info'
+      );
+    }
+
+    return submission;
   };
 
   // Sync auth state listener with Firebase
@@ -343,7 +560,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const profile: AuthUser = {
           uid: fbUser.uid,
           email: fbUser.email,
-          displayName: fbUser.displayName || (savedRole === 'student' ? 'Achalesh R.' : 'Dr. Eleanor Vance'),
+          displayName: fbUser.displayName || (savedRole === 'student' ? 'Demo Student' : 'Dr. Eleanor Vance'),
           photoURL: fbUser.photoURL,
           role: savedRole,
         };
@@ -364,7 +581,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const loginWithGoogle = async (targetRole: 'student' | 'facilitator') => {
     const result = await signInWithPopup(auth, googleProvider);
     const fbUser = result.user;
-    const displayName = fbUser.displayName || (targetRole === 'student' ? 'Achalesh R.' : 'Dr. Eleanor Vance');
+    const displayName = fbUser.displayName || (targetRole === 'student' ? 'Demo Student' : 'Dr. Eleanor Vance');
     const profile: AuthUser = {
       uid: fbUser.uid,
       email: fbUser.email,
@@ -378,19 +595,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('outstand_auth_role', targetRole);
     setIsAuthModalOpen(false);
 
+    // 1.A: Sync user document to Firestore users/${user.uid}
+    syncUserToFirestore({
+      uid: fbUser.uid,
+      fullName: displayName,
+      email: fbUser.email || '',
+      role: targetRole,
+      assignedSubject: targetRole === 'student' ? 'all' : (facilitatorSubject === 'economics' ? 'Economics' : 'Chemistry'),
+    });
+
     if (targetRole === 'student') {
       setActiveView('student_hub');
-      showToast(`Welcome, ${displayName}!`, 'Signed in with Google Single Sign-On (SSO).', 'success');
+      showToast(`Welcome, ${displayName}!`, 'Signed in with Google Single Sign-On (SSO). Both Chemistry & Economics available.', 'success');
     } else {
-      setActiveView('facilitator_portal');
-      showToast(`Welcome, ${displayName}!`, 'Signed in with Google Single Sign-On (SSO).', 'success');
+      setCanSwitchSubject(true);
+      setActiveView('facilitator_subject_select');
+      showToast(`Welcome, ${displayName}!`, 'Signed in with Google SSO. Please select your department to continue.', 'info');
     }
   };
 
   const loginWithEmail = async (email: string, pass: string, targetRole: 'student' | 'facilitator') => {
     const result = await signInWithEmailAndPassword(auth, email, pass);
     const fbUser = result.user;
-    const displayName = fbUser.displayName || (targetRole === 'student' ? 'Achalesh R.' : 'Dr. Eleanor Vance');
+    const displayName = fbUser.displayName || (targetRole === 'student' ? 'Demo Student' : 'Dr. Eleanor Vance');
     const profile: AuthUser = {
       uid: fbUser.uid,
       email: fbUser.email,
@@ -404,12 +631,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('outstand_auth_role', targetRole);
     setIsAuthModalOpen(false);
 
+    // 1.A: Sync user document to Firestore users/${user.uid}
+    syncUserToFirestore({
+      uid: fbUser.uid,
+      fullName: displayName,
+      email: fbUser.email || '',
+      role: targetRole,
+      assignedSubject: targetRole === 'student' ? 'all' : (facilitatorSubject === 'economics' ? 'Economics' : 'Chemistry'),
+    });
+
     if (targetRole === 'student') {
       setActiveView('student_hub');
-      showToast(`Welcome, ${displayName}!`, 'Signed in successfully with email & password.', 'success');
+      showToast(`Welcome, ${displayName}!`, 'Signed in successfully. Both Chemistry & Economics available.', 'success');
     } else {
-      setActiveView('facilitator_portal');
-      showToast(`Welcome, ${displayName}!`, 'Signed in successfully with email & password.', 'success');
+      setCanSwitchSubject(true);
+      setActiveView('facilitator_subject_select');
+      showToast(`Welcome, ${displayName}!`, 'Signed in successfully. Please select your department to continue.', 'info');
     }
   };
 
@@ -421,7 +658,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const profile: AuthUser = {
       uid: result.user.uid,
       email: result.user.email,
-      displayName: name || (targetRole === 'student' ? 'Achalesh R.' : 'Dr. Eleanor Vance'),
+      displayName: name || (targetRole === 'student' ? 'Demo Student' : 'Dr. Eleanor Vance'),
       photoURL: result.user.photoURL,
       role: targetRole,
     };
@@ -431,36 +668,87 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('outstand_auth_role', targetRole);
     setIsAuthModalOpen(false);
 
+    // 1.A: Sync newly registered user document to Firestore users/${user.uid}
+    syncUserToFirestore({
+      uid: result.user.uid,
+      fullName: profile.displayName || '',
+      email: result.user.email || '',
+      role: targetRole,
+      assignedSubject: targetRole === 'student' ? 'all' : (facilitatorSubject === 'economics' ? 'Economics' : 'Chemistry'),
+    });
+
     if (targetRole === 'student') {
       setActiveView('student_hub');
       showToast(`Account Created!`, `Welcome, ${profile.displayName}! Student portal initialized.`, 'success');
     } else {
-      setActiveView('facilitator_portal');
-      showToast(`Account Created!`, `Welcome, ${profile.displayName}! Facilitator portal initialized.`, 'success');
+      setCanSwitchSubject(true);
+      setActiveView('facilitator_subject_select');
+      showToast(`Account Created!`, `Welcome, ${profile.displayName}! Please select your department to continue.`, 'info');
     }
   };
 
-  const loginDemoQuickFill = (targetRole: 'student' | 'facilitator') => {
-    const displayName = targetRole === 'student' ? 'Achalesh R.' : 'Dr. Eleanor Vance';
-    const email = targetRole === 'student' ? 'student@outstand.edu' : 'facilitator@outstand.edu';
-    const profile: AuthUser = {
-      uid: targetRole === 'student' ? 'demo-std-achalesh' : 'demo-fac-vance',
-      email,
-      displayName,
-      role: targetRole,
-    };
-    setAuthUser(profile);
-    setRole(targetRole);
-    localStorage.setItem('outstand_auth_user', JSON.stringify(profile));
-    localStorage.setItem('outstand_auth_role', targetRole);
-    setIsAuthModalOpen(false);
-
+  const loginDemoQuickFill = (targetRole: 'student' | 'facilitator', subject: 'chemistry' | 'economics' = 'chemistry') => {
     if (targetRole === 'student') {
+      const displayName = 'Demo Student';
+      const email = 'student@outstand.edu';
+      const profile: AuthUser = {
+        uid: 'demo-std-demo',
+        email,
+        displayName,
+        role: 'student',
+      };
+      setAuthUser(profile);
+      setRole('student');
+      localStorage.setItem('outstand_auth_user', JSON.stringify(profile));
+      localStorage.setItem('outstand_auth_role', 'student');
+      setIsAuthModalOpen(false);
       setActiveView('student_hub');
-      showToast('Developer Quick-Fill Success', 'Instant demo access loaded for Achalesh R.', 'success');
+
+      // Sync demo user to Firestore
+      syncUserToFirestore({
+        uid: profile.uid,
+        fullName: displayName,
+        email,
+        role: 'student',
+        assignedSubject: 'all',
+      });
+
+      showToast('Student Demo Access', 'Loaded instant access for Demo Student with Chemistry & Economics.', 'success');
     } else {
+      const isChem = subject === 'chemistry';
+      const displayName = isChem ? 'Dr. Eleanor Vance' : 'Prof. Arthur Sterling';
+      const email = isChem ? 'facilitator.chem@outstand.edu' : 'facilitator.econ@outstand.edu';
+      const profile: AuthUser = {
+        uid: isChem ? 'demo-fac-chem' : 'demo-fac-econ',
+        email,
+        displayName,
+        role: 'facilitator',
+      };
+      setAuthUser(profile);
+      setRole('facilitator');
+      setFacilitatorSubject(subject);
+      setCanSwitchSubject(false);
+      localStorage.setItem('outstand_auth_user', JSON.stringify(profile));
+      localStorage.setItem('outstand_auth_role', 'facilitator');
+      localStorage.setItem('outstand_can_switch_subject', 'false');
+      localStorage.setItem('outstand_facilitator_subject', subject);
+      setIsAuthModalOpen(false);
       setActiveView('facilitator_portal');
-      showToast('Developer Quick-Fill Success', 'Instant demo access loaded for Dr. Eleanor Vance.', 'success');
+
+      // Sync demo facilitator to Firestore
+      syncUserToFirestore({
+        uid: profile.uid,
+        fullName: displayName,
+        email,
+        role: 'facilitator',
+        assignedSubject: isChem ? 'Chemistry' : 'Economics',
+      });
+
+      showToast(
+        'Developer Quick-Fill Success',
+        `Direct access loaded for ${displayName} (${isChem ? 'Chemistry' : 'Economics'} Portal - Fixed Subject).`,
+        'success'
+      );
     }
   };
 
@@ -490,6 +778,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setRole,
         activeView,
         setActiveView,
+        facilitatorSubject,
+        setFacilitatorSubject,
+        canSwitchSubject,
+        setCanSwitchSubject,
+        activeDiagnosticSubject,
+        setActiveDiagnosticSubject,
         authUser,
         isAuthModalOpen,
         setIsAuthModalOpen,
@@ -510,6 +804,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsDiagnosticOpen,
         diagnosticSubmission,
         submitDiagnostic,
+        economicsDiagnosticSubmission,
+        submitEconomicsDiagnostic,
         resetDiagnostic,
         cohortStudents,
         selectedStudentForInspect,

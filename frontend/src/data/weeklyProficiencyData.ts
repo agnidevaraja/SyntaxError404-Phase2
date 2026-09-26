@@ -1,8 +1,8 @@
 import { DailyQuizResult, StudentWeeklyProgression } from '../types';
 
-export const ACHALESH_WEEKLY_PROGRESSION: StudentWeeklyProgression = {
+export const DEMO_STUDENT_WEEKLY_PROGRESSION: StudentWeeklyProgression = {
   studentId: 'std-rohan',
-  studentName: 'Rohan Sharma',
+  studentName: 'Demo Student',
   subject: 'Chemistry',
   startingProficiency: 58,
   currentProficiency: 94,
@@ -110,6 +110,8 @@ export const ACHALESH_WEEKLY_PROGRESSION: StudentWeeklyProgression = {
     },
   ],
 };
+
+export const ACHALESH_WEEKLY_PROGRESSION = DEMO_STUDENT_WEEKLY_PROGRESSION;
 
 export const ROHAN_WEEKLY_PROGRESSION: StudentWeeklyProgression = {
   ...ACHALESH_WEEKLY_PROGRESSION,

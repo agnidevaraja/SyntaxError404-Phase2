@@ -105,7 +105,7 @@ function buildSimplePdf(title, subtitle, sections) {
     }
 
     // Page footer
-    streamOps += `/F3 8 Tf\n0 -16 Td\n(Page ${p + 1} of ${pages.length} - St. Jude Preparatory Academy - Grade 9 Academic Exam Syllabus) Tj\n`;
+    streamOps += `/F3 8 Tf\n0 -16 Td\n(Page ${p + 1} of ${pages.length} - Grade 9 Academic Examination Syllabus Scope) Tj\n`;
     streamOps += `ET\n`;
 
     const streamLen = Buffer.byteLength(streamOps, 'utf-8');
@@ -196,7 +196,7 @@ const fullSyllabusSections = [
 
 const fullPdfBuffer = buildSimplePdf(
   'GRADE 9 FULL ACADEMIC SYLLABUS FOCUS',
-  'St. Jude Preparatory Academy - Official Term 1 Scope (Mathematics & Core Sciences)',
+  'Official Term 1 Scope (Mathematics & Core Sciences)',
   fullSyllabusSections
 );
 
@@ -212,7 +212,7 @@ const chemistrySections = [
     heading: 'CURRICULUM OVERVIEW & TOPIC INTERRELATION',
     lines: [
       'Academic Level: Grade 9 Chemistry Honors / Pre-Advanced Syllabus',
-      'Faculty Lead: Dr. Eleanor Vance | St. Jude Preparatory Academy',
+      'Faculty Lead: Dr. Eleanor Vance | Chemistry Department',
       'Core Theme: Quantitative Electron Transfer & Mass Conservation',
       'This syllabus deliberately links three foundational pillars of modern chemistry:',
       '1) The Mole Concept (counting discrete particles by weighing bulk mass)',

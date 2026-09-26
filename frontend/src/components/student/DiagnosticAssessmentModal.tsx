@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { DIAGNOSTIC_QUESTIONS } from '../../data/diagnosticQuestions';
+import { ECONOMICS_DIAGNOSTIC_QUESTIONS } from '../../data/mockEconomicsData';
 import { DiagnosticSubmission } from '../../types';
 import {
   IconX,
@@ -13,20 +14,28 @@ import {
   IconAtom,
   IconRefreshCw,
 } from '../common/Icons';
+import { syncStudentProgress } from '../../services/firestoreService';
 
 export const DiagnosticAssessmentModal: React.FC = () => {
   const {
+    authUser,
     isDiagnosticOpen,
     setIsDiagnosticOpen,
+    activeDiagnosticSubject,
     submitDiagnostic,
+    submitEconomicsDiagnostic,
     setActiveView,
     diagnosticSubmission,
+    economicsDiagnosticSubmission,
   } = useApp();
+
+  const isEconomics = activeDiagnosticSubject === 'economics';
+  const questionsList = isEconomics ? ECONOMICS_DIAGNOSTIC_QUESTIONS : DIAGNOSTIC_QUESTIONS;
 
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [answers, setAnswers] = useState<Record<number, string | number>>({});
   const [localSubmission, setLocalSubmission] = useState<DiagnosticSubmission | null>(
-    diagnosticSubmission
+    isEconomics ? economicsDiagnosticSubmission : diagnosticSubmission
   );
 
   // Gamification toggle: default ON, can be toggled OFF for low-anxiety academic mode
@@ -82,20 +91,33 @@ export const DiagnosticAssessmentModal: React.FC = () => {
   // Sync submission from context
   useEffect(() => {
     if (isDiagnosticOpen) {
-      setLocalSubmission(diagnosticSubmission);
+      setLocalSubmission(isEconomics ? economicsDiagnosticSubmission : diagnosticSubmission);
+      setCurrentIndex(0);
+      setAnswers({});
     }
-  }, [isDiagnosticOpen, diagnosticSubmission]);
+  }, [isDiagnosticOpen, isEconomics, economicsDiagnosticSubmission, diagnosticSubmission]);
 
   // Telemetry idle hesitation timer (increments every second, flags pause if >= 6s)
   useEffect(() => {
     if (!isDiagnosticOpen || localSubmission) return;
 
     const interval = setInterval(() => {
-      setIdleSeconds((prev) => prev + 1);
+      setIdleSeconds((prev) => {
+        const next = prev + 1;
+        if (next === 7) {
+          const studentUid = authUser?.uid || 'demo-std-demo';
+          syncStudentProgress(studentUid, isEconomics ? 'Economics' : 'Chemistry', {
+            recentScore: 6,
+            strugglingTopic: questionsList[currentIndex]?.topic || 'Conceptual Evaluation',
+            hesitationLevel: 'high',
+          });
+        }
+        return next;
+      });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isDiagnosticOpen, localSubmission, currentIndex]);
+  }, [isDiagnosticOpen, localSubmission, currentIndex, authUser?.uid, isEconomics, questionsList]);
 
   // Reset telemetry upon question change
   useEffect(() => {
@@ -129,7 +151,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
 
   if (!isDiagnosticOpen) return null;
 
-  const currentQ = DIAGNOSTIC_QUESTIONS[currentIndex];
+  const currentQ = questionsList[currentIndex] || questionsList[0];
 
   const handleSelectOption = (optionIndex: number) => {
     if (localSubmission) return;
@@ -178,12 +200,15 @@ export const DiagnosticAssessmentModal: React.FC = () => {
 
   const analyzeVoiceExplanation = () => {
     // Socratic verbal verification
-    const simulatedTranscript =
-      'Because matter cannot be created or destroyed according to the Law of Conservation of Mass, the number of atoms on the reactant side must exactly balance the atoms in the product side before mole conversion.';
+    const simulatedTranscript = isEconomics
+      ? 'Because human wants are unlimited while productive economic resources like land, labor, and capital are finite, individuals and societies face perpetual scarcity, requiring trade-offs at every decision margin.'
+      : 'Because matter cannot be created or destroyed according to the Law of Conservation of Mass, the number of atoms on the reactant side must exactly balance the atoms in the product side before mole conversion.';
     setVoiceTranscript(simulatedTranscript);
     setVoiceAnalysisResult({
-      score: 95,
-      insight: 'Full stoichiometric understanding detected: Conservation of atomic count verified verbally.',
+      score: 96,
+      insight: isEconomics
+        ? 'Deep microeconomic reasoning detected: Perpetual scarcity and resource boundary trade-offs verified verbally.'
+        : 'Full stoichiometric understanding detected: Conservation of atomic count verified verbally.',
       verified: true,
     });
   };
@@ -205,7 +230,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
   };
 
   const handleNext = () => {
-    if (currentIndex < DIAGNOSTIC_QUESTIONS.length - 1) {
+    if (currentIndex < questionsList.length - 1) {
       setCurrentIndex((prev) => prev + 1);
     }
   };
@@ -224,13 +249,19 @@ export const DiagnosticAssessmentModal: React.FC = () => {
   };
 
   const handleSubmit = () => {
-    const submission = submitDiagnostic(answers);
+    const submission = isEconomics
+      ? submitEconomicsDiagnostic(answers)
+      : submitDiagnostic(answers);
     setLocalSubmission(submission);
   };
 
   const handleGoToPersonalizedPlatform = () => {
     setIsDiagnosticOpen(false);
-    setActiveView('personalized_learning');
+    if (isEconomics) {
+      setActiveView('personalized_learning_economics');
+    } else {
+      setActiveView('personalized_learning');
+    }
   };
 
   const handleRetake = () => {
@@ -252,15 +283,17 @@ export const DiagnosticAssessmentModal: React.FC = () => {
         {/* Header with Title and Gamification Toggle */}
         <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white shrink-0">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0 ${isEconomics ? 'bg-amber-600' : 'bg-indigo-600'}`}>
               <IconSparkles className="w-4 h-4" />
             </div>
             <div>
               <h2 className="text-sm font-bold text-slate-900">
-                Diagnostic Assessment Engine
+                {isEconomics ? 'Economics Diagnostic Calibration' : 'Chemistry Diagnostic Assessment Engine'}
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                10 Concept Diagnostic Questions · Weekly Multi-Modal Calibration
+                {isEconomics
+                  ? '10 Microeconomics Questions · Scarcity, Opportunity Cost & Demand-Supply'
+                  : '10 Concept Diagnostic Questions · Weekly Multi-Modal Calibration'}
               </p>
             </div>
           </div>
@@ -333,7 +366,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
               {/* Stepper Progress Bar */}
               <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
                 <span>
-                  Question {currentIndex + 1} of {DIAGNOSTIC_QUESTIONS.length}
+                  Question {currentIndex + 1} of {questionsList.length}
                 </span>
                 <span className="font-mono font-semibold text-indigo-700">
                   Topic: {currentQ.topic}
@@ -343,9 +376,9 @@ export const DiagnosticAssessmentModal: React.FC = () => {
               {/* Progress bar with crisp rounded-md */}
               <div className="w-full h-2 bg-slate-100 rounded-md overflow-hidden mb-4">
                 <div
-                  className="h-full bg-indigo-600 transition-all duration-300"
+                  className={`h-full transition-all duration-300 ${isEconomics ? 'bg-amber-600' : 'bg-indigo-600'}`}
                   style={{
-                    width: `${((currentIndex + 1) / DIAGNOSTIC_QUESTIONS.length) * 100}%`,
+                    width: `${((currentIndex + 1) / questionsList.length) * 100}%`,
                   }}
                 />
               </div>
@@ -955,11 +988,15 @@ export const DiagnosticAssessmentModal: React.FC = () => {
               </button>
 
               <div className="flex items-center gap-2">
-                {currentIndex < DIAGNOSTIC_QUESTIONS.length - 1 ? (
+                {currentIndex < questionsList.length - 1 ? (
                   <button
                     onClick={handleNext}
                     disabled={!isCurrentAnswered()}
-                    className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-40 rounded-lg shadow-xs transition-all flex items-center gap-1.5 cursor-pointer btn-tactile"
+                    className={`px-4 py-2 text-xs font-semibold text-white rounded-lg shadow-xs transition-all flex items-center gap-1.5 cursor-pointer btn-tactile disabled:opacity-40 ${
+                      isEconomics
+                        ? 'bg-amber-600 hover:bg-amber-700 active:bg-amber-800'
+                        : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'
+                    }`}
                   >
                     <span>Next Question</span>
                     <IconArrowRight className="w-3.5 h-3.5" />
@@ -968,7 +1005,11 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                   <button
                     onClick={handleSubmit}
                     disabled={!isCurrentAnswered()}
-                    className="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:bg-slate-300 rounded-lg shadow-xs transition-all flex items-center gap-1.5 cursor-pointer btn-tactile"
+                    className={`px-5 py-2 text-xs font-bold text-white rounded-lg shadow-xs transition-all flex items-center gap-1.5 cursor-pointer btn-tactile disabled:bg-slate-300 ${
+                      isEconomics
+                        ? 'bg-amber-600 hover:bg-amber-700 active:bg-amber-800'
+                        : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'
+                    }`}
                   >
                     <span>Submit & Analyze Diagnostic</span>
                     <IconCheckCircle className="w-4 h-4" />
@@ -987,9 +1028,13 @@ export const DiagnosticAssessmentModal: React.FC = () => {
 
               <button
                 onClick={handleGoToPersonalizedPlatform}
-                className="px-5 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-lg shadow-xs transition-all cursor-pointer flex items-center gap-1.5 btn-tactile"
+                className={`px-5 py-2.5 text-xs font-bold text-white rounded-lg shadow-xs transition-all cursor-pointer flex items-center gap-1.5 btn-tactile ${
+                  isEconomics
+                    ? 'bg-amber-600 hover:bg-amber-700 active:bg-amber-800'
+                    : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'
+                }`}
               >
-                <span>Enter Personalized Learning Platform</span>
+                <span>Enter {isEconomics ? 'Economics' : 'Chemistry'} Learning Space</span>
                 <IconArrowRight className="w-4 h-4" />
               </button>
             </>

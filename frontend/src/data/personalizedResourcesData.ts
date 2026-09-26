@@ -32,10 +32,13 @@ export interface FocusAreaPackage {
     slides: SlideContent[];
   };
   studyGuide: {
-    summary: string;
-    analogy: string;
+    summary?: string;
+    conceptualModel?: string;
+    analogy?: string;
+    realWorldAnalogy?: string;
+    title?: string;
     goldenSteps: string[];
-    keyTakeaways: string[];
+    keyTakeaways?: string[];
   };
   practiceExercises: {
     id: string;

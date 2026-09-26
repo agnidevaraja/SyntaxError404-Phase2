@@ -403,7 +403,7 @@ export const CLASS_SLIDE_DECKS: ClassSlideDeck[] = [
 export const COHORT_STUDENTS_LIST: StudentProfile[] = [
   {
     id: 'std-rohan',
-    name: 'Achalesh R.',
+    name: 'Demo Student',
     avatar: '',
     grade: 'Grade 9',
     diagnosticStatus: 'completed',

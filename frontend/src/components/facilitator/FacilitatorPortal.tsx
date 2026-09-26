@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { StudentProfile, TeacherStrategy, CalibrationSettings } from '../../types';
 import {
@@ -15,13 +15,29 @@ import {
   IconAtom,
   IconZap,
 } from '../common/Icons';
-import { User, Plus, Check } from 'lucide-react';
+import { User, Plus, Check, FlaskConical, TrendingUp, MessageSquare, Sparkles, Copy, RefreshCw as RefreshIcon } from 'lucide-react';
 import { SevenDayProficiencyChart } from '../common/SevenDayProficiencyChart';
 import {
   COHORT_WEEKLY_PROGRESSIONS,
   ACHALESH_WEEKLY_PROGRESSION,
   ROHAN_WEEKLY_PROGRESSION,
 } from '../../data/weeklyProficiencyData';
+import {
+  listenToStudentUsers,
+  listenToSubjectProgress,
+  FirestoreUser,
+  StudentProgressDoc,
+} from '../../services/firestoreService';
+import {
+  generateFacilitatorAdvisory,
+  FacilitatorAdvisoryResult,
+} from '../../services/aiAdvisoryService';
+import { PersonalizedChatView } from '../common/PersonalizedChatView';
+import {
+  ECONOMICS_COHORT_STUDENTS_LIST,
+  INITIAL_ECONOMICS_STRATEGIES,
+  ECONOMICS_WEEKLY_PROGRESSION,
+} from '../../data/mockEconomicsData';
 
 const INITIAL_STRATEGIES: TeacherStrategy[] = [
   {
@@ -72,17 +88,108 @@ const INITIAL_STRATEGIES: TeacherStrategy[] = [
 
 export const FacilitatorPortal: React.FC = () => {
   const {
+    authUser,
     cohortStudents,
     selectedStudentForInspect,
     setSelectedStudentForInspect,
     logout,
+    facilitatorSubject,
+    setFacilitatorSubject,
+    canSwitchSubject,
+    setActiveView,
+    showToast,
   } = useApp();
+
+  const isEconomics = facilitatorSubject === 'economics';
+  const currentSubjectName: 'Chemistry' | 'Economics' = isEconomics ? 'Economics' : 'Chemistry';
+
+  // 1.B & 1.C: Real-time Firestore Roster & Telemetry
+  const [firestoreStudents, setFirestoreStudents] = useState<FirestoreUser[]>([]);
+  const [progressMap, setProgressMap] = useState<Record<string, StudentProgressDoc>>({});
+
+  // 2 & 4.B: Student Inspection Modal Tab & AI Advisory state
+  const [activeModalTab, setActiveModalTab] = useState<'profile' | 'chat'>('profile');
+  const [chatDraftText, setChatDraftText] = useState<string>('');
+  const [advisoryResult, setAdvisoryResult] = useState<FacilitatorAdvisoryResult | null>(null);
+  const [isAnalyzingAdvisory, setIsAnalyzingAdvisory] = useState<boolean>(false);
+
+  useEffect(() => {
+    // 1.B: Real-time listener querying users where role == 'student'
+    const unsubStudents = listenToStudentUsers((users) => {
+      setFirestoreStudents(users);
+    });
+
+    return () => unsubStudents();
+  }, []);
+
+  useEffect(() => {
+    // 1.C: Real-time listener for student progress & telemetry
+    const unsubProgress = listenToSubjectProgress(currentSubjectName, (map) => {
+      setProgressMap(map);
+    });
+
+    return () => unsubProgress();
+  }, [currentSubjectName]);
+
+  // Combine static initial cohort with live Firestore registered students and real-time telemetry
+  const activeCohort = useMemo(() => {
+    const baseList = isEconomics ? [...ECONOMICS_COHORT_STUDENTS_LIST] : [...cohortStudents];
+
+    // For any student in baseList, update telemetry if present in progressMap
+    const updatedBase = baseList.map((std) => {
+      const liveProg = progressMap[std.id];
+      if (!liveProg) return std;
+      return {
+        ...std,
+        diagnosticStatus: 'completed' as const,
+        diagnosticScore: liveProg.recentScore,
+        recommendedFocus: liveProg.strugglingTopic !== 'None' ? liveProg.strugglingTopic : std.recommendedFocus,
+        commonMistakes: liveProg.strugglingTopic !== 'None' ? [liveProg.strugglingTopic] : [],
+      };
+    });
+
+    // Add newly registered students from Firestore who aren't already in baseList
+    const newStudents: StudentProfile[] = [];
+    firestoreStudents.forEach((fUser) => {
+      const alreadyExists = updatedBase.some(
+        (b) => b.id === fUser.uid || b.name.toLowerCase() === fUser.fullName.toLowerCase()
+      );
+      if (!alreadyExists) {
+        const liveProg = progressMap[fUser.uid];
+        newStudents.push({
+          id: fUser.uid,
+          name: fUser.fullName || fUser.email.split('@')[0] || 'Student',
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+          grade: 'Grade 9',
+          diagnosticStatus: liveProg ? 'completed' : 'pending',
+          diagnosticScore: liveProg?.recentScore,
+          commonMistakes: liveProg?.strugglingTopic && liveProg.strugglingTopic !== 'None' ? [liveProg.strugglingTopic] : [],
+          recommendedFocus: liveProg?.strugglingTopic && liveProg.strugglingTopic !== 'None'
+            ? liveProg.strugglingTopic
+            : isEconomics
+            ? 'Scarcity & Opportunity Cost'
+            : 'Stoichiometry & Mole Concept',
+          tasksCompleted: liveProg ? 2 : 0,
+          totalTasks: 4,
+        });
+      }
+    });
+
+    return [...newStudents, ...updatedBase];
+  }, [isEconomics, cohortStudents, firestoreStudents, progressMap]);
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
 
   // Teacher Strategy Bank state
-  const [strategies, setStrategies] = useState<TeacherStrategy[]>(INITIAL_STRATEGIES);
+  const [strategies, setStrategies] = useState<TeacherStrategy[]>(
+    isEconomics ? INITIAL_ECONOMICS_STRATEGIES : INITIAL_STRATEGIES
+  );
+
+  useEffect(() => {
+    setStrategies(isEconomics ? INITIAL_ECONOMICS_STRATEGIES : INITIAL_STRATEGIES);
+  }, [isEconomics]);
+
   const [selectedModality, setSelectedModality] = useState<string>('all');
   const [isAddStrategyModalOpen, setIsAddStrategyModalOpen] = useState<boolean>(false);
   const [assignedStrategyId, setAssignedStrategyId] = useState<string | null>(null);
@@ -104,7 +211,31 @@ export const FacilitatorPortal: React.FC = () => {
   });
   const [isCalibratedSaved, setIsCalibratedSaved] = useState<boolean>(false);
 
-  const filteredStudents = cohortStudents.filter((s) => {
+  // 2. Facilitator AI Advisory Engine: 4-Line Diagnostic Analysis
+  const handleAnalyzeRoadblock = async () => {
+    if (!selectedStudentForInspect) return;
+    setIsAnalyzingAdvisory(true);
+    try {
+      const studentTelemetry = progressMap[selectedStudentForInspect.id];
+      const res = await generateFacilitatorAdvisory({
+        studentName: selectedStudentForInspect.name,
+        subject: currentSubjectName,
+        recentScore: selectedStudentForInspect.diagnosticScore ?? 6,
+        strugglingTopic: selectedStudentForInspect.recommendedFocus,
+        hesitationLevel: studentTelemetry?.hesitationLevel || 'moderate',
+        commonMistakes: selectedStudentForInspect.commonMistakes,
+      });
+      setAdvisoryResult(res);
+      showToast('AI Advisory Generated', '4-Line root-cause diagnosis and pedagogical action plan ready.', 'success');
+    } catch (e) {
+      console.error('Advisory generation failed:', e);
+      showToast('Advisory Note', 'Generated standard pedagogical action plan.', 'info');
+    } finally {
+      setIsAnalyzingAdvisory(false);
+    }
+  };
+
+  const filteredStudents = activeCohort.filter((s) => {
     const matchesSearch =
       s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.recommendedFocus.toLowerCase().includes(searchQuery.toLowerCase());
@@ -130,7 +261,7 @@ export const FacilitatorPortal: React.FC = () => {
       description: newDescription.trim(),
       empiricalRecoveryRate: 85,
       recommendedDurationMins: Number(newDuration) || 15,
-      author: 'Dr. Eleanor Vance (Custom)',
+      author: isEconomics ? 'Prof. Arthur Sterling (Custom)' : 'Dr. Eleanor Vance (Custom)',
       isCustom: true,
     };
 
@@ -170,31 +301,86 @@ export const FacilitatorPortal: React.FC = () => {
     <div className="space-y-8 pb-12">
       
       {/* Teacher Profile & Cohort Banner */}
-      <div className="bg-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="bg-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 border border-slate-800">
         <div className="flex items-start gap-4">
-          <div className="w-14 h-14 rounded-xl bg-indigo-600 border-2 border-indigo-400 flex items-center justify-center text-white text-xl font-bold shrink-0 shadow-md">
-            EV
+          <div
+            className={`w-14 h-14 rounded-xl border-2 flex items-center justify-center text-white text-xl font-bold shrink-0 shadow-md ${
+              isEconomics
+                ? 'bg-amber-600 border-amber-400'
+                : 'bg-indigo-600 border-indigo-400'
+            }`}
+          >
+            {isEconomics ? 'AS' : 'EV'}
           </div>
           <div className="space-y-1">
-            <div className="flex items-center gap-2 text-xs font-semibold text-indigo-300">
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
               <IconShield className="w-4 h-4 text-emerald-400" />
-              <span>Facilitator Portal · Cohort Analysis & Adaptive Interventions</span>
+              <span>
+                Facilitator Portal · {isEconomics ? 'Economics Department' : 'Chemistry Department'}
+              </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-              Dr. Eleanor Vance
+              {isEconomics ? 'Prof. Arthur Sterling' : 'Dr. Eleanor Vance'}
             </h1>
             <p className="text-xs sm:text-sm text-slate-300">
-              Chemistry Educator · Cohort Analysis ({cohortStudents.length} Enrolled Grade 9 Students)
+              {isEconomics
+                ? `Economics Educator · Cohort Analysis (${activeCohort.length} Enrolled Grade 9 Students)`
+                : `Chemistry Educator · Cohort Analysis (${activeCohort.length} Enrolled Grade 9 Students)`}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Subject Switcher (Active for Google Auth / Email Sign-in Educators) */}
+          {canSwitchSubject ? (
+            <div className="flex items-center gap-1.5 p-1 bg-slate-800 rounded-xl border border-slate-700">
+              <button
+                type="button"
+                onClick={() => setFacilitatorSubject('chemistry')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  !isEconomics
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-700/60'
+                }`}
+              >
+                <FlaskConical className="w-3.5 h-3.5" />
+                <span>Chemistry</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setFacilitatorSubject('economics')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  isEconomics
+                    ? 'bg-amber-600 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-700/60'
+                }`}
+              >
+                <TrendingUp className="w-3.5 h-3.5" />
+                <span>Economics</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveView('facilitator_subject_select')}
+                className="px-2.5 py-1.5 text-[11px] text-slate-300 hover:text-white hover:bg-slate-700/80 rounded-lg transition-colors cursor-pointer border-l border-slate-700 ml-1"
+                title="Open subject department selector"
+              >
+                Choose View
+              </button>
+            </div>
+          ) : (
+            <div className="px-3 py-1.5 bg-slate-800 rounded-xl border border-slate-700 text-xs font-semibold text-slate-300 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Fixed Subject Account ({isEconomics ? 'Economics' : 'Chemistry'})</span>
+            </div>
+          )}
+
           <button
             onClick={logout}
             className="px-4 py-2 bg-white/10 hover:bg-white/20 active:bg-white/30 text-white text-xs font-semibold rounded-xl border border-white/20 transition-all cursor-pointer btn-tactile"
           >
-            Back to Home
+            Sign Out
           </button>
         </div>
       </div>
@@ -207,12 +393,14 @@ export const FacilitatorPortal: React.FC = () => {
           </span>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-bold font-mono text-slate-900">
-              {cohortStudents.filter((s) => s.diagnosticStatus === 'completed').length} / {cohortStudents.length}
+              {activeCohort.filter((s) => s.diagnosticStatus === 'completed').length} / {activeCohort.length}
             </span>
-            <span className="text-xs text-emerald-600 font-semibold">100% Calibrated</span>
+            <span className="text-xs text-emerald-600 font-semibold">
+              {Math.round((activeCohort.filter((s) => s.diagnosticStatus === 'completed').length / activeCohort.length) * 100)}% Calibrated
+            </span>
           </div>
           <p className="text-[11px] text-slate-500">
-            All {cohortStudents.length} students completed weekly diagnostic calibration.
+            {activeCohort.filter((s) => s.diagnosticStatus === 'completed').length} of {activeCohort.length} students completed diagnostic calibration.
           </p>
         </div>
 
@@ -221,11 +409,17 @@ export const FacilitatorPortal: React.FC = () => {
             Mean Diagnostic Score
           </span>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-indigo-600">8.1 / 10</span>
-            <span className="text-xs text-slate-500">81% Class Accuracy</span>
+            <span className={`text-2xl font-bold font-mono ${isEconomics ? 'text-amber-600' : 'text-indigo-600'}`}>
+              {isEconomics ? '7.3 / 10' : '8.1 / 10'}
+            </span>
+            <span className="text-xs text-slate-500">
+              {isEconomics ? '73% Class Accuracy' : '81% Class Accuracy'}
+            </span>
           </div>
           <p className="text-[11px] text-slate-500">
-            Strongest area: Unit 1 Atomic Mass & Isotopes.
+            {isEconomics
+              ? 'Strongest area: Unit 1 Scarcity & Factors of Production.'
+              : 'Strongest area: Unit 1 Atomic Mass & Isotopes.'}
           </p>
         </div>
 
@@ -235,11 +429,13 @@ export const FacilitatorPortal: React.FC = () => {
           </span>
           <div className="flex items-baseline gap-2">
             <span className="text-base font-bold text-slate-900 truncate">
-              Limiting Reagents (Q7)
+              {isEconomics ? 'Demand Shift vs Movement (Q5)' : 'Limiting Reagents (Q7)'}
             </span>
           </div>
           <p className="text-[11px] text-rose-600 font-semibold">
-            46% error rate: Confusing mass with mole ratios.
+            {isEconomics
+              ? '40% error rate: Confusing price movements with curve shifts.'
+              : '46% error rate: Confusing mass with mole ratios.'}
           </p>
         </div>
 
@@ -248,11 +444,11 @@ export const FacilitatorPortal: React.FC = () => {
             Active Study Plans
           </span>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-slate-900">{cohortStudents.length}</span>
+            <span className="text-2xl font-bold font-mono text-slate-900">{activeCohort.length}</span>
             <span className="text-xs text-slate-500">Personalized Paths</span>
           </div>
           <p className="text-[11px] text-slate-500">
-            Tailored weekly actions generated for all {cohortStudents.length} students.
+            Tailored weekly actions generated for all {activeCohort.length} students.
           </p>
         </div>
       </section>
@@ -742,7 +938,7 @@ export const FacilitatorPortal: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="text-right">
+                <div className="text-right flex flex-col items-end gap-1.5">
                   <span
                     className={`text-[10px] font-bold px-2 py-0.5 rounded-md capitalize ${
                       std.diagnosticStatus === 'completed'
@@ -754,14 +950,31 @@ export const FacilitatorPortal: React.FC = () => {
                       ? `Score: ${std.diagnosticScore}/10`
                       : 'Pending'}
                   </span>
+
+                  {/* 1.C: Live Telemetry Bottleneck Badge */}
+                  {progressMap[std.id]?.hesitationLevel === 'high' && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-200 animate-pulse">
+                      Hesitation: High
+                    </span>
+                  )}
+                  {progressMap[std.id]?.hesitationLevel === 'moderate' && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 border border-amber-200">
+                      Hesitation: Moderate
+                    </span>
+                  )}
+                  {progressMap[std.id]?.hesitationLevel === 'low' && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      Pacing: Nominal
+                    </span>
+                  )}
                 </div>
               </div>
 
               {/* Student Focus Area */}
               <div className="space-y-1.5 pt-2 border-t border-slate-100 text-xs">
                 <div className="text-slate-500">
-                  Recommended Focus:{' '}
-                  <span className="font-semibold text-slate-800">
+                  <span className="font-bold text-slate-700">Bottleneck:</span>{' '}
+                  <span className="font-semibold text-indigo-700">
                     {std.recommendedFocus}
                   </span>
                 </div>
@@ -903,15 +1116,16 @@ export const FacilitatorPortal: React.FC = () => {
 
       {/* Individual Student Inspection Modal */}
       {selectedStudentForInspect && (() => {
-        const studentProgression =
-          COHORT_WEEKLY_PROGRESSIONS[selectedStudentForInspect.id] || ROHAN_WEEKLY_PROGRESSION;
+        const studentProgression = isEconomics
+          ? ECONOMICS_WEEKLY_PROGRESSION
+          : (COHORT_WEEKLY_PROGRESSIONS[selectedStudentForInspect.id] || ROHAN_WEEKLY_PROGRESSION);
 
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
             <div className="relative w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
               
-              {/* Header */}
-              <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between shrink-0">
+              {/* Header with Navigation Tabs */}
+              <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
                     <User className="w-5 h-5" />
@@ -921,24 +1135,158 @@ export const FacilitatorPortal: React.FC = () => {
                       {selectedStudentForInspect.name}
                     </h3>
                     <div className="text-xs text-slate-500">
-                      {selectedStudentForInspect.grade} · Student Learning Profile
+                      {selectedStudentForInspect.grade} · {currentSubjectName}
                     </div>
                   </div>
                 </div>
 
-                <button
-                  onClick={() => setSelectedStudentForInspect(null)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer btn-tactile"
-                >
-                  <IconX className="w-5 h-5" />
-                </button>
+                <div className="flex items-center gap-3">
+                  {/* Tabs: Profile vs 1-on-1 Intervention Chat */}
+                  <div className="flex items-center bg-slate-200/80 p-1 rounded-xl text-xs font-semibold">
+                    <button
+                      onClick={() => setActiveModalTab('profile')}
+                      className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                        activeModalTab === 'profile'
+                          ? 'bg-white text-slate-900 shadow-xs font-bold'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      Profile & Telemetry
+                    </button>
+                    <button
+                      onClick={() => setActiveModalTab('chat')}
+                      className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                        activeModalTab === 'chat'
+                          ? 'bg-white text-indigo-700 shadow-xs font-bold'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>1-on-1 Chat</span>
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setSelectedStudentForInspect(null);
+                      setAdvisoryResult(null);
+                      setActiveModalTab('profile');
+                    }}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer btn-tactile"
+                    title="Close"
+                  >
+                    <IconX className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
 
               {/* Body */}
-              <div className="p-6 overflow-y-auto space-y-6">
-                
-                {/* Interactive 7-Day Quiz & Subject Proficiency Growth Chart */}
-                <SevenDayProficiencyChart progression={studentProgression} />
+              {activeModalTab === 'chat' ? (
+                <div className="p-4 sm:p-6 h-[560px]">
+                  <PersonalizedChatView
+                    studentUid={selectedStudentForInspect.id}
+                    studentName={selectedStudentForInspect.name}
+                    subject={currentSubjectName}
+                    currentUserRole="facilitator"
+                    currentUserName={authUser?.displayName || (isEconomics ? 'Prof. Arthur Sterling' : 'Dr. Eleanor Vance')}
+                    currentUserId={authUser?.uid || (isEconomics ? 'demo-fac-econ' : 'demo-fac-chem')}
+                    initialMessageText={chatDraftText}
+                    isInlineCard={true}
+                  />
+                </div>
+              ) : (
+                <div className="p-6 overflow-y-auto space-y-6">
+
+                  {/* 2. Facilitator AI Advisory Engine (4-Line Diagnostic) */}
+                  <div className="bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 rounded-2xl p-5 sm:p-6 text-white space-y-4 shadow-sm border border-indigo-800/60">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+                          <Sparkles className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                            <span>Facilitator AI Advisory Engine</span>
+                            <span className="text-[10px] font-mono uppercase bg-indigo-500/30 text-indigo-200 px-2 py-0.5 rounded-full border border-indigo-400/30">
+                              4-Line Diagnostic
+                            </span>
+                          </h4>
+                          <p className="text-[11px] text-slate-300 mt-0.5">
+                            Synthesizes task metrics, error points, and hesitation data into actionable pedagogical steps.
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={handleAnalyzeRoadblock}
+                        disabled={isAnalyzingAdvisory}
+                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 shrink-0 cursor-pointer btn-tactile"
+                      >
+                        {isAnalyzingAdvisory ? (
+                          <>
+                            <RefreshIcon className="w-3.5 h-3.5 animate-spin" />
+                            <span>Analyzing Roadblock...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-3.5 h-3.5 text-indigo-200" />
+                            <span>Analyze Student Roadblock</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {advisoryResult && (
+                      <div className="pt-4 border-t border-slate-800 space-y-3 animate-in fade-in duration-200">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                          {/* Lines 1 and 2: Diagnosis */}
+                          <div className="p-3.5 rounded-xl bg-slate-800/90 border border-slate-700 space-y-1.5">
+                            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-300 block">
+                              Diagnosis (Lines 1 & 2: Root-Cause Prerequisite Gap)
+                            </span>
+                            <p className="text-slate-100 font-semibold leading-snug">
+                              {advisoryResult.diagnosisLine1}
+                            </p>
+                            <p className="text-slate-300 text-[11px] leading-relaxed">
+                              {advisoryResult.diagnosisLine2}
+                            </p>
+                          </div>
+
+                          {/* Lines 3 and 4: Action Step */}
+                          <div className="p-3.5 rounded-xl bg-slate-800/90 border border-slate-700 space-y-1.5 flex flex-col justify-between">
+                            <div className="space-y-1.5">
+                              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-300 block">
+                                Action Step (Lines 3 & 4: Pedagogical Next Steps)
+                              </span>
+                              <p className="text-slate-100 text-[11px] leading-relaxed">
+                                <strong>1. </strong>{advisoryResult.actionStep1}
+                              </p>
+                              <p className="text-slate-100 text-[11px] leading-relaxed">
+                                <strong>2. </strong>{advisoryResult.actionStep2}
+                              </p>
+                            </div>
+
+                            <div className="pt-2 flex justify-end">
+                              <button
+                                onClick={() => {
+                                  setChatDraftText(`Hi ${selectedStudentForInspect.name}, here is a targeted action plan for your focus area:\n1. ${advisoryResult.actionStep1}\n2. ${advisoryResult.actionStep2}`);
+                                  setActiveModalTab('chat');
+                                  showToast('Copied to Chat', 'Action steps pre-filled into 1-on-1 intervention thread.', 'success');
+                                }}
+                                className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 active:bg-emerald-800 text-white font-semibold text-xs rounded-lg transition-all flex items-center gap-1.5 cursor-pointer btn-tactile shadow-xs"
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                                <span>Copy to Chat</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Interactive 7-Day Quiz & Subject Proficiency Growth Chart */}
+                  <SevenDayProficiencyChart progression={studentProgression} />
 
                 {/* Score & Status */}
                 <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
@@ -1075,6 +1423,7 @@ export const FacilitatorPortal: React.FC = () => {
                   )}
                 </div>
               </div>
+              )}
 
               {/* Footer */}
               <div className="px-6 py-3 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">

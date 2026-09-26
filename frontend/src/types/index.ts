@@ -8,12 +8,17 @@ export interface AuthUser {
   role: 'student' | 'facilitator';
 }
 
+export type SubjectId = 'chemistry' | 'economics';
+
 export type ActiveView =
   | 'landing'
   | 'student_hub'
   | 'subject_chemistry'
   | 'personalized_learning'
-  | 'facilitator_portal';
+  | 'subject_economics'
+  | 'personalized_learning_economics'
+  | 'facilitator_portal'
+  | 'facilitator_subject_select';
 
 export type QuestionType = 'multiple_choice' | 'short_text';
 

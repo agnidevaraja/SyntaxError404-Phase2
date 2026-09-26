@@ -15,16 +15,27 @@ import {
   IconRefreshCw,
   IconAtom,
 } from '../common/Icons';
-import { Video, Play, ExternalLink, Clock, Award, Layers, CheckCircle2 } from 'lucide-react';
+import { Video, Play, ExternalLink, Clock, Award, Layers, CheckCircle2, Lock, Lightbulb, MessageSquare } from 'lucide-react';
+import { OpportunitiesHub } from './OpportunitiesHub';
+import { RealLifeAnalogyExplorer } from './RealLifeAnalogyExplorer';
+import { AdaptiveConceptExplainerModal } from './AdaptiveConceptExplainerModal';
+import { PersonalizedChatView } from '../common/PersonalizedChatView';
+import { syncStudentProgress } from '../../services/firestoreService';
 
 export const PersonalizedLearningPage: React.FC = () => {
   const {
+    authUser,
     diagnosticSubmission,
     setIsDiagnosticOpen,
+    setActiveDiagnosticSubject,
     setActiveView,
     setActiveSlidePreviewDeck,
     showToast,
   } = useApp();
+
+  const [isExplainerOpen, setIsExplainerOpen] = useState<boolean>(false);
+  const [explainerTopic, setExplainerTopic] = useState<string>('Stoichiometry & Limiting Reactants');
+  const [isChatDrawerOpen, setIsChatDrawerOpen] = useState<boolean>(false);
 
   const isPerfectScore = diagnosticSubmission?.generatedLearningPlan?.isPerfectScore ?? false;
   const weakUnits = diagnosticSubmission?.weakUnitIds ?? [];
@@ -160,10 +171,18 @@ export const PersonalizedLearningPage: React.FC = () => {
 
     setPracticeFeedback((prev) => ({ ...prev, [exerciseId]: isCorrect }));
 
+    // 1.C: Live Student Activity and Telemetry Firestore Sync
+    const currentUid = authUser?.uid || 'demo-std-demo';
+    syncStudentProgress(currentUid, 'Chemistry', {
+      recentScore: isCorrect ? 9 : 6,
+      strugglingTopic: isCorrect ? 'None' : currentPackage.topic,
+      hesitationLevel: isCorrect ? 'low' : 'moderate',
+    });
+
     if (isCorrect) {
       showToast('Correct Calculation!', 'Excellent job applying the concept.', 'success');
     } else {
-      showToast('Review Required', 'Not quite right. See the detailed worked solution below.', 'warning');
+      showToast('Review Required', 'Not quite right. See the worked solution or Break It Down with AI.', 'warning');
     }
   };
 
@@ -174,6 +193,88 @@ export const PersonalizedLearningPage: React.FC = () => {
     showToast('Question Sent to Dr. Vance', 'Dr. Vance will review your question during lab hours.', 'success');
     setQuestionText('');
   };
+
+  // PREREQUISITE GATE: Require Chemistry Diagnostic Assessment before accessing personalized space
+  if (!diagnosticSubmission) {
+    return (
+      <div className="space-y-6 max-w-4xl mx-auto py-8">
+        <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-2">
+          <button
+            onClick={() => setActiveView('student_hub')}
+            className="hover:text-slate-900 transition-colors cursor-pointer"
+          >
+            Student Hub
+          </button>
+          <span aria-hidden="true">/</span>
+          <button
+            onClick={() => setActiveView('subject_chemistry')}
+            className="hover:text-slate-900 transition-colors cursor-pointer"
+          >
+            Chemistry
+          </button>
+          <span aria-hidden="true">/</span>
+          <span className="text-indigo-600 font-bold">Diagnostic Calibration Required</span>
+        </div>
+
+        <div className="bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 text-center shadow-lg space-y-6">
+          <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center mx-auto shadow-xs">
+            <Lock className="w-8 h-8" />
+          </div>
+
+          <div className="space-y-3 max-w-xl mx-auto">
+            <span className="text-xs font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full">
+              Prerequisite Calibration Required
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              Unlock Your Personalized Chemistry Space
+            </h2>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              Your personalized learning space dynamically isolates your specific stoichiometry, bonding, and thermochemistry misconceptions, builds custom slide decks, and curates research programs based on your diagnostic answers.
+            </p>
+            <p className="text-xs text-slate-500 font-medium">
+              Please take the 10-question Chemistry diagnostic test first to generate your tailored remediation roadmap.
+            </p>
+          </div>
+
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button
+              onClick={() => {
+                setActiveDiagnosticSubject('chemistry');
+                setIsDiagnosticOpen(true);
+              }}
+              className="w-full sm:w-auto px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
+            >
+              <IconSparkles className="w-4 h-4 text-indigo-200" />
+              <span>Take Chemistry Diagnostic (10 Questions)</span>
+              <IconArrowRight className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={() => setActiveView('subject_chemistry')}
+              className="w-full sm:w-auto px-5 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm rounded-xl transition-all cursor-pointer"
+            >
+              Back to Chemistry Subject Page
+            </button>
+          </div>
+
+          <div className="pt-6 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4 text-left text-xs text-slate-600">
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <span className="font-bold text-slate-900 block mb-1">1. Adaptive 10 Questions</span>
+              <p className="text-[11px] text-slate-500">Covers Stoichiometry, Bonding, Thermochemistry, Kinetics, and Equilibrium.</p>
+            </div>
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <span className="font-bold text-slate-900 block mb-1">2. Precision Diagnosis</span>
+              <p className="text-[11px] text-slate-500">Isolates specific calculation traps and missing conceptual foundations.</p>
+            </div>
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <span className="font-bold text-slate-900 block mb-1">3. Tailored Learning Hub</span>
+              <p className="text-[11px] text-slate-500">Generates custom slide decks, step-by-step algorithms, and real-life analogies.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 pb-16">
@@ -214,6 +315,14 @@ export const PersonalizedLearningPage: React.FC = () => {
           >
             <IconChevronLeft className="w-4 h-4" />
             <span>Back to Chemistry</span>
+          </button>
+
+          <button
+            onClick={() => setIsChatDrawerOpen(true)}
+            className="px-4 py-2.5 bg-indigo-50 hover:bg-indigo-100 active:bg-indigo-200 text-indigo-700 font-semibold text-xs rounded-xl border border-indigo-200 transition-all flex items-center gap-1.5 cursor-pointer btn-tactile shadow-2xs"
+          >
+            <MessageSquare className="w-3.5 h-3.5 text-indigo-600" />
+            <span>Instructor Support (1-on-1 Chat)</span>
           </button>
 
           <button
@@ -743,11 +852,25 @@ export const PersonalizedLearningPage: React.FC = () => {
         {/* Core Mental Model & Analogy */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-7 shadow-xs space-y-4 flex flex-col justify-between">
           <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <IconSparkles className="w-5 h-5 text-amber-500" />
-              <h3 className="text-base font-bold text-slate-900">
-                Conceptual Model & Real-World Analogy
-              </h3>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <IconSparkles className="w-5 h-5 text-amber-500" />
+                <h3 className="text-base font-bold text-slate-900">
+                  Conceptual Model & Real-World Analogy
+                </h3>
+              </div>
+
+              {/* 3. Student Adaptive Concept Explainer Action */}
+              <button
+                onClick={() => {
+                  setExplainerTopic(currentPackage.topic);
+                  setIsExplainerOpen(true);
+                }}
+                className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer btn-tactile"
+              >
+                <Lightbulb className="w-3.5 h-3.5 text-amber-300" />
+                <span>Break It Down with AI</span>
+              </button>
             </div>
 
             <p className="text-xs text-slate-600 leading-relaxed">
@@ -844,6 +967,9 @@ export const PersonalizedLearningPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Jargon-Free Real-Life Analogy Explorer */}
+      <RealLifeAnalogyExplorer subject="chemistry" />
 
       {/* SECTION 3: Targeted Practice Micro-Exercises with Instant Feedback */}
       <section className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
@@ -942,7 +1068,7 @@ export const PersonalizedLearningPage: React.FC = () => {
                 {/* Result Feedback Banner */}
                 {isChecked && (
                   <div
-                    className={`p-4 rounded-xl border text-xs space-y-1.5 animate-in fade-in duration-150 ${
+                    className={`p-4 rounded-xl border text-xs space-y-2 animate-in fade-in duration-150 ${
                       isCorrect
                         ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
                         : 'bg-rose-50 border-rose-300 text-rose-950'
@@ -965,6 +1091,21 @@ export const PersonalizedLearningPage: React.FC = () => {
                       <strong>Solution Explanation: </strong>
                       {exercise.explanation}
                     </p>
+
+                    {!isCorrect && (
+                      <div className="pt-1">
+                        <button
+                          onClick={() => {
+                            setExplainerTopic(currentPackage.topic);
+                            setIsExplainerOpen(true);
+                          }}
+                          className="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-xs btn-tactile"
+                        >
+                          <Lightbulb className="w-3.5 h-3.5 text-amber-200" />
+                          <span>Break It Down with AI (Analogy & Worked Example)</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -973,61 +1114,63 @@ export const PersonalizedLearningPage: React.FC = () => {
         </div>
       </section>
 
-      {/* SECTION 4: Ask Facilitator / Direct Inquiry to Dr. Vance */}
+      {/* SECTION 4: AI-Powered Opportunities Hub */}
+      <OpportunitiesHub currentFocusTitle={currentPackage.topic} />
+
+      {/* SECTION 5: Dedicated 1-on-1 Personalized Chat System */}
       <section className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-4">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <div className="flex items-center gap-2">
-            <IconFileText className="w-5 h-5 text-indigo-600" />
-            <h2 className="text-base font-bold text-slate-900">
-              Need Clarification on {currentPackage.topic}?
-            </h2>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
+              <MessageSquare className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-slate-900">
+                1-on-1 Instructor Support: Dr. Eleanor Vance
+              </h2>
+              <p className="text-xs text-slate-500">
+                Direct private academic communication for {currentPackage.topic} misconceptions and questions.
+              </p>
+            </div>
           </div>
-          <span className="text-xs text-slate-500">
-            Instructor: Dr. Eleanor Vance
+          <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Live Firestore Sync</span>
           </span>
         </div>
 
-        <p className="text-xs text-slate-600 leading-relaxed">
-          If you are still experiencing difficulty with this topic after reviewing the slides, submit a question below. Dr. Vance receives priority notifications for student struggle areas.
-        </p>
-
-        {questionSent ? (
-          <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <IconCheckCircle className="w-4 h-4 text-emerald-600" />
-              <span>Your question has been logged in Dr. Vance's facilitator queue for follow-up.</span>
-            </div>
-            <button
-              onClick={() => setQuestionSent(false)}
-              className="font-semibold text-emerald-700 underline text-xs cursor-pointer"
-            >
-              Ask another
-            </button>
-          </div>
-        ) : (
-          <form onSubmit={handleSendTeacherQuestion} className="space-y-3">
-            <textarea
-              rows={3}
-              value={questionText}
-              onChange={(e) => setQuestionText(e.target.value)}
-              placeholder={`Ask Dr. Vance about ${currentPackage.topic} (e.g., "Could you explain why we divide by 3 for Cl₂ in problem 1 during tomorrow's review?")...`}
-              className="w-full p-3.5 text-xs sm:text-sm font-medium bg-slate-50 border border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl focus:outline-none transition-all shadow-xs"
-            />
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] text-slate-400">
-                Routed directly with your diagnostic struggle context
-              </span>
-              <button
-                type="submit"
-                disabled={!questionText.trim()}
-                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-white font-semibold text-xs rounded-lg shadow-xs transition-colors cursor-pointer"
-              >
-                Send to Dr. Vance
-              </button>
-            </div>
-          </form>
-        )}
+        <PersonalizedChatView
+          studentUid={authUser?.uid || 'demo-std-demo'}
+          studentName={authUser?.displayName || 'Student'}
+          subject="Chemistry"
+          currentUserRole="student"
+          currentUserName={authUser?.displayName || 'Student'}
+          currentUserId={authUser?.uid || 'demo-std-demo'}
+          isInlineCard={true}
+        />
       </section>
+
+      {/* Floating Modal for Adaptive Concept Explainer */}
+      <AdaptiveConceptExplainerModal
+        isOpen={isExplainerOpen}
+        topic={explainerTopic}
+        subject="Chemistry"
+        struggleContext={`Student struggling with calculation in ${currentPackage.topic}. Misconception trap: ${currentPackage.identifiedTrap}`}
+        onClose={() => setIsExplainerOpen(false)}
+      />
+
+      {/* Slide-over Drawer / Modal for 1-on-1 Instructor Support */}
+      {isChatDrawerOpen && (
+        <PersonalizedChatView
+          studentUid={authUser?.uid || 'demo-std-demo'}
+          studentName={authUser?.displayName || 'Student'}
+          subject="Chemistry"
+          currentUserRole="student"
+          currentUserName={authUser?.displayName || 'Student'}
+          currentUserId={authUser?.uid || 'demo-std-demo'}
+          onClose={() => setIsChatDrawerOpen(false)}
+        />
+      )}
     </div>
   );
 };

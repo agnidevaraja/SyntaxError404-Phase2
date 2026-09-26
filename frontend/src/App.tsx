@@ -5,7 +5,10 @@ import { LandingPage } from './components/landing/LandingPage';
 import { StudentMainHub } from './components/student/StudentMainHub';
 import { ChemistrySubjectPage } from './components/student/ChemistrySubjectPage';
 import { PersonalizedLearningPage } from './components/student/PersonalizedLearningPage';
+import { EconomicsSubjectPage } from './components/student/EconomicsSubjectPage';
+import { PersonalizedLearningPageEconomics } from './components/student/PersonalizedLearningPageEconomics';
 import { FacilitatorPortal } from './components/facilitator/FacilitatorPortal';
+import { FacilitatorSubjectSelectPage } from './components/facilitator/FacilitatorSubjectSelectPage';
 import { DiagnosticAssessmentModal } from './components/student/DiagnosticAssessmentModal';
 import { SlidePreviewModal } from './components/student/SlidePreviewModal';
 import { AuthModal } from './components/common/AuthModal';
@@ -25,6 +28,9 @@ export function AppContent() {
         {activeView === 'student_hub' && <StudentMainHub />}
         {activeView === 'subject_chemistry' && <ChemistrySubjectPage />}
         {activeView === 'personalized_learning' && <PersonalizedLearningPage />}
+        {activeView === 'subject_economics' && <EconomicsSubjectPage />}
+        {activeView === 'personalized_learning_economics' && <PersonalizedLearningPageEconomics />}
+        {activeView === 'facilitator_subject_select' && <FacilitatorSubjectSelectPage />}
         {activeView === 'facilitator_portal' && <FacilitatorPortal />}
       </main>
 

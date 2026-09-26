@@ -19,6 +19,7 @@ import {
   Dna,
   Layers,
   ArrowRight,
+  TrendingUp,
 } from 'lucide-react';
 import { GRADE_9_FULL_SYLLABUS_SUBJECTS } from '../../data/mockStudentHubData';
 
@@ -28,6 +29,9 @@ export const StudentMainHub: React.FC = () => {
     toggleTaskCompleted,
     setActiveView,
     diagnosticSubmission,
+    economicsDiagnosticSubmission,
+    setIsDiagnosticOpen,
+    setActiveDiagnosticSubject,
     showToast,
     authUser,
   } = useApp();
@@ -76,11 +80,9 @@ export const StudentMainHub: React.FC = () => {
     <div className="space-y-8 pb-12">
       
       {/* Welcome Banner - Grade 9 Academic Profile */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs">
         <div>
           <div className="flex items-center gap-2 text-xs text-slate-500 font-semibold">
-            <span>St. Jude Preparatory Academy</span>
-            <span aria-hidden="true">·</span>
             <span className="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200/60">
               Grade 9
             </span>
@@ -88,19 +90,9 @@ export const StudentMainHub: React.FC = () => {
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-1">
             Student Learning Hub
           </h1>
-          <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-xl leading-relaxed">
-            Welcome back, {authUser?.displayName || 'Achalesh R.'}. Access your Grade 9 Full Exam Syllabus (Mathematics & Core Sciences), manage daily tasks, and dive into Chemistry below.
+          <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+            Welcome back, {authUser?.displayName || 'Demo Student'}. Access your Grade 9 Full Exam Syllabus (Mathematics & Core Sciences), manage daily tasks, and explore your enrolled subjects below.
           </p>
-        </div>
-
-        <div className="flex items-center gap-3 shrink-0">
-          <button
-            onClick={() => setActiveView('subject_chemistry')}
-            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer btn-tactile group"
-          >
-            <span>Go to Chemistry</span>
-            <IconArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-          </button>
         </div>
       </div>
 
@@ -328,62 +320,151 @@ export const StudentMainHub: React.FC = () => {
         </div>
       </section>
 
-      {/* SECTION 3: My Subjects (Chemistry Portal) */}
-      <section className="bg-white rounded-2xl border border-slate-200/90 p-6 sm:p-7 shadow-xs space-y-4">
+      {/* SECTION 3: My Subjects (Chemistry & Economics) */}
+      <section className="bg-white rounded-2xl border border-slate-200/90 p-6 sm:p-7 shadow-xs space-y-6">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h2 className="text-base font-bold text-slate-900">
-            My Subjects
-          </h2>
-          <span className="text-xs text-slate-500">
-            Enrolled Grade 9 Science
+          <div>
+            <h2 className="text-base font-bold text-slate-900">
+              My Subjects
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Enrolled Academic Courses · Personalized Adaptive Learning Spaces
+            </p>
+          </div>
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
+            2 Subjects Enrolled
           </span>
         </div>
 
-        {/* Clean Subject Chemistry Card */}
-        <div className="bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6 card-hover">
-          <div className="space-y-3">
-            <span className="text-xs font-mono font-semibold text-indigo-300 bg-indigo-950/80 border border-indigo-700/60 px-2.5 py-1 rounded-md">
-              Subject: Chemistry · Grade 9
-            </span>
+        <div className="space-y-5">
+          {/* Subject 1: Chemistry Card */}
+          <div className="bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6 card-hover border border-indigo-900/40">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-semibold text-indigo-300 bg-indigo-950/80 border border-indigo-700/60 px-2.5 py-1 rounded-md">
+                  Subject: Chemistry · Grade 9
+                </span>
+                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-semibold px-2 py-0.5 rounded border border-emerald-500/30">
+                  STEM Sciences
+                </span>
+              </div>
 
-            <h3 className="text-2xl font-bold tracking-tight text-white">
-              Chemistry
-            </h3>
+              <h3 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
+                <FlaskConical className="w-6 h-6 text-indigo-400" />
+                <span>Chemistry</span>
+              </h3>
 
-            <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
-              Instructor: <strong className="text-white font-semibold">Dr. Eleanor Vance</strong>. Access your Chemistry Syllabus Focus (The Mole Concept, Redox Reactions, & Redox Stoichiometry), view lecture presentations, and take diagnostic calibrations.
-            </p>
+              <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
+                Instructor: <strong className="text-white font-semibold">Dr. Eleanor Vance</strong>. Access your Chemistry Syllabus Focus (The Mole Concept, Redox Reactions, & Stoichiometry), view lecture presentations, and take diagnostic calibrations.
+              </p>
 
-            <div className="flex flex-wrap items-center gap-3 text-xs text-indigo-200 pt-1">
-              <span>Class Drive: <strong>2 Lecture Decks</strong></span>
-              <span>·</span>
-              <span>
-                Diagnostic Calibration:{' '}
-                <strong className={diagnosticSubmission ? 'text-emerald-400' : 'text-amber-300'}>
-                  {diagnosticSubmission ? `Calibrated (${diagnosticSubmission.score}/10)` : 'Ready to Start'}
-                </strong>
-              </span>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-indigo-200 pt-1">
+                <span>Class Drive: <strong>2 Lecture Decks</strong></span>
+                <span>·</span>
+                <span>
+                  Diagnostic Calibration:{' '}
+                  <strong className={diagnosticSubmission ? 'text-emerald-400' : 'text-amber-300'}>
+                    {diagnosticSubmission ? `Calibrated (${diagnosticSubmission.score}/10)` : 'Ready to Start'}
+                  </strong>
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+              {diagnosticSubmission ? (
+                <button
+                  onClick={() => setActiveView('personalized_learning')}
+                  className="px-5 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-sm rounded-xl border border-white/20 transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
+                >
+                  <IconSparkles className="w-4 h-4 text-indigo-300" />
+                  <span>Personalized Learning</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    setActiveDiagnosticSubject('chemistry');
+                    setIsDiagnosticOpen(true);
+                  }}
+                  className="px-5 py-3.5 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-200 font-bold text-sm rounded-xl border border-indigo-400/40 transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
+                >
+                  <IconSparkles className="w-4 h-4 text-amber-300" />
+                  <span>Take Diagnostic to Unlock</span>
+                </button>
+              )}
+
+              <button
+                onClick={() => setActiveView('subject_chemistry')}
+                className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer group btn-tactile"
+              >
+                <span>Open Chemistry Page</span>
+                <IconArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </button>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
-            {diagnosticSubmission && (
-              <button
-                onClick={() => setActiveView('personalized_learning')}
-                className="px-5 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-sm rounded-xl border border-white/20 transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
-              >
-                <IconSparkles className="w-4 h-4 text-indigo-300" />
-                <span>Personalized Learning</span>
-              </button>
-            )}
+          {/* Subject 2: Economics Card */}
+          <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950/80 rounded-2xl p-6 sm:p-8 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6 card-hover border border-amber-900/40">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-semibold text-amber-300 bg-amber-950/80 border border-amber-700/60 px-2.5 py-1 rounded-md">
+                  Subject: Economics · Grade 9
+                </span>
+                <span className="text-[10px] bg-amber-500/20 text-amber-300 font-semibold px-2 py-0.5 rounded border border-amber-500/30">
+                  Social Sciences & Finance
+                </span>
+              </div>
 
-            <button
-              onClick={() => setActiveView('subject_chemistry')}
-              className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer group btn-tactile"
-            >
-              <span>Open Chemistry Page</span>
-              <IconArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-            </button>
+              <h3 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
+                <TrendingUp className="w-6 h-6 text-amber-400" />
+                <span>Economics</span>
+              </h3>
+
+              <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
+                Instructor: <strong className="text-white font-semibold">Prof. Arthur Sterling</strong>. Master fundamental microeconomics (Scarcity, Opportunity Cost, PPC, & Market Supply & Demand), calibrate with the diagnostic assessment, and discover international competitions.
+              </p>
+
+              <div className="flex flex-wrap items-center gap-3 text-xs text-amber-200/90 pt-1">
+                <span>Class Drive: <strong>3 Lecture Decks</strong></span>
+                <span>·</span>
+                <span>
+                  Diagnostic Calibration:{' '}
+                  <strong className={economicsDiagnosticSubmission ? 'text-emerald-400' : 'text-amber-300'}>
+                    {economicsDiagnosticSubmission ? `Calibrated (${economicsDiagnosticSubmission.score}/10)` : 'Diagnostic Required'}
+                  </strong>
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+              {economicsDiagnosticSubmission ? (
+                <button
+                  onClick={() => setActiveView('personalized_learning_economics')}
+                  className="px-5 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-sm rounded-xl border border-white/20 transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
+                >
+                  <IconSparkles className="w-4 h-4 text-amber-300" />
+                  <span>Personalized Learning</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    setActiveDiagnosticSubject('economics');
+                    setIsDiagnosticOpen(true);
+                  }}
+                  className="px-5 py-3.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 font-bold text-sm rounded-xl border border-amber-400/40 transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
+                >
+                  <IconSparkles className="w-4 h-4 text-amber-300" />
+                  <span>Take Diagnostic to Unlock</span>
+                </button>
+              )}
+
+              <button
+                onClick={() => setActiveView('subject_economics')}
+                className="px-6 py-3.5 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white font-bold text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer group btn-tactile"
+              >
+                <span>Open Economics Page</span>
+                <IconArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -404,7 +485,7 @@ export const StudentMainHub: React.FC = () => {
                     Grade 9 Full Academic Syllabus Document
                   </h3>
                   <div className="text-xs text-slate-500">
-                    St. Jude Preparatory Academy · Term 1 Examination Scope
+                    Grade 9 · Term 1 Examination Scope
                   </div>
                 </div>
               </div>

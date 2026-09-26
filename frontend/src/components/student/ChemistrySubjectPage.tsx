@@ -30,8 +30,14 @@ export const ChemistrySubjectPage: React.FC = () => {
     setActiveSlidePreviewDeck,
     setActiveView,
     setIsDiagnosticOpen,
+    setActiveDiagnosticSubject,
     diagnosticSubmission,
   } = useApp();
+
+  const handleOpenDiagnostic = () => {
+    setActiveDiagnosticSubject('chemistry');
+    setIsDiagnosticOpen(true);
+  };
 
   const [isSyllabusModalOpen, setIsSyllabusModalOpen] = useState<boolean>(false);
   const [selectedTopicId, setSelectedTopicId] = useState<string>('chem-topic-1');
@@ -73,7 +79,7 @@ export const ChemistrySubjectPage: React.FC = () => {
           </div>
 
           <p className="text-xs sm:text-sm text-slate-600 mt-1">
-            Instructor: <strong className="text-slate-800">Dr. Eleanor Vance</strong> · St. Jude Preparatory Academy
+            Instructor: <strong className="text-slate-800">Dr. Eleanor Vance</strong>
           </p>
         </div>
 
@@ -363,21 +369,34 @@ export const ChemistrySubjectPage: React.FC = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
-            <button
-              onClick={() => setActiveView('personalized_learning')}
-              className="px-5 py-3.5 bg-white hover:bg-indigo-50 text-indigo-950 font-bold text-xs sm:text-sm rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer group"
-            >
-              <IconSparkles className="w-4 h-4 text-indigo-600" />
-              <span>Open Personalized Learning Platform</span>
-              <IconArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-            </button>
+            {diagnosticSubmission ? (
+              <>
+                <button
+                  onClick={() => setActiveView('personalized_learning')}
+                  className="px-5 py-3.5 bg-white hover:bg-indigo-50 text-indigo-950 font-bold text-xs sm:text-sm rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer group"
+                >
+                  <IconSparkles className="w-4 h-4 text-indigo-600" />
+                  <span>Open Personalized Learning Platform</span>
+                  <IconArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </button>
 
-            <button
-              onClick={() => setIsDiagnosticOpen(true)}
-              className="px-4 py-3.5 bg-indigo-800/80 hover:bg-indigo-800 text-white font-semibold text-xs rounded-xl border border-indigo-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <span>{diagnosticSubmission ? 'Review / Retake Diagnostic' : 'Take Diagnostic (10 Questions)'}</span>
-            </button>
+                <button
+                  onClick={handleOpenDiagnostic}
+                  className="px-4 py-3.5 bg-indigo-800/80 hover:bg-indigo-800 text-white font-semibold text-xs rounded-xl border border-indigo-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <span>Review / Retake Diagnostic</span>
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={handleOpenDiagnostic}
+                className="px-6 py-3.5 bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-bold text-xs sm:text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
+              >
+                <IconSparkles className="w-4 h-4 text-amber-950" />
+                <span>Take Diagnostic to Unlock Platform (10 Questions)</span>
+                <IconArrowRight className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
 
@@ -427,7 +446,7 @@ export const ChemistrySubjectPage: React.FC = () => {
                     : 'Specific conceptual traps detected. Click below to review your answers.'}
                 </p>
                 <button
-                  onClick={() => setIsDiagnosticOpen(true)}
+                  onClick={handleOpenDiagnostic}
                   className="mt-2 inline-flex items-center gap-1.5 font-bold text-indigo-300 hover:text-white underline text-xs cursor-pointer"
                 >
                   <span>Review Diagnostic Questions</span>
@@ -437,18 +456,18 @@ export const ChemistrySubjectPage: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="p-5 rounded-xl bg-white/5 border border-white/10 text-xs text-indigo-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <span className="w-2.5 h-2.5 rounded-xs bg-amber-400 animate-pulse shrink-0" />
               <span>
-                Your platform is ready. Take this week's 10-question diagnostic to calibrate custom study materials, or open your personalized learning platform directly.
+                <strong>Prerequisite Calibration:</strong> Take this week's 10-question diagnostic to identify your misconception traps and generate your personalized Chemistry learning space.
               </span>
             </div>
             <button
-              onClick={() => setActiveView('personalized_learning')}
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-lg shrink-0 transition-colors cursor-pointer"
+              onClick={handleOpenDiagnostic}
+              className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg shrink-0 transition-colors cursor-pointer"
             >
-              Explore Personalized Platform
+              Start Diagnostic (10 Questions)
             </button>
           </div>
         )}

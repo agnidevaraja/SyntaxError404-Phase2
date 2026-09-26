@@ -6,7 +6,13 @@ export const SlidePreviewModal: React.FC = () => {
   const { activeSlidePreviewDeck, setActiveSlidePreviewDeck } = useApp();
   const [currentSlidePage, setCurrentSlidePage] = useState<number>(1);
 
-  const totalSlides = activeSlidePreviewDeck?.slidesCount || activeSlidePreviewDeck?.slides?.length || 1;
+  // Reset to first slide whenever a new deck is opened
+  useEffect(() => {
+    setCurrentSlidePage(1);
+  }, [activeSlidePreviewDeck?.id]);
+
+  const slides = activeSlidePreviewDeck?.slides || [];
+  const totalSlides = slides.length > 0 ? slides.length : (activeSlidePreviewDeck?.slidesCount || 1);
 
   useEffect(() => {
     if (!activeSlidePreviewDeck) return;
@@ -29,16 +35,15 @@ export const SlidePreviewModal: React.FC = () => {
   if (!activeSlidePreviewDeck) return null;
 
   const currentSlide =
-    activeSlidePreviewDeck.slides.find(
-      (s, idx) => (s.pageNumber ?? (s as any).slideNumber ?? idx + 1) === currentSlidePage
-    ) ||
-    activeSlidePreviewDeck.slides[0] || {
+    slides[currentSlidePage - 1] ||
+    slides.find((s, idx) => (s.pageNumber ?? (s as any).slideNumber ?? idx + 1) === currentSlidePage) ||
+    slides[0] || {
       pageNumber: 1,
       title: activeSlidePreviewDeck.title,
       contentBullets: ['No content bullets provided.'],
     };
 
-  const currentPageNumber = currentSlide.pageNumber ?? (currentSlide as any).slideNumber ?? currentSlidePage;
+  const currentPageNumber = currentSlidePage;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
