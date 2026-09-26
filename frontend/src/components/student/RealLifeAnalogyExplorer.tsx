@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Lightbulb,
-  Sparkles,
+  Compass,
   ArrowRight,
   TrendingUp,
   FlaskConical,
@@ -346,7 +346,7 @@ export const RealLifeAnalogyExplorer: React.FC<Props> = ({ subject, className = 
           }`}
         >
           <div className="flex items-center gap-2">
-            <Sparkles className={`w-4 h-4 ${isEconomics ? 'text-amber-700' : 'text-indigo-600'}`} />
+            <Compass className={`w-4 h-4 ${isEconomics ? 'text-amber-700' : 'text-indigo-600'}`} />
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">
               In Plain English (Zero Jargon Definition):
             </h4>
