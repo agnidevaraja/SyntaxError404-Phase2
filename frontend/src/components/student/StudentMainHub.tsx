@@ -365,7 +365,7 @@ export const StudentMainHub: React.FC = () => {
                 <span>
                   Diagnostic Calibration:{' '}
                   <strong className={diagnosticSubmission ? 'text-emerald-400' : 'text-amber-300'}>
-                    {diagnosticSubmission ? `Calibrated (${diagnosticSubmission.score}/10)` : 'Ready to Start'}
+                    {diagnosticSubmission ? `Calibrated / Mastered (${diagnosticSubmission.score}/${diagnosticSubmission.total || 5})` : 'Diagnostic Required'}
                   </strong>
                 </span>
               </div>
@@ -397,7 +397,7 @@ export const StudentMainHub: React.FC = () => {
                 onClick={() => setActiveView('subject_chemistry')}
                 className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer group btn-tactile"
               >
-                <span>Open Chemistry Page</span>
+                <span>{diagnosticSubmission ? 'Open Chemistry Workspace' : 'Open Chemistry Page'}</span>
                 <IconArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </button>
             </div>
@@ -430,7 +430,7 @@ export const StudentMainHub: React.FC = () => {
                 <span>
                   Diagnostic Calibration:{' '}
                   <strong className={economicsDiagnosticSubmission ? 'text-emerald-400' : 'text-amber-300'}>
-                    {economicsDiagnosticSubmission ? `Calibrated (${economicsDiagnosticSubmission.score}/10)` : 'Diagnostic Required'}
+                    {economicsDiagnosticSubmission ? `Calibrated / Mastered (${economicsDiagnosticSubmission.score}/${economicsDiagnosticSubmission.total || 5})` : 'Diagnostic Required'}
                   </strong>
                 </span>
               </div>
@@ -462,7 +462,7 @@ export const StudentMainHub: React.FC = () => {
                 onClick={() => setActiveView('subject_economics')}
                 className="px-6 py-3.5 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white font-bold text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer group btn-tactile"
               >
-                <span>Open Economics Page</span>
+                <span>{economicsDiagnosticSubmission ? 'Open Economics Workspace' : 'Open Economics Page'}</span>
                 <IconArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </button>
             </div>

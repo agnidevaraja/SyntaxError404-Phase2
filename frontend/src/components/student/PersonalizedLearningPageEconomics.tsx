@@ -188,7 +188,7 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
               Your personalized learning space dynamically isolates your specific conceptual misconceptions, builds custom slide decks, and curates international competitions based on your diagnostic answers.
             </p>
             <p className="text-xs text-slate-500 font-medium">
-              Please take the 10-question Economics diagnostic test first to generate your tailored roadmap.
+              Please take the 5-question Economics diagnostic test first to generate your tailored roadmap.
             </p>
           </div>
 
@@ -201,7 +201,7 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
               className="w-full sm:w-auto px-6 py-3.5 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-bold text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
             >
               <IconSparkles className="w-4 h-4 text-amber-200" />
-              <span>Take Economics Diagnostic (10 Questions)</span>
+              <span>Take Economics Diagnostic (5 Questions)</span>
               <IconArrowRight className="w-4 h-4" />
             </button>
 
@@ -216,7 +216,7 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
           <div className="pt-6 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4 text-left text-xs text-slate-600">
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
               <strong className="text-slate-900 block mb-0.5">1. Diagnostic Calibration</strong>
-              Answer 10 short microeconomic questions to isolate knowledge gaps.
+              Answer 5 short microeconomic questions to isolate knowledge gaps.
             </div>
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
               <strong className="text-slate-900 block mb-0.5">2. Tailored Slide Decks</strong>
@@ -289,7 +289,7 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
             className="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer btn-tactile"
           >
             <IconRefreshCw className="w-4 h-4" />
-            <span>{economicsDiagnosticSubmission ? 'Retake Economics Diagnostic' : 'Take 10-Question Diagnostic'}</span>
+            <span>{economicsDiagnosticSubmission ? 'Retake Economics Diagnostic' : 'Take 5-Question Diagnostic'}</span>
           </button>
         </div>
       </div>

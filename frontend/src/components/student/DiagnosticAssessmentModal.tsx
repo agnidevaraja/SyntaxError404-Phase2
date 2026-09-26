@@ -140,6 +140,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
   const audioStreamRef = useRef<MediaStream | null>(null);
   const animFrameRef = useRef<number | null>(null);
   const voiceTranscriptRef = useRef<string>('');
+  const handleStopVoiceProbeRef = useRef<(overrideText?: string) => void>(() => {});
 
   // -------------------------------------------------------------
   // Dedicated State for Tactile Interactive Models (Q1 to Q10)
@@ -262,7 +263,22 @@ export const DiagnosticAssessmentModal: React.FC = () => {
     };
   }, []);
 
-  if (!isDiagnosticOpen) return null;
+  // 15-second voice timer countdown (declared at top level alongside all hooks)
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isRecordingVoice) {
+      timer = setInterval(() => {
+        setVoiceElapsedSec((prev) => {
+          if (prev >= 14) {
+            handleStopVoiceProbeRef.current();
+            return 15;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isRecordingVoice]);
 
   const currentQ = questionsList[currentIndex] || questionsList[0];
 
@@ -424,23 +440,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
 
     analyzeVoiceExplanation(overrideText);
   };
-
-  // 15-second timer countdown
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (isRecordingVoice) {
-      timer = setInterval(() => {
-        setVoiceElapsedSec((prev) => {
-          if (prev >= 14) {
-            handleStopVoiceProbe();
-            return 15;
-          }
-          return prev + 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [isRecordingVoice]);
+  handleStopVoiceProbeRef.current = handleStopVoiceProbe;
 
   const analyzeVoiceExplanation = (overrideText?: string) => {
     let transcriptText = (overrideText !== undefined ? overrideText : voiceTranscriptRef.current || voiceTranscript).trim();
@@ -454,31 +454,21 @@ export const DiagnosticAssessmentModal: React.FC = () => {
 
     const lower = transcriptText.toLowerCase();
 
-    // Check relevant keywords based on current topic
+    // Check relevant keywords based on current topic (5 questions per subject)
     const keywordBank: Record<number, string[]> = isEconomics
       ? {
           0: ['scarcity', 'wants', 'resources', 'unlimited', 'finite'],
-          1: ['capital', 'physical', 'lathe', 'machinery', 'tools'],
-          2: ['opportunity cost', 'next best', 'alternative', 'cinema'],
-          3: ['ppc', 'inside', 'inefficient', 'unemployed', 'curve'],
-          4: ['movement', 'curve', 'price', 'quantity demanded'],
-          5: ['substitute', 'tea', 'coffee', 'shift', 'demand'],
-          6: ['supply', 'technology', 'innovation', 'shift right'],
-          7: ['marginal cost', 'slope', 'diminishing', 'price'],
-          8: ['surplus', 'above', 'equilibrium', 'excess'],
-          9: ['ceiling', 'rent', 'below', 'shortage'],
+          1: ['opportunity cost', 'next best', 'alternative', 'concert', 'foregone'],
+          2: ['ppc', 'inside', 'inefficient', 'unemployed', 'idle', 'frontier'],
+          3: ['supply', 'technology', 'innovation', 'shift right', 'costs'],
+          4: ['elasticity', 'inelastic', 'ped', 'unresponsive', 'percentage'],
         }
       : {
-          0: ['abundance', 'mass', 'average', 'isotope', '35.45'],
-          1: ['neutrons', 'carbon', 'protons', '14', '8'],
-          2: ['valence', 'electrons', 'nitrate', 'charge', '24'],
-          3: ['molar mass', 'calcium', 'parentheses', '164'],
-          4: ['moles', 'grams', 'water', '18', '2'],
-          5: ['balance', 'atoms', 'coefficients', 'propane', '1, 5, 3, 4'],
-          6: ['limiting', 'reagent', 'nitrogen', 'hydrogen', 'excess'],
-          7: ['theoretical', 'yield', 'chlorine', '178'],
-          8: ['percent yield', 'actual', 'theoretical', '85'],
-          9: ['volume', 'stp', 'liters', '22.4', '56'],
+          0: ['moles', 'grams', 'water', '18', '2', 'molar mass'],
+          1: ['balance', 'atoms', 'coefficients', 'propane', 'conservation', '1, 5, 3, 4'],
+          2: ['stoichiometry', 'ratio', 'chlorine', 'aluminum', '6'],
+          3: ['limiting', 'reagent', 'nitrogen', 'hydrogen', 'excess', 'haber'],
+          4: ['yield', 'theoretical', 'percent', 'efficiency', 'actual', '85'],
         };
 
     const targetKeywords = keywordBank[currentIndex] || ['concept', 'principle', 'reasoning'];
@@ -606,6 +596,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
       ? submitEconomicsDiagnostic(answers)
       : submitDiagnostic(answers);
     setLocalSubmission(submission);
+    setIsDiagnosticOpen(false);
   };
 
   const handleGoToPersonalizedPlatform = () => {
@@ -663,6 +654,9 @@ export const DiagnosticAssessmentModal: React.FC = () => {
   const atomDifference = totalRightAtoms - totalLeftAtoms;
   const beamTiltDeg = Math.max(-14, Math.min(14, atomDifference * 2.2));
 
+  // Early return is placed strictly AFTER all hooks, state, and derivations
+  if (!isDiagnosticOpen) return null;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
       <div className="relative w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
@@ -683,8 +677,8 @@ export const DiagnosticAssessmentModal: React.FC = () => {
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
                 {isEconomics
-                  ? '10 Microeconomics Questions · Scarcity, Opportunity Cost & Demand-Supply'
-                  : '10 Core Diagnostic Questions · Stoichiometry, Moles & Atomic Structure'}
+                  ? '5 Microeconomics Questions · Scarcity, Opportunity Cost & Demand-Supply'
+                  : '5 Core Diagnostic Questions · The Mole Concept, Balancing & Stoichiometry'}
               </p>
             </div>
           </div>
@@ -1013,154 +1007,8 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                       {/* CHEMISTRY QUESTIONS 1 - 10 SANDBOXES */}
                       {!isEconomics && (
                         <>
-                          {/* Q1: Isotopic Abundance Balance */}
+                          {/* Q1: Water Mole Conversion */}
                           {currentIndex === 0 && (
-                            <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                              <div className="flex items-center justify-between text-xs font-mono">
-                                <span>Cl-35 Abundance: {cl35Abundance.toFixed(2)}%</span>
-                                <span>Cl-37 Abundance: {(100 - cl35Abundance).toFixed(2)}%</span>
-                              </div>
-                              <input
-                                type="range"
-                                min="0"
-                                max="100"
-                                step="0.01"
-                                value={cl35Abundance}
-                                onChange={(e) => setCl35Abundance(parseFloat(e.target.value))}
-                                className="w-full accent-indigo-500"
-                              />
-                              <div className="p-3 rounded-lg bg-slate-800 text-center font-mono text-xs">
-                                <span className="text-slate-400 block text-[10px]">Calculated Average Atomic Mass:</span>
-                                <span className="text-base font-bold text-indigo-300">
-                                  {((cl35Abundance * 34.97 + (100 - cl35Abundance) * 36.97) / 100).toFixed(2)} amu
-                                </span>
-                              </div>
-                              <div className="flex justify-end">
-                                <button
-                                  onClick={() => handleApplyTactileAnswer(0, 'Isotope Abundance Calculation')}
-                                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
-                                >
-                                  <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply 35.45 amu to Question & Next</span>
-                                </button>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Q2: Carbon-14 Nuclear Sorter */}
-                          {currentIndex === 1 && (
-                            <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                              <div className="grid grid-cols-2 gap-3 text-center text-xs font-mono">
-                                <div className="p-2.5 bg-slate-800 rounded-lg">
-                                  <span className="text-slate-400 block text-[10px]">Protons (Z)</span>
-                                  <span className="text-sm font-bold text-white">6 (Carbon)</span>
-                                </div>
-                                <div className="p-2.5 bg-slate-800 rounded-lg">
-                                  <span className="text-slate-400 block text-[10px]">Neutrons (N)</span>
-                                  <div className="flex items-center justify-center gap-2 mt-1">
-                                    <button
-                                      onClick={() => setC14Neutrons((v) => Math.max(4, v - 1))}
-                                      className="w-6 h-6 rounded bg-slate-700 text-white font-bold"
-                                    >
-                                      -
-                                    </button>
-                                    <span className="text-base font-bold text-emerald-300 w-6">{c14Neutrons}</span>
-                                    <button
-                                      onClick={() => setC14Neutrons((v) => Math.min(10, v + 1))}
-                                      className="w-6 h-6 rounded bg-slate-700 text-white font-bold"
-                                    >
-                                      +
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="p-2.5 bg-slate-800 text-center text-xs font-mono">
-                                Total Nuclear Mass Number (A = 6 + N):{' '}
-                                <strong className={6 + c14Neutrons === 14 ? 'text-emerald-400' : 'text-amber-400'}>
-                                  {6 + c14Neutrons} {6 + c14Neutrons === 14 && '(Carbon-14 Verified)'}
-                                </strong>
-                              </div>
-                              <div className="flex justify-end">
-                                <button
-                                  onClick={() => handleApplyTactileAnswer('8', 'Nuclear Mass Assembly')}
-                                  disabled={c14Neutrons !== 8}
-                                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
-                                >
-                                  <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply 8 Neutrons to Question & Next</span>
-                                </button>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Q3: Nitrate Valence Electron Pool */}
-                          {currentIndex === 2 && (
-                            <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                              <div className="grid grid-cols-3 gap-2 text-center text-xs font-mono">
-                                <div className="p-2 bg-slate-800 rounded-lg">
-                                  <span className="text-slate-400 block text-[9px]">1 × Nitrogen</span>
-                                  <span className="font-bold text-indigo-300">5 e⁻</span>
-                                </div>
-                                <div className="p-2 bg-slate-800 rounded-lg">
-                                  <span className="text-slate-400 block text-[9px]">3 × Oxygen</span>
-                                  <span className="font-bold text-indigo-300">18 e⁻</span>
-                                </div>
-                                <div className="p-2 bg-slate-800 rounded-lg">
-                                  <span className="text-slate-400 block text-[9px]">Net -1 Charge</span>
-                                  <span className="font-bold text-emerald-400">+1 e⁻</span>
-                                </div>
-                              </div>
-                              <div className="p-3 bg-slate-800 text-center font-mono text-xs">
-                                Total Pooled Valence Electrons = 5 + 18 + 1 ={' '}
-                                <strong className="text-emerald-400 text-sm">24 Valence Electrons</strong>
-                              </div>
-                              <div className="flex justify-end">
-                                <button
-                                  onClick={() => handleApplyTactileAnswer('24', 'Valence Electron Pool Bucket')}
-                                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
-                                >
-                                  <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply 24 Valence Electrons & Next</span>
-                                </button>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Q4: Calcium Nitrate Ca(NO3)2 */}
-                          {currentIndex === 3 && (
-                            <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                              <div className="space-y-2 text-xs font-mono">
-                                <div className="flex justify-between p-2 bg-slate-800 rounded">
-                                  <span>1 × Calcium (40.08)</span>
-                                  <span>40.08 g/mol</span>
-                                </div>
-                                <div className="flex justify-between p-2 bg-slate-800 rounded">
-                                  <span>2 × Nitrogen (2 × 14.01)</span>
-                                  <span>28.02 g/mol</span>
-                                </div>
-                                <div className="flex justify-between p-2 bg-slate-800 rounded">
-                                  <span>6 × Oxygen (6 × 16.00)</span>
-                                  <span>96.00 g/mol</span>
-                                </div>
-                              </div>
-                              <div className="p-3 bg-slate-800 text-center font-mono text-xs">
-                                Total Molar Mass = 40.08 + 28.02 + 96.00 ={' '}
-                                <strong className="text-emerald-400 text-sm">164.10 g/mol</strong>
-                              </div>
-                              <div className="flex justify-end">
-                                <button
-                                  onClick={() => handleApplyTactileAnswer('164.10', 'Molar Mass Distribution')}
-                                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
-                                >
-                                  <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply 164.10 g/mol & Next</span>
-                                </button>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Q5: Water Mole Conversion */}
-                          {currentIndex === 4 && (
                             <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
                               <div className="flex items-center justify-between text-xs font-mono">
                                 <span>Sample Mass: {waterMassGrams.toFixed(2)} g</span>
@@ -1178,23 +1026,23 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                               <div className="p-3 bg-slate-800 text-center font-mono text-xs">
                                 Moles = Mass ÷ Molar Mass = {waterMassGrams.toFixed(2)} ÷ 18.02 ={' '}
                                 <strong className="text-emerald-400 text-sm">
-                                  {(waterMassGrams / 18.02).toFixed(1)} Moles
+                                  {(waterMassGrams / 18.02).toFixed(2)} Moles
                                 </strong>
                               </div>
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer('2.0', 'Molar Bridge Conversion')}
+                                  onClick={() => handleApplyTactileAnswer(0, 'Molar Bridge Conversion')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply 2.0 Moles & Next</span>
+                                  <span>Apply 2.00 Moles & Next</span>
                                 </button>
                               </div>
                             </div>
                           )}
 
-                          {/* Q6: Propane Tilting Balance Scale */}
-                          {currentIndex === 5 && (
+                          {/* Q2: Propane Tilting Balance Scale */}
+                          {currentIndex === 1 && (
                             <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
                               <div className="text-center">
                                 {isEquationBalanced ? (
@@ -1255,7 +1103,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
 
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer('1, 5, 3, 4', 'Combustion Scale Balancing')}
+                                  onClick={() => handleApplyTactileAnswer(0, 'Combustion Scale Balancing')}
                                   disabled={!isEquationBalanced}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
@@ -1266,24 +1114,53 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                             </div>
                           )}
 
-                          {/* Q7: Haber Process Limiting Reagent */}
-                          {currentIndex === 6 && (
+                          {/* Q3: 2Al + 3Cl2 Stoichiometric Converter */}
+                          {currentIndex === 2 && (
+                            <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
+                              <div className="p-3 bg-slate-800 rounded-lg space-y-1.5 text-xs font-mono">
+                                <div className="flex justify-between text-slate-300">
+                                  <span>Reaction Stoichiometry:</span>
+                                  <span className="text-indigo-300">2Al + 3Cl₂ → 2AlCl₃</span>
+                                </div>
+                                <div className="flex justify-between text-slate-300">
+                                  <span>Available Al:</span>
+                                  <span>4.00 mol</span>
+                                </div>
+                                <div className="flex justify-between font-bold text-emerald-300 pt-1 border-t border-slate-700">
+                                  <span>Required Cl₂ (4.0 × 3/2):</span>
+                                  <span>6.00 moles Cl₂</span>
+                                </div>
+                              </div>
+                              <div className="flex justify-end">
+                                <button
+                                  onClick={() => handleApplyTactileAnswer(0, 'Stoichiometric Ratio Converter')}
+                                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
+                                >
+                                  <IconCheckCircle className="w-4 h-4" />
+                                  <span>Apply 6.0 moles Cl₂ & Next</span>
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Q4: Haber Process Limiting Reagent */}
+                          {currentIndex === 3 && (
                             <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
                               <div className="grid grid-cols-2 gap-3 text-center text-xs font-mono">
                                 <div className="p-2.5 bg-slate-800 rounded-lg">
                                   <span className="text-slate-400 block text-[10px]">Supplied N₂</span>
-                                  <span className="text-sm font-bold text-white">{inputMolesN2} mol (28.0g)</span>
+                                  <span className="text-sm font-bold text-white">{inputMolesN2} mol</span>
                                   <span className="text-[10px] text-amber-300 block mt-1">Requires 3.00 mol H₂</span>
                                 </div>
                                 <div className="p-2.5 bg-slate-800 rounded-lg">
                                   <span className="text-slate-400 block text-[10px]">Supplied H₂</span>
-                                  <span className="text-sm font-bold text-white">{inputMolesH2} mol (9.0g)</span>
-                                  <span className="text-[10px] text-emerald-400 block mt-1">Surplus: +1.46 mol excess</span>
+                                  <span className="text-sm font-bold text-white">2.00 mol</span>
+                                  <span className="text-[10px] text-rose-400 block mt-1">Deficit: Needs 1.00 mol more</span>
                                 </div>
                               </div>
                               <div className="p-3 bg-slate-800 text-center font-mono text-xs">
-                                N₂ is fully consumed first while 1.46 mol H₂ remains unreacted.{' '}
-                                <strong className="text-emerald-400 block mt-0.5">Therefore, N₂ is the Limiting Reagent.</strong>
+                                1.00 mol N₂ requires 3.00 mol H₂, but only 2.00 mol H₂ is available.{' '}
+                                <strong className="text-emerald-400 block mt-0.5">Therefore, H₂ is the Limiting Reagent.</strong>
                               </div>
                               <div className="flex justify-end">
                                 <button
@@ -1291,43 +1168,14 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply "N₂ is Limiting" & Next</span>
+                                  <span>Apply "H₂ is Limiting" & Next</span>
                                 </button>
                               </div>
                             </div>
                           )}
 
-                          {/* Q8: 2Al + 3Cl2 Yield */}
-                          {currentIndex === 7 && (
-                            <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                              <div className="p-3 bg-slate-800 rounded-lg space-y-1.5 text-xs font-mono">
-                                <div className="flex justify-between text-slate-300">
-                                  <span>Available Al:</span>
-                                  <span>2.00 mol</span>
-                                </div>
-                                <div className="flex justify-between text-slate-300">
-                                  <span>Available Cl₂:</span>
-                                  <span>2.00 mol (Runs out first!)</span>
-                                </div>
-                                <div className="flex justify-between font-bold text-emerald-300 pt-1 border-t border-slate-700">
-                                  <span>Theoretical AlCl₃ = 1.333 mol × 133.34:</span>
-                                  <span>178 g</span>
-                                </div>
-                              </div>
-                              <div className="flex justify-end">
-                                <button
-                                  onClick={() => handleApplyTactileAnswer(0, 'Theoretical Yield Table')}
-                                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
-                                >
-                                  <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply 178 g AlCl₃ & Next</span>
-                                </button>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Q9: Percent Yield Gauge */}
-                          {currentIndex === 8 && (
+                          {/* Q5: Percent Yield Gauge */}
+                          {currentIndex === 4 && (
                             <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
                               <div className="grid grid-cols-2 gap-3 text-center text-xs font-mono">
                                 <div className="p-2.5 bg-slate-800 rounded">
@@ -1345,45 +1193,11 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                               </div>
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer('85%', 'Yield Efficiency Calculation')}
+                                  onClick={() => handleApplyTactileAnswer(0, 'Yield Efficiency Calculation')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply 85% & Next</span>
-                                </button>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Q10: STP Gas Expansion Syringe */}
-                          {currentIndex === 9 && (
-                            <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                              <div className="flex items-center justify-between text-xs font-mono">
-                                <span>Oxygen Moles: {oxygenMolesSTP.toFixed(2)} mol</span>
-                                <span>STP Molar Constant: 22.4 L/mol</span>
-                              </div>
-                              <input
-                                type="range"
-                                min="1.0"
-                                max="4.0"
-                                step="0.5"
-                                value={oxygenMolesSTP}
-                                onChange={(e) => setOxygenMolesSTP(parseFloat(e.target.value))}
-                                className="w-full accent-indigo-500"
-                              />
-                              <div className="p-3 bg-slate-800 text-center font-mono text-xs">
-                                Volume at STP = {oxygenMolesSTP.toFixed(2)} mol × 22.4 L/mol ={' '}
-                                <strong className="text-emerald-400 text-sm">
-                                  {(oxygenMolesSTP * 22.4).toFixed(1)} Liters
-                                </strong>
-                              </div>
-                              <div className="flex justify-end">
-                                <button
-                                  onClick={() => handleApplyTactileAnswer('56.0 L', 'Molar Volume STP Piston')}
-                                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
-                                >
-                                  <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply 56.0 L & Next</span>
+                                  <span>Apply 85.0% Yield & Next</span>
                                 </button>
                               </div>
                             </div>
@@ -1391,7 +1205,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                         </>
                       )}
 
-                      {/* ECONOMICS QUESTIONS 1 - 10 SANDBOXES */}
+                      {/* ECONOMICS QUESTIONS 1 - 5 SANDBOXES */}
                       {isEconomics && (
                         <>
                           {/* Econ Q1: Scarcity Allocation Matrix */}
@@ -1409,11 +1223,11 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                               </div>
                               <div className="p-3 bg-slate-800 text-center text-xs text-slate-300">
                                 <strong className="text-emerald-400 block mb-0.5">The Universal Economic Problem:</strong>
-                                Scarcity is the perpetual condition where wants exceed available productive resources.
+                                Scarcity is the perpetual condition where unlimited human wants exceed finite productive resources.
                               </div>
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(1, 'Scarcity Allocation Model')}
+                                  onClick={() => handleApplyTactileAnswer(0, 'Scarcity Allocation Model')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
@@ -1423,97 +1237,40 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                             </div>
                           )}
 
-                          {/* Econ Q2: Factor of Production Classifier */}
+                          {/* Econ Q2: Opportunity Cost Decision Hierarchy */}
                           {currentIndex === 1 && (
-                            <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                              <span className="text-xs text-slate-300 block">Classify production factor: CNC Lathe Machine</span>
-                              <div className="grid grid-cols-3 gap-2 text-xs font-mono">
-                                <button
-                                  onClick={() => setSelectedFactorCategory('bond')}
-                                  className={`p-2.5 rounded-lg border text-center transition-all ${
-                                    selectedFactorCategory === 'bond'
-                                      ? 'border-rose-500 bg-rose-950/40 text-rose-300'
-                                      : 'border-slate-700 bg-slate-800 text-slate-300'
-                                  }`}
-                                >
-                                  $10,000 Bond (Financial Money)
-                                </button>
-                                <button
-                                  onClick={() => setSelectedFactorCategory('lathe')}
-                                  className={`p-2.5 rounded-lg border text-center transition-all ${
-                                    selectedFactorCategory === 'lathe'
-                                      ? 'border-emerald-500 bg-emerald-950/40 text-emerald-300 font-bold'
-                                      : 'border-slate-700 bg-slate-800 text-slate-300'
-                                  }`}
-                                >
-                                  CNC Factory Lathe (Physical Capital)
-                                </button>
-                                <button
-                                  onClick={() => setSelectedFactorCategory('oil')}
-                                  className={`p-2.5 rounded-lg border text-center transition-all ${
-                                    selectedFactorCategory === 'oil'
-                                      ? 'border-rose-500 bg-rose-950/40 text-rose-300'
-                                      : 'border-slate-700 bg-slate-800 text-slate-300'
-                                  }`}
-                                >
-                                  Crude Oil (Natural Land)
-                                </button>
-                              </div>
-                              <div className="p-3 bg-slate-800 text-center font-mono text-xs">
-                                {selectedFactorCategory === 'lathe' ? (
-                                  <span className="text-emerald-400 font-bold">
-                                    Correct! Human-made manufactured tools used to produce goods are Economic Capital.
-                                  </span>
-                                ) : (
-                                  <span className="text-slate-400">Click the CNC Factory Lathe to confirm physical capital.</span>
-                                )}
-                              </div>
-                              <div className="flex justify-end">
-                                <button
-                                  onClick={() => handleApplyTactileAnswer(1, 'Factor Classification')}
-                                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
-                                >
-                                  <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply CNC Lathe as Capital & Next</span>
-                                </button>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Econ Q3: Opportunity Cost Decision Hierarchy */}
-                          {currentIndex === 2 && (
                             <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
                               <div className="space-y-2 text-xs font-mono">
                                 <div className="p-2.5 bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-between">
-                                  <span>Rank 1 (Chosen): Study Economics</span>
+                                  <span>Rank 1 (Chosen Action): Study Economics</span>
                                   <span className="text-emerald-400 font-bold">Action Taken</span>
                                 </div>
                                 <div className="p-2.5 bg-emerald-950 border border-emerald-700 rounded-lg flex items-center justify-between text-emerald-200">
-                                  <span>Rank 2 (Next Best Alternative): Going to Cinema</span>
+                                  <span>Rank 2 (Next Best Alternative): Attend Concert</span>
                                   <span className="font-bold font-mono">Opportunity Cost</span>
                                 </div>
                                 <div className="p-2.5 bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-between text-slate-400">
-                                  <span>Rank 3: Video Games</span>
+                                  <span>Rank 3: Play Video Games</span>
                                   <span>Ignored</span>
                                 </div>
                               </div>
                               <div className="p-3 bg-slate-800 text-center text-xs text-slate-300">
-                                Opportunity cost is strictly the single next-best alternative forgone (Going to Cinema), never the sum of all options.
+                                Opportunity cost is strictly the single next-best alternative foregone (Attending the concert), not the sum of all alternatives.
                               </div>
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(1, 'Opportunity Cost Hierarchy')}
+                                  onClick={() => handleApplyTactileAnswer(0, 'Opportunity Cost Hierarchy')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply "Going to the Cinema" & Next</span>
+                                  <span>Apply "Attending Concert" & Next</span>
                                 </button>
                               </div>
                             </div>
                           )}
 
-                          {/* Econ Q4: PPC Production Possibilities Frontier */}
-                          {currentIndex === 3 && (
+                          {/* Econ Q3: PPC Production Possibilities Frontier */}
+                          {currentIndex === 2 && (
                             <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
                               <div className="grid grid-cols-3 gap-2 text-center text-xs font-mono">
                                 <button
@@ -1524,7 +1281,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                                       : 'border-slate-700 bg-slate-800 text-slate-400'
                                   }`}
                                 >
-                                  Point A (Inside PPC)
+                                  Point Inside PPC
                                 </button>
                                 <button
                                   onClick={() => setPpcPointLocation('on_frontier')}
@@ -1534,7 +1291,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                                       : 'border-slate-700 bg-slate-800 text-slate-400'
                                   }`}
                                 >
-                                  Point B (On Frontier)
+                                  Point on Curve
                                 </button>
                                 <button
                                   onClick={() => setPpcPointLocation('outside')}
@@ -1544,107 +1301,45 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                                       : 'border-slate-700 bg-slate-800 text-slate-400'
                                   }`}
                                 >
-                                  Point C (Outside PPC)
+                                  Point Outside PPC
                                 </button>
                               </div>
                               <div className="p-3 bg-slate-800 text-center font-mono text-xs">
                                 {ppcPointLocation === 'inside' && (
                                   <span className="text-emerald-400 font-bold">
-                                    Inside the PPC = Unemployed resources & productive inefficiency.
+                                    Inside the PPC indicates productive inefficiency or unemployed, idle resources in the economy.
                                   </span>
                                 )}
                                 {ppcPointLocation === 'on_frontier' && (
-                                  <span className="text-indigo-300 font-bold">
-                                    On Frontier = Productive efficiency at full capacity.
+                                  <span className="text-indigo-300">
+                                    On the curve indicates maximum productive efficiency with all resources fully employed.
                                   </span>
                                 )}
                                 {ppcPointLocation === 'outside' && (
-                                  <span className="text-rose-400 font-bold">
-                                    Outside PPC = Currently unattainable with available resources.
+                                  <span className="text-rose-400">
+                                    Outside the curve is unattainable with current technology and resources.
                                   </span>
                                 )}
                               </div>
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(1, 'PPC Frontier Canvas')}
+                                  onClick={() => handleApplyTactileAnswer(0, 'PPC Inefficiency Model')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply Inefficient Allocation & Next</span>
+                                  <span>Apply "Productive Inefficiency" & Next</span>
                                 </button>
                               </div>
                             </div>
                           )}
 
-                          {/* Econ Q5: Movement Along Demand Curve */}
-                          {currentIndex === 4 && (
-                            <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                              <div className="flex items-center justify-between text-xs font-mono">
-                                <span>Own-Price: ${smartphonePrice}</span>
-                                <span>Quantity Demanded: {Math.max(10, 100 - smartphonePrice / 10)} units</span>
-                              </div>
-                              <input
-                                type="range"
-                                min="200"
-                                max="800"
-                                step="50"
-                                value={smartphonePrice}
-                                onChange={(e) => setSmartphonePrice(parseFloat(e.target.value))}
-                                className="w-full accent-emerald-500"
-                              />
-                              <div className="p-3 bg-slate-800 text-center font-mono text-xs text-emerald-300">
-                                A change in own-price causes a <strong>movement along the curve</strong> (change in Qd), NOT a shift of the curve.
-                              </div>
-                              <div className="flex justify-end">
-                                <button
-                                  onClick={() => handleApplyTactileAnswer(1, 'Demand Movement Along Curve')}
-                                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
-                                >
-                                  <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply Movement Along Curve & Next</span>
-                                </button>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Econ Q6: Cross-Price Substitutes */}
-                          {currentIndex === 5 && (
-                            <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                              <div className="flex items-center justify-between text-xs font-mono">
-                                <span>Coffee Price: ${coffeePriceLevel} / cup</span>
-                                <span className="text-emerald-400 font-bold">Tea Demand Shift: Outward (Right)</span>
-                              </div>
-                              <input
-                                type="range"
-                                min="2"
-                                max="8"
-                                step="1"
-                                value={coffeePriceLevel}
-                                onChange={(e) => setCoffeePriceLevel(parseFloat(e.target.value))}
-                                className="w-full accent-emerald-500"
-                              />
-                              <div className="p-3 bg-slate-800 text-center text-xs text-slate-300">
-                                Higher coffee price induces consumers to substitute toward tea, increasing tea demand at all prices (rightward shift).
-                              </div>
-                              <div className="flex justify-end">
-                                <button
-                                  onClick={() => handleApplyTactileAnswer(1, 'Substitute Cross-Price Shift')}
-                                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
-                                >
-                                  <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply Rightward Shift for Tea & Next</span>
-                                </button>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Econ Q7: Supply Technology Innovator */}
-                          {currentIndex === 6 && (
+                          {/* Econ Q4: Supply Technology Innovator */}
+                          {currentIndex === 3 && (
                             <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
                               <div className="flex items-center justify-between p-3 bg-slate-800 rounded-lg">
                                 <div>
-                                  <span className="text-xs font-bold text-white block">Photovoltaic Breakthrough</span>
-                                  <span className="text-[10px] text-slate-400">Halves per-unit production cost</span>
+                                  <span className="text-xs font-bold text-white block">Solar Manufacturing Innovation</span>
+                                  <span className="text-[10px] text-slate-400">Halves per-unit production costs</span>
                                 </div>
                                 <button
                                   onClick={() => setTechInnovationActive(!techInnovationActive)}
@@ -1652,114 +1347,51 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                                     techInnovationActive ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-300'
                                   }`}
                                 >
-                                  {techInnovationActive ? 'Active (Supply Shifted Right)' : 'Inactive'}
+                                  {techInnovationActive ? 'Supply Shifted Right' : 'Toggle Innovation'}
                                 </button>
                               </div>
                               <div className="p-3 bg-slate-800 text-center font-mono text-xs text-emerald-300">
-                                Production cost reductions increase supplier profit margins, shifting the supply curve rightward.
+                                Breakthrough manufacturing innovations that lower production costs allow suppliers to offer more units at every price, shifting supply outward to the RIGHT.
                               </div>
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(2, 'Supply Innovation Curve')}
+                                  onClick={() => handleApplyTactileAnswer(0, 'Supply Innovation Model')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply Breakthrough Innovation & Next</span>
+                                  <span>Apply "Supply Shifts Right" & Next</span>
                                 </button>
                               </div>
                             </div>
                           )}
 
-                          {/* Econ Q8: Marginal Cost Slope */}
-                          {currentIndex === 7 && (
+                          {/* Econ Q5: Price Elasticity of Demand (PED) */}
+                          {currentIndex === 4 && (
                             <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                              <div className="flex items-center justify-between text-xs font-mono">
-                                <span>Output: {factoryOutputUnits} units</span>
-                                <span>Marginal Cost: ${(factoryOutputUnits * 1.5).toFixed(0)}</span>
+                              <div className="grid grid-cols-2 gap-3 text-center text-xs font-mono">
+                                <div className="p-2.5 bg-slate-800 rounded">
+                                  <span className="text-slate-400 block text-[10px]">% Price Change</span>
+                                  <span className="font-bold text-amber-300">+10.0%</span>
+                                </div>
+                                <div className="p-2.5 bg-slate-800 rounded">
+                                  <span className="text-slate-400 block text-[10px]">% Quantity Demanded Change</span>
+                                  <span className="font-bold text-rose-300">-2.0%</span>
+                                </div>
                               </div>
-                              <input
-                                type="range"
-                                min="10"
-                                max="100"
-                                step="10"
-                                value={factoryOutputUnits}
-                                onChange={(e) => setFactoryOutputUnits(parseFloat(e.target.value))}
-                                className="w-full accent-emerald-500"
-                              />
-                              <div className="p-3 bg-slate-800 text-center text-xs text-slate-300">
-                                Due to diminishing returns, producing more units costs more at the margin, requiring higher prices to justify output.
-                              </div>
-                              <div className="flex justify-end">
-                                <button
-                                  onClick={() => handleApplyTactileAnswer(1, 'Marginal Cost Slope Model')}
-                                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
-                                >
-                                  <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply Marginal Cost Justification & Next</span>
-                                </button>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Econ Q9: Market Disequilibrium Surplus */}
-                          {currentIndex === 8 && (
-                            <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                              <div className="flex items-center justify-between text-xs font-mono">
-                                <span>Market Price: ${regulatedMarketPrice} (Eq: $40)</span>
-                                <span className={regulatedMarketPrice > 40 ? 'text-amber-400 font-bold' : 'text-slate-400'}>
-                                  {regulatedMarketPrice > 40 ? 'Market Surplus (Qs > Qd)' : 'Equilibrium / Shortage'}
+                              <div className="p-3 bg-slate-800 text-center font-mono text-xs">
+                                |PED| = |-2% ÷ +10%| ={' '}
+                                <strong className="text-emerald-400 text-sm">0.20 (Price Inelastic)</strong>
+                                <span className="text-slate-400 block text-[11px] mt-0.5">
+                                  Because |PED| &lt; 1.0, quantity demanded is relatively unresponsive to price changes.
                                 </span>
                               </div>
-                              <input
-                                type="range"
-                                min="20"
-                                max="80"
-                                step="5"
-                                value={regulatedMarketPrice}
-                                onChange={(e) => setRegulatedMarketPrice(parseFloat(e.target.value))}
-                                className="w-full accent-emerald-500"
-                              />
-                              <div className="p-3 bg-slate-800 text-center font-mono text-xs">
-                                At ${regulatedMarketPrice}, sellers offer more than buyers demand, creating a <strong>market surplus</strong>.
-                              </div>
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(1, 'Price Disequilibrium Regulator')}
+                                  onClick={() => handleApplyTactileAnswer(0, 'Price Elasticity Calculation')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply Market Surplus & Next</span>
-                                </button>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Econ Q10: Rent Control Price Ceiling */}
-                          {currentIndex === 9 && (
-                            <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                              <div className="flex items-center justify-between text-xs font-mono">
-                                <span>Legal Rent Ceiling: ${rentCeilingLevel}</span>
-                                <span className="text-rose-400 font-bold">Result: Severe Housing Shortage</span>
-                              </div>
-                              <input
-                                type="range"
-                                min="800"
-                                max="1500"
-                                step="50"
-                                value={rentCeilingLevel}
-                                onChange={(e) => setRentCeilingLevel(parseFloat(e.target.value))}
-                                className="w-full accent-emerald-500"
-                              />
-                              <div className="p-3 bg-slate-800 text-center text-xs text-slate-300">
-                                Capping rents below market equilibrium makes renting cheap (boosting Qd) while reducing landlord supply (lowering Qs), creating a persistent shortage.
-                              </div>
-                              <div className="flex justify-end">
-                                <button
-                                  onClick={() => handleApplyTactileAnswer(1, 'Rent Control Ceiling Regulator')}
-                                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
-                                >
-                                  <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply Persistent Shortage & Next</span>
+                                  <span>Apply "Price Inelastic (|PED| = 0.20)" & Next</span>
                                 </button>
                               </div>
                             </div>
@@ -2288,7 +1920,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                         : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'
                     }`}
                   >
-                    <span>Submit & Analyze Diagnostic</span>
+                    <span>Submit Assessment</span>
                     <IconCheckCircle className="w-4 h-4" />
                   </button>
                 )}

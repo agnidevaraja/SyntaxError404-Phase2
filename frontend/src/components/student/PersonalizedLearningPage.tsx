@@ -265,7 +265,7 @@ export const PersonalizedLearningPage: React.FC = () => {
               Your personalized learning space dynamically isolates your specific stoichiometry, bonding, and thermochemistry misconceptions, builds custom slide decks, and curates research programs based on your diagnostic answers.
             </p>
             <p className="text-xs text-slate-500 font-medium">
-              Please take the 10-question Chemistry diagnostic test first to generate your tailored remediation roadmap.
+              Please take the 5-question Chemistry diagnostic test first to generate your tailored remediation roadmap.
             </p>
           </div>
 
@@ -278,7 +278,7 @@ export const PersonalizedLearningPage: React.FC = () => {
               className="w-full sm:w-auto px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
             >
               <IconZap className="w-4 h-4 text-indigo-200" />
-              <span>Take Chemistry Diagnostic (10 Questions)</span>
+              <span>Take Chemistry Diagnostic (5 Questions)</span>
               <IconArrowRight className="w-4 h-4" />
             </button>
 
@@ -292,8 +292,8 @@ export const PersonalizedLearningPage: React.FC = () => {
 
           <div className="pt-6 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4 text-left text-xs text-slate-600">
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-              <span className="font-bold text-slate-900 block mb-1">1. Adaptive 10 Questions</span>
-              <p className="text-[11px] text-slate-500">Covers Stoichiometry, Bonding, Thermochemistry, Kinetics, and Equilibrium.</p>
+              <span className="font-bold text-slate-900 block mb-1">1. Adaptive 5 Questions</span>
+              <p className="text-[11px] text-slate-500">Covers Stoichiometry, Mole Conversions, Chemical Equations, Limiting Reagents, and Yield.</p>
             </div>
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
               <span className="font-bold text-slate-900 block mb-1">2. Precision Diagnosis</span>
