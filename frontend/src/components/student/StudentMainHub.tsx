@@ -7,7 +7,6 @@ import {
   IconFileText,
   IconUpload,
   IconZap,
-  IconSparkles,
   IconX,
 } from '../common/Icons';
 import {
@@ -20,6 +19,7 @@ import {
   Layers,
   ArrowRight,
   TrendingUp,
+  Compass,
 } from 'lucide-react';
 import { GRADE_9_FULL_SYLLABUS_SUBJECTS } from '../../data/mockStudentHubData';
 
@@ -64,15 +64,15 @@ export const StudentMainHub: React.FC = () => {
   const getSubjectIcon = (sub: string) => {
     switch (sub) {
       case 'Mathematics':
-        return <Calculator className="w-5 h-5 text-blue-600" />;
+        return <Calculator className="w-5 h-5 text-blue-600 dark:text-blue-400" />;
       case 'Physics':
-        return <Atom className="w-5 h-5 text-violet-600" />;
+        return <Atom className="w-5 h-5 text-violet-600 dark:text-violet-400" />;
       case 'Chemistry':
-        return <FlaskConical className="w-5 h-5 text-indigo-600" />;
+        return <FlaskConical className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />;
       case 'Biology':
-        return <Dna className="w-5 h-5 text-emerald-600" />;
+        return <Dna className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />;
       default:
-        return <Layers className="w-5 h-5 text-slate-600" />;
+        return <Layers className="w-5 h-5 text-slate-600 dark:text-slate-400" />;
     }
   };
 
@@ -80,39 +80,39 @@ export const StudentMainHub: React.FC = () => {
     <div className="space-y-8 pb-12">
       
       {/* Welcome Banner - Grade 9 Academic Profile */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-xs transition-colors">
         <div>
-          <div className="flex items-center gap-2 text-xs text-slate-500 font-semibold">
-            <span className="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200/60">
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-semibold">
+            <span className="font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-md border border-indigo-200/60 dark:border-indigo-800">
               Grade 9
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight mt-1">
             Student Learning Hub
           </h1>
-          <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
             Welcome back, {authUser?.displayName || 'Demo Student'}. Access your Grade 9 Full Exam Syllabus (Mathematics & Core Sciences), manage daily tasks, and explore your enrolled subjects below.
           </p>
         </div>
       </div>
 
       {/* SECTION 1: Full Exam Syllabus Focus (Grade 9: Mathematics & All 3 Sciences) */}
-      <section className="bg-white rounded-2xl border border-slate-200/90 p-6 sm:p-7 shadow-xs space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+      <section className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-7 shadow-xs space-y-5 transition-colors">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200/80 text-indigo-600 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/80 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
               <IconBookOpen className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-slate-900">
+                <h2 className="text-base font-bold text-slate-900 dark:text-white">
                   Grade 9 Full Academic Syllabus Focus
                 </h2>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-50 text-indigo-800 border border-indigo-200">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
                   Math & 3 Sciences
                 </span>
               </div>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Official curriculum scope covering Mathematics, Physics, Chemistry, and Biology.
               </p>
             </div>
@@ -125,7 +125,7 @@ export const StudentMainHub: React.FC = () => {
                 setSelectedSubjectTab('ALL');
                 setIsDocModalOpen(true);
               }}
-              className="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs btn-tactile"
+              className="px-3.5 py-2 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 text-xs font-semibold rounded-lg border border-indigo-200 dark:border-indigo-800 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs btn-tactile"
               title="View full curriculum document in browser"
             >
               <Eye className="w-4 h-4" />
@@ -135,10 +135,10 @@ export const StudentMainHub: React.FC = () => {
             <a
               href="/documents/Grade_9_Full_Exam_Syllabus_Focus.pdf"
               download="Grade_9_Full_Exam_Syllabus_Focus.pdf"
-              className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs btn-tactile"
+              className="px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs btn-tactile"
               title="Download official PDF file"
             >
-              <Download className="w-4 h-4 text-slate-600" />
+              <Download className="w-4 h-4 text-slate-600 dark:text-slate-400" />
               <span>Download PDF</span>
             </a>
 
@@ -151,7 +151,7 @@ export const StudentMainHub: React.FC = () => {
             />
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs btn-tactile"
+              className="px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs btn-tactile"
               title="Upload your school's syllabus file"
             >
               <IconUpload className="w-4 h-4" />
@@ -161,25 +161,25 @@ export const StudentMainHub: React.FC = () => {
         </div>
 
         {/* Uploaded File Banner */}
-        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3.5">
             <div className="p-2.5 rounded-lg bg-indigo-600 text-white shrink-0 shadow-2xs">
               <IconFileText className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-900">{uploadedSyllabusName}</span>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200">
+                <span className="text-xs font-bold text-slate-900 dark:text-white">{uploadedSyllabusName}</span>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                   Active Syllabus Focus
                 </span>
               </div>
-              <div className="text-[11px] text-slate-500 mt-0.5">
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                 {uploadedSyllabusSize} · {uploadedSyllabusDate} · Formatted for Grade 9 Term Exams
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 text-xs font-semibold text-slate-600">
+          <div className="flex items-center gap-3 text-xs font-semibold text-slate-600 dark:text-slate-400">
             <span>4 Academic Disciplines</span>
             <span>·</span>
             <span>16 Core Units Total</span>
@@ -195,20 +195,20 @@ export const StudentMainHub: React.FC = () => {
                 setSelectedSubjectTab(sub.subject);
                 setIsDocModalOpen(true);
               }}
-              className="p-5 rounded-xl border border-slate-200 bg-white hover:border-indigo-300 card-hover transition-all flex flex-col justify-between space-y-4 shadow-xs cursor-pointer group"
+              className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 hover:border-indigo-300 dark:hover:border-indigo-600 card-hover transition-all flex flex-col justify-between space-y-4 shadow-xs cursor-pointer group"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="w-9 h-9 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <div className="w-9 h-9 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center group-hover:scale-105 transition-transform">
                     {getSubjectIcon(sub.subject)}
                   </div>
-                  <span className="text-[11px] font-bold font-mono text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">
+                  <span className="text-[11px] font-bold font-mono text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/80 px-2 py-0.5 rounded-md">
                     {sub.weighting.split(' ')[0]} Weight
                   </span>
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                     {sub.subject}
                   </h3>
                   <span className="text-[10px] font-mono text-slate-400 block mt-0.5">
@@ -216,19 +216,19 @@ export const StudentMainHub: React.FC = () => {
                   </span>
                 </div>
 
-                <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
                   {sub.summary}
                 </p>
               </div>
 
               {/* Units summary list */}
-              <div className="pt-3 border-t border-slate-100 space-y-1.5">
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-700/80 space-y-1.5">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
                   4 Core Units Covered:
                 </span>
                 <div className="space-y-1">
                   {sub.units.map((u) => (
-                    <div key={u.unitCode} className="text-[11px] text-slate-600 flex items-center gap-1.5 truncate">
+                    <div key={u.unitCode} className="text-[11px] text-slate-600 dark:text-slate-300 flex items-center gap-1.5 truncate">
                       <span className="w-1.5 h-1.5 rounded-xs bg-indigo-500 shrink-0" />
                       <span className="truncate">{u.title}</span>
                     </div>
@@ -236,7 +236,7 @@ export const StudentMainHub: React.FC = () => {
                 </div>
               </div>
 
-              <div className="pt-1 flex items-center justify-between text-xs font-semibold text-indigo-600 group-hover:text-indigo-800">
+              <div className="pt-1 flex items-center justify-between text-xs font-semibold text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-800 dark:group-hover:text-indigo-300">
                 <span>View Full Syllabus Scope</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -246,15 +246,15 @@ export const StudentMainHub: React.FC = () => {
       </section>
 
       {/* SECTION 2: Daily Tasks */}
-      <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+      <section className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4 transition-colors">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-2">
-            <IconFileText className="w-5 h-5 text-indigo-600" />
-            <h2 className="text-base font-bold text-slate-900">
+            <IconFileText className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            <h2 className="text-base font-bold text-slate-900 dark:text-white">
               Daily Tasks
             </h2>
           </div>
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-slate-500 dark:text-slate-400">
             {studentTasks.filter((t) => t.completed).length} of {studentTasks.length} Completed
           </span>
         </div>
@@ -266,8 +266,8 @@ export const StudentMainHub: React.FC = () => {
               onClick={() => toggleTaskCompleted(task.id)}
               className={`p-4 rounded-xl border transition-all flex items-center justify-between gap-4 cursor-pointer ${
                 task.completed
-                  ? 'bg-slate-50 border-slate-200 opacity-70'
-                  : 'bg-white border-slate-200 hover:border-indigo-300 shadow-2xs'
+                  ? 'bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 opacity-70'
+                  : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500 shadow-2xs'
               }`}
             >
               <div className="flex items-center gap-3.5">
@@ -276,7 +276,7 @@ export const StudentMainHub: React.FC = () => {
                   className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors ${
                     task.completed
                       ? 'bg-emerald-600 border-emerald-600 text-white'
-                      : 'border-slate-300 hover:border-indigo-500 bg-white'
+                      : 'border-slate-300 dark:border-slate-600 hover:border-indigo-500 bg-white dark:bg-slate-700'
                   }`}
                 >
                   {task.completed && <IconCheckCircle className="w-3.5 h-3.5" />}
@@ -285,17 +285,17 @@ export const StudentMainHub: React.FC = () => {
                 <div>
                   <div
                     className={`text-xs font-bold ${
-                      task.completed ? 'line-through text-slate-500' : 'text-slate-900'
+                      task.completed ? 'line-through text-slate-500 dark:text-slate-400' : 'text-slate-900 dark:text-white'
                     }`}
                   >
                     {task.title}
                   </div>
-                  <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+                  <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                     <span>Due: {task.dueDate}</span>
                     <span>·</span>
-                    <span className="text-indigo-600 font-semibold">{task.subject}</span>
+                    <span className="text-indigo-600 dark:text-indigo-400 font-semibold">{task.subject}</span>
                     {task.priority === 'high' && (
-                      <span className="text-rose-600 font-bold bg-rose-50 px-1.5 py-0.2 rounded text-[10px]">
+                      <span className="text-rose-600 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-950 px-1.5 py-0.2 rounded-md text-[10px]">
                         Priority
                       </span>
                     )}
@@ -321,13 +321,13 @@ export const StudentMainHub: React.FC = () => {
       </section>
 
       {/* SECTION 3: My Subjects (Chemistry & Economics) */}
-      <section className="bg-white rounded-2xl border border-slate-200/90 p-6 sm:p-7 shadow-xs space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+      <section className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-7 shadow-xs space-y-6 transition-colors">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <div>
-            <h2 className="text-base font-bold text-slate-900">
+            <h2 className="text-base font-bold text-slate-900 dark:text-white">
               My Subjects
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Enrolled Academic Courses · Personalized Adaptive Learning Spaces
             </p>
           </div>
@@ -344,7 +344,7 @@ export const StudentMainHub: React.FC = () => {
                 <span className="text-xs font-mono font-semibold text-indigo-300 bg-indigo-950/80 border border-indigo-700/60 px-2.5 py-1 rounded-md">
                   Subject: Chemistry · Grade 9
                 </span>
-                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-semibold px-2 py-0.5 rounded border border-emerald-500/30">
+                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-semibold px-2 py-0.5 rounded-md border border-emerald-500/30">
                   STEM Sciences
                 </span>
               </div>
@@ -376,7 +376,7 @@ export const StudentMainHub: React.FC = () => {
                   onClick={() => setActiveView('personalized_learning')}
                   className="px-5 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-sm rounded-xl border border-white/20 transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
                 >
-                  <IconSparkles className="w-4 h-4 text-indigo-300" />
+                  <Compass className="w-4 h-4 text-indigo-300" />
                   <span>Personalized Learning</span>
                 </button>
               ) : (
@@ -387,7 +387,7 @@ export const StudentMainHub: React.FC = () => {
                   }}
                   className="px-5 py-3.5 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-200 font-bold text-sm rounded-xl border border-indigo-400/40 transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
                 >
-                  <IconSparkles className="w-4 h-4 text-amber-300" />
+                  <IconZap className="w-4 h-4 text-amber-300" />
                   <span>Take Diagnostic to Unlock</span>
                 </button>
               )}
@@ -409,7 +409,7 @@ export const StudentMainHub: React.FC = () => {
                 <span className="text-xs font-mono font-semibold text-amber-300 bg-amber-950/80 border border-amber-700/60 px-2.5 py-1 rounded-md">
                   Subject: Economics · Grade 9
                 </span>
-                <span className="text-[10px] bg-amber-500/20 text-amber-300 font-semibold px-2 py-0.5 rounded border border-amber-500/30">
+                <span className="text-[10px] bg-amber-500/20 text-amber-300 font-semibold px-2 py-0.5 rounded-md border border-amber-500/30">
                   Social Sciences & Finance
                 </span>
               </div>
@@ -441,7 +441,7 @@ export const StudentMainHub: React.FC = () => {
                   onClick={() => setActiveView('personalized_learning_economics')}
                   className="px-5 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-sm rounded-xl border border-white/20 transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
                 >
-                  <IconSparkles className="w-4 h-4 text-amber-300" />
+                  <Compass className="w-4 h-4 text-amber-300" />
                   <span>Personalized Learning</span>
                 </button>
               ) : (
@@ -452,7 +452,7 @@ export const StudentMainHub: React.FC = () => {
                   }}
                   className="px-5 py-3.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 font-bold text-sm rounded-xl border border-amber-400/40 transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
                 >
-                  <IconSparkles className="w-4 h-4 text-amber-300" />
+                  <IconZap className="w-4 h-4 text-amber-300" />
                   <span>Take Diagnostic to Unlock</span>
                 </button>
               )}
@@ -471,20 +471,20 @@ export const StudentMainHub: React.FC = () => {
 
       {/* FULL SYLLABUS INTERACTIVE DOCUMENT VIEWER MODAL */}
       {isDocModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="relative w-full max-w-4xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh] transition-colors">
             
             {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between shrink-0">
+            <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
                   <IconBookOpen className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
                     Grade 9 Full Academic Syllabus Document
                   </h3>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs text-slate-500 dark:text-slate-400">
                     Grade 9 · Term 1 Examination Scope
                   </div>
                 </div>
@@ -494,7 +494,7 @@ export const StudentMainHub: React.FC = () => {
                 <a
                   href="/documents/Grade_9_Full_Exam_Syllabus_Focus.pdf"
                   download="Grade_9_Full_Exam_Syllabus_Focus.pdf"
-                  className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow-2xs transition-colors"
+                  className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Download PDF</span>
@@ -502,7 +502,7 @@ export const StudentMainHub: React.FC = () => {
 
                 <button
                   onClick={() => setIsDocModalOpen(false)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 >
                   <IconX className="w-5 h-5" />
                 </button>
@@ -510,7 +510,7 @@ export const StudentMainHub: React.FC = () => {
             </div>
 
             {/* Subject Tabs */}
-            <div className="px-6 py-2.5 border-b border-slate-200 bg-white flex items-center gap-1 overflow-x-auto shrink-0">
+            <div className="px-6 py-2.5 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center gap-1 overflow-x-auto shrink-0">
               {['ALL', 'Mathematics', 'Physics', 'Chemistry', 'Biology'].map((tab) => (
                 <button
                   key={tab}
@@ -518,7 +518,7 @@ export const StudentMainHub: React.FC = () => {
                   className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                     selectedSubjectTab === tab
                       ? 'bg-indigo-600 text-white shadow-2xs'
-                      : 'text-slate-600 hover:bg-slate-100'
+                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
                   {tab === 'ALL' ? 'All 4 Disciplines' : tab}
@@ -531,38 +531,38 @@ export const StudentMainHub: React.FC = () => {
               {GRADE_9_FULL_SYLLABUS_SUBJECTS
                 .filter((sub) => selectedSubjectTab === 'ALL' || sub.subject === selectedSubjectTab)
                 .map((sub) => (
-                  <div key={sub.code} className="border border-slate-200 rounded-xl p-5 bg-white space-y-4 shadow-2xs">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                  <div key={sub.code} className="border border-slate-200 dark:border-slate-800 rounded-xl p-5 bg-white dark:bg-slate-800/60 space-y-4 shadow-2xs transition-colors">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-700/80 pb-3">
                       <div className="flex items-center gap-2.5">
                         {getSubjectIcon(sub.subject)}
-                        <h4 className="text-base font-bold text-slate-900">
+                        <h4 className="text-base font-bold text-slate-900 dark:text-white">
                           {sub.subject} ({sub.code})
                         </h4>
                       </div>
                       <div className="flex items-center gap-2 text-xs font-mono">
-                        <span className="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-bold border border-indigo-200/60">
+                        <span className="px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-200/60 dark:border-indigo-800">
                           {sub.weighting}
                         </span>
-                        <span className="text-slate-500">
+                        <span className="text-slate-500 dark:text-slate-400">
                           Duration: {sub.examDuration}
                         </span>
                       </div>
                     </div>
 
-                    <p className="text-xs text-slate-600 leading-relaxed">
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                       {sub.summary}
                     </p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
                       {sub.units.map((u) => (
-                        <div key={u.unitCode} className="p-3.5 rounded-lg bg-slate-50 border border-slate-200/80 space-y-2">
+                        <div key={u.unitCode} className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-white text-indigo-700 border border-slate-200">
+                            <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-400 border border-slate-200 dark:border-slate-700">
                               {u.unitCode} · {u.weight}
                             </span>
                           </div>
 
-                          <h5 className="text-xs font-bold text-slate-900">
+                          <h5 className="text-xs font-bold text-slate-900 dark:text-white">
                             {u.title}
                           </h5>
 
@@ -570,14 +570,14 @@ export const StudentMainHub: React.FC = () => {
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                               Key Topics:
                             </span>
-                            <ul className="text-[11px] text-slate-600 list-disc list-inside space-y-0.5">
+                            <ul className="text-[11px] text-slate-600 dark:text-slate-300 list-disc list-inside space-y-0.5">
                               {u.topics.map((t, idx) => (
                                 <li key={idx}>{t}</li>
                               ))}
                             </ul>
                           </div>
 
-                          <div className="pt-1.5 border-t border-slate-200/60 text-[10px] text-rose-700">
+                          <div className="pt-1.5 border-t border-slate-200/60 dark:border-slate-700/60 text-[10px] text-rose-700 dark:text-rose-400">
                             <strong>Common Diagnostic Trap:</strong> {u.coreTrap}
                           </div>
                         </div>
