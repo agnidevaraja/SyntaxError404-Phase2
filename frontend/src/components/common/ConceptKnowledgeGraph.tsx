@@ -204,18 +204,18 @@ export const ConceptKnowledgeGraph: React.FC<ConceptKnowledgeGraphProps> = ({
           className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 btn-tactile ${
             selectedPackageId === (isEcon ? 'econ_market_equilibrium' : 'olympiad_enrichment')
               ? isEcon
-                ? 'border-emerald-600 bg-gradient-to-r from-emerald-950 to-slate-900 text-white ring-2 ring-emerald-500'
-                : 'border-indigo-600 bg-gradient-to-r from-indigo-900 to-indigo-950 text-white ring-2 ring-indigo-500'
+                ? 'border-emerald-600 bg-emerald-950 text-white ring-2 ring-emerald-500'
+                : 'border-indigo-600 bg-slate-900 text-white ring-2 ring-indigo-500'
               : isEcon
-                ? 'border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100/70 text-emerald-950'
-                : 'border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100/70 text-indigo-950'
+                ? 'border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100/70 text-emerald-950 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-200'
+                : 'border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100/70 text-indigo-950 dark:bg-indigo-950/40 dark:border-indigo-800 dark:text-indigo-200'
           }`}
         >
           <div className="flex items-center gap-3.5">
             <div className={`w-10 h-10 rounded-xl text-white flex items-center justify-center shrink-0 shadow-xs ${
-              isEcon ? 'bg-amber-600' : 'bg-amber-500'
+              isEcon ? 'bg-emerald-700' : 'bg-indigo-600'
             }`}>
-              <Sparkles className="w-5 h-5" />
+              <Award className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">

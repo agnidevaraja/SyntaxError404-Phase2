@@ -115,12 +115,12 @@ export const AdaptiveConceptExplainerModal: React.FC<AdaptiveConceptExplainerMod
           ) : data ? (
             <>
               {/* SECTION 1: Real-World Visual Analogy */}
-              <div className="bg-gradient-to-br from-amber-500/10 via-amber-50/50 to-orange-50/40 rounded-2xl border border-amber-200 p-5 sm:p-6 space-y-3">
-                <div className="flex items-center gap-2 text-amber-900 font-bold text-xs uppercase tracking-wider">
-                  <IconSparkles className="w-4 h-4 text-amber-600" />
+              <div className="bg-amber-50/70 dark:bg-amber-950/20 rounded-2xl border border-amber-200/80 dark:border-amber-900/60 p-5 sm:p-6 space-y-3">
+                <div className="flex items-center gap-2 text-amber-900 dark:text-amber-300 font-bold text-xs uppercase tracking-wider">
+                  <IconSparkles className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   <span>1. Real-World Visual Analogy: {data.analogyTitle}</span>
                 </div>
-                <p className="text-sm sm:text-base text-slate-800 leading-relaxed font-normal">
+                <p className="text-sm sm:text-base text-slate-800 dark:text-slate-200 leading-relaxed font-normal">
                   {data.analogyStory}
                 </p>
               </div>
