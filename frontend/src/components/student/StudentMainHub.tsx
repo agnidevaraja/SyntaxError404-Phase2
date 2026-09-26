@@ -339,32 +339,32 @@ export const StudentMainHub: React.FC = () => {
 
         <div className="space-y-5">
           {/* Subject 1: Chemistry Card */}
-          <div className="bg-slate-900 dark:bg-slate-900/95 rounded-2xl p-6 sm:p-8 text-white shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6 card-hover border border-indigo-900/40">
+          <div className="bg-white dark:bg-slate-900/95 rounded-2xl p-6 sm:p-8 text-slate-900 dark:text-white shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6 card-hover border border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-semibold text-indigo-300 bg-indigo-950/80 border border-indigo-700/60 px-2.5 py-1 rounded-md">
+                <span className="text-xs font-mono font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/80 border border-indigo-200/80 dark:border-indigo-700/60 px-2.5 py-1 rounded-md">
                   Subject: Chemistry · Grade 9
                 </span>
-                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-semibold px-2 py-0.5 rounded-md border border-emerald-500/30">
+                <span className="text-[10px] bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-semibold px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-500/30">
                   STEM Sciences
                 </span>
               </div>
 
-              <h3 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-                <FlaskConical className="w-6 h-6 text-indigo-400" />
+              <h3 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+                <FlaskConical className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
                 <span>Chemistry</span>
               </h3>
 
-              <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
-                Instructor: <strong className="text-white font-semibold">Dr. Eleanor Vance</strong>. Access your Chemistry Syllabus Focus (The Mole Concept, Redox Reactions, & Stoichiometry), view lecture presentations, and take diagnostic calibrations.
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed">
+                Instructor: <strong className="text-slate-900 dark:text-white font-semibold">Dr. Eleanor Vance</strong>. Access your Chemistry Syllabus Focus (The Mole Concept, Redox Reactions, & Stoichiometry), view lecture presentations, and take diagnostic calibrations.
               </p>
 
-              <div className="flex flex-wrap items-center gap-3 text-xs text-indigo-200 pt-1">
-                <span>Class Drive: <strong>2 Lecture Decks</strong></span>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-indigo-200 pt-1">
+                <span>Class Drive: <strong className="text-slate-800 dark:text-slate-100">2 Lecture Decks</strong></span>
                 <span>·</span>
                 <span>
                   Diagnostic Calibration:{' '}
-                  <strong className={diagnosticSubmission ? 'text-emerald-400' : 'text-amber-300'}>
+                  <strong className={diagnosticSubmission ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-300'}>
                     {diagnosticSubmission ? `Calibrated (${diagnosticSubmission.score}/10)` : 'Ready to Start'}
                   </strong>
                 </span>
@@ -375,9 +375,9 @@ export const StudentMainHub: React.FC = () => {
               {diagnosticSubmission ? (
                 <button
                   onClick={() => setActiveView('personalized_learning')}
-                  className="px-5 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-sm rounded-xl border border-white/20 transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
+                  className="px-5 py-3.5 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 text-slate-800 dark:text-white font-bold text-sm rounded-xl border border-slate-200 dark:border-white/20 transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
                 >
-                  <Compass className="w-4 h-4 text-indigo-300" />
+                  <Compass className="w-4 h-4 text-indigo-600 dark:text-indigo-300" />
                   <span>Personalized Learning</span>
                 </button>
               ) : (
@@ -386,16 +386,16 @@ export const StudentMainHub: React.FC = () => {
                     setActiveDiagnosticSubject('chemistry');
                     setIsDiagnosticOpen(true);
                   }}
-                  className="px-5 py-3.5 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-200 font-bold text-sm rounded-xl border border-indigo-400/40 transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
+                  className="px-5 py-3.5 bg-amber-50 dark:bg-indigo-500/20 hover:bg-amber-100 dark:hover:bg-indigo-500/30 text-amber-900 dark:text-indigo-200 font-bold text-sm rounded-xl border border-amber-200 dark:border-indigo-400/40 transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
                 >
-                  <IconZap className="w-4 h-4 text-amber-300" />
+                  <IconZap className="w-4 h-4 text-amber-600 dark:text-amber-300" />
                   <span>Take Diagnostic to Unlock</span>
                 </button>
               )}
 
               <button
                 onClick={() => setActiveView('subject_chemistry')}
-                className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer group btn-tactile"
+                className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer group btn-tactile"
               >
                 <span>Open Chemistry Page</span>
                 <IconArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -404,32 +404,32 @@ export const StudentMainHub: React.FC = () => {
           </div>
 
           {/* Subject 2: Economics Card */}
-          <div className="bg-slate-900 dark:bg-slate-900/95 rounded-2xl p-6 sm:p-8 text-white shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6 card-hover border border-amber-900/40">
+          <div className="bg-white dark:bg-slate-900/95 rounded-2xl p-6 sm:p-8 text-slate-900 dark:text-white shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6 card-hover border border-slate-200 dark:border-slate-800 hover:border-amber-300 dark:hover:border-amber-700 transition-all">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-semibold text-amber-300 bg-amber-950/80 border border-amber-700/60 px-2.5 py-1 rounded-md">
+                <span className="text-xs font-mono font-semibold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/80 border border-amber-200/80 dark:border-amber-700/60 px-2.5 py-1 rounded-md">
                   Subject: Economics · Grade 9
                 </span>
-                <span className="text-[10px] bg-amber-500/20 text-amber-300 font-semibold px-2 py-0.5 rounded-md border border-amber-500/30">
+                <span className="text-[10px] bg-amber-50 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 font-semibold px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-500/30">
                   Social Sciences & Finance
                 </span>
               </div>
 
-              <h3 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-                <TrendingUp className="w-6 h-6 text-amber-400" />
+              <h3 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+                <TrendingUp className="w-6 h-6 text-amber-600 dark:text-amber-400" />
                 <span>Economics</span>
               </h3>
 
-              <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
-                Instructor: <strong className="text-white font-semibold">Prof. Arthur Sterling</strong>. Master fundamental microeconomics (Scarcity, Opportunity Cost, PPC, & Market Supply & Demand), calibrate with the diagnostic assessment, and discover international competitions.
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed">
+                Instructor: <strong className="text-slate-900 dark:text-white font-semibold">Prof. Arthur Sterling</strong>. Master fundamental microeconomics (Scarcity, Opportunity Cost, PPC, & Market Supply & Demand), calibrate with the diagnostic assessment, and discover international competitions.
               </p>
 
-              <div className="flex flex-wrap items-center gap-3 text-xs text-amber-200/90 pt-1">
-                <span>Class Drive: <strong>3 Lecture Decks</strong></span>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-amber-200/90 pt-1">
+                <span>Class Drive: <strong className="text-slate-800 dark:text-slate-100">3 Lecture Decks</strong></span>
                 <span>·</span>
                 <span>
                   Diagnostic Calibration:{' '}
-                  <strong className={economicsDiagnosticSubmission ? 'text-emerald-400' : 'text-amber-300'}>
+                  <strong className={economicsDiagnosticSubmission ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-300'}>
                     {economicsDiagnosticSubmission ? `Calibrated (${economicsDiagnosticSubmission.score}/10)` : 'Diagnostic Required'}
                   </strong>
                 </span>
@@ -440,9 +440,9 @@ export const StudentMainHub: React.FC = () => {
               {economicsDiagnosticSubmission ? (
                 <button
                   onClick={() => setActiveView('personalized_learning_economics')}
-                  className="px-5 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-sm rounded-xl border border-white/20 transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
+                  className="px-5 py-3.5 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 text-slate-800 dark:text-white font-bold text-sm rounded-xl border border-slate-200 dark:border-white/20 transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
                 >
-                  <Compass className="w-4 h-4 text-amber-300" />
+                  <Compass className="w-4 h-4 text-amber-600 dark:text-amber-300" />
                   <span>Personalized Learning</span>
                 </button>
               ) : (
@@ -451,16 +451,16 @@ export const StudentMainHub: React.FC = () => {
                     setActiveDiagnosticSubject('economics');
                     setIsDiagnosticOpen(true);
                   }}
-                  className="px-5 py-3.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 font-bold text-sm rounded-xl border border-amber-400/40 transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
+                  className="px-5 py-3.5 bg-amber-50 dark:bg-amber-500/20 hover:bg-amber-100 dark:hover:bg-amber-500/30 text-amber-900 dark:text-amber-200 font-bold text-sm rounded-xl border border-amber-200 dark:border-amber-400/40 transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
                 >
-                  <IconZap className="w-4 h-4 text-amber-300" />
+                  <IconZap className="w-4 h-4 text-amber-600 dark:text-amber-300" />
                   <span>Take Diagnostic to Unlock</span>
                 </button>
               )}
 
               <button
                 onClick={() => setActiveView('subject_economics')}
-                className="px-6 py-3.5 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white font-bold text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer group btn-tactile"
+                className="px-6 py-3.5 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-bold text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer group btn-tactile"
               >
                 <span>Open Economics Page</span>
                 <IconArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />

@@ -207,7 +207,7 @@ export const AuthModal: React.FC = () => {
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                 }`}
               >
-                <IconAtom className="w-4 h-4 text-indigo-600" />
+                <User className="w-4 h-4 text-indigo-600" />
                 <span>Student Portal</span>
               </button>
 

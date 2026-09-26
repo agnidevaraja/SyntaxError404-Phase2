@@ -35,6 +35,8 @@ export function AppContent() {
           {activeView === 'personalized_learning_economics' && <PersonalizedLearningPageEconomics />}
           {activeView === 'facilitator_subject_select' && <FacilitatorSubjectSelectPage />}
           {activeView === 'facilitator_portal' && <FacilitatorPortal />}
+
+          {/* Fallback to prevent blank screen if activeView is unrecognized */}
           {![
             'landing',
             'student_hub',
@@ -44,9 +46,30 @@ export function AppContent() {
             'personalized_learning_economics',
             'facilitator_subject_select',
             'facilitator_portal',
-          ].includes(activeView) && <StudentMainHub />}
+          ].includes(activeView) && <LandingPage />}
         </ErrorBoundary>
       </main>
+
+      {/* Universal Clean Academic Footer */}
+      <footer className="w-full border-t border-slate-200/80 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 py-6 px-4 sm:px-6 lg:px-10 mt-auto transition-colors">
+        <div className="max-w-[1580px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-sm select-none">
+              <span className="text-indigo-600 dark:text-indigo-400">O</span>
+              <span className="text-slate-900 dark:text-white">utstand</span>
+            </span>
+            <span>·</span>
+            <span>Adaptive Cognitive Mastery Engine</span>
+          </div>
+          <div className="flex items-center gap-4 text-[11px]">
+            <span>Chemistry & Economics Curricula</span>
+            <span>·</span>
+            <span>Real-Time Behavioral Telemetry</span>
+            <span>·</span>
+            <span>WCAG AAA High Contrast</span>
+          </div>
+        </div>
+      </footer>
 
       {/* Modals & Overlays */}
       <ErrorBoundary fallbackTitle="Diagnostic Modal Error">

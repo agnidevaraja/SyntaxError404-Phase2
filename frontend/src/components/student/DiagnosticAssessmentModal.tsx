@@ -77,9 +77,13 @@ export const DiagnosticAssessmentModal: React.FC = () => {
     optionFlips: number;
     lastSelectedOption: number | null;
     hesitationFlagged: boolean;
+    longestPauseQuestionIndex: number;
+    questionDwellSeconds: Record<number, number>;
   }>({
     idleSeconds: 0,
     maxDwellSeconds: 0,
+    longestPauseQuestionIndex: 0,
+    questionDwellSeconds: {},
     questionStartTimes: { 0: Date.now() },
     firstInteractionTimes: {},
     backspaceBurstCount: 0,
@@ -94,6 +98,21 @@ export const DiagnosticAssessmentModal: React.FC = () => {
     hesitationFlagged: false,
   });
 
+  // Live telemetry metrics stream for real-time demonstration
+  const [liveTelemetry, setLiveTelemetry] = useState<{
+    chars: number;
+    wpm: number;
+    pauseSec: number;
+    freezes: number;
+    bursts: number;
+  }>({
+    chars: 0,
+    wpm: 0,
+    pauseSec: 0,
+    freezes: 0,
+    bursts: 0,
+  });
+
   // Optional student scratchpad notes per question
   const [scratchpadNotes, setScratchpadNotes] = useState<Record<number, string>>({});
 
@@ -101,6 +120,8 @@ export const DiagnosticAssessmentModal: React.FC = () => {
   const [telemetryProfile, setTelemetryProfile] = useState<{
     affectivePauseFlagged: boolean;
     maxDwellSec: number;
+    longestPauseQuestion: number;
+    longestPauseTopic: string;
     burstCount: number;
     optionFlips: number;
     avgIkiMs: number;
@@ -111,6 +132,8 @@ export const DiagnosticAssessmentModal: React.FC = () => {
   }>({
     affectivePauseFlagged: false,
     maxDwellSec: 0,
+    longestPauseQuestion: 1,
+    longestPauseTopic: 'Initial Evaluation',
     burstCount: 0,
     optionFlips: 0,
     avgIkiMs: 180,
@@ -209,22 +232,55 @@ export const DiagnosticAssessmentModal: React.FC = () => {
     const interval = setInterval(() => {
       const tel = telemetryRef.current;
       tel.idleSeconds += 1;
+      tel.questionDwellSeconds[currentIndex] = (tel.questionDwellSeconds[currentIndex] || 0) + 1;
       if (tel.idleSeconds > tel.maxDwellSeconds) {
         tel.maxDwellSeconds = tel.idleSeconds;
+        tel.longestPauseQuestionIndex = currentIndex;
       }
+
+      const durationMin =
+        tel.keystrokeTimestamps.length >= 2
+          ? (Date.now() - tel.keystrokeTimestamps[0]) / 60000
+          : 0;
+      const currentWpm =
+        durationMin > 0.02
+          ? Math.min(140, Math.round(tel.totalCharactersTyped / 5 / durationMin))
+          : 0;
+
+      setLiveTelemetry({
+        chars: tel.totalCharactersTyped,
+        wpm: currentWpm,
+        pauseSec: tel.idleSeconds,
+        freezes: tel.cognitiveFreezes,
+        bursts: tel.backspaceBurstCount,
+      });
+
       if (tel.idleSeconds === 7 && !tel.hesitationFlagged) {
         tel.hesitationFlagged = true;
-        const studentUid = authUser?.uid || (isEconomics ? 'std-demo-student-econ' : 'std-demo-student');
+        const studentUid = authUser?.uid || 'std-rohan';
         syncStudentProgress(studentUid, isEconomics ? 'Economics' : 'Chemistry', {
           recentScore: 6,
           strugglingTopic: questionsList[currentIndex]?.topic || 'Conceptual Evaluation',
           hesitationLevel: 'high',
+          telemetry: {
+            maxDwellSec: tel.maxDwellSeconds,
+            longestPauseQuestion: currentIndex + 1,
+            longestPauseTopic: questionsList[currentIndex]?.topic || 'Conceptual Evaluation',
+            wpm: currentWpm,
+            avgIkiMs: 180,
+            burstCount: tel.backspaceBurstCount,
+            erasureRatio: 0,
+            cognitiveFreezes: tel.cognitiveFreezes,
+            totalKeystrokes: tel.totalCharactersTyped,
+            optionFlips: tel.optionFlips,
+            solvedViaStealthCount: Object.keys(solvedViaStealth).length,
+          },
         });
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isDiagnosticOpen, localSubmission, currentIndex, authUser?.uid, isEconomics, questionsList]);
+  }, [isDiagnosticOpen, localSubmission, currentIndex, authUser?.uid, isEconomics, questionsList, solvedViaStealth]);
 
   // Reset question telemetry upon question change
   useEffect(() => {
@@ -325,6 +381,23 @@ export const DiagnosticAssessmentModal: React.FC = () => {
     } else if (e.key.length === 1) {
       tel.totalCharactersTyped += 1;
     }
+
+    const durationMin =
+      tel.keystrokeTimestamps.length >= 2
+        ? (now - tel.keystrokeTimestamps[0]) / 60000
+        : 0;
+    const currentWpm =
+      durationMin > 0.02
+        ? Math.min(140, Math.round(tel.totalCharactersTyped / 5 / durationMin))
+        : 0;
+
+    setLiveTelemetry({
+      chars: tel.totalCharactersTyped,
+      wpm: currentWpm,
+      pauseSec: 0,
+      freezes: tel.cognitiveFreezes,
+      bursts: tel.backspaceBurstCount,
+    });
   };
 
   // -------------------------------------------------------------
@@ -590,9 +663,15 @@ export const DiagnosticAssessmentModal: React.FC = () => {
         ? Math.min(100, Math.round((tel.totalDeletions / tel.totalCharactersTyped) * 100))
         : 0;
 
+    const longestQIdx =
+      tel.longestPauseQuestionIndex >= 0 ? tel.longestPauseQuestionIndex : 0;
+    const longestQ = questionsList[longestQIdx] || questionsList[0];
+
     setTelemetryProfile({
       affectivePauseFlagged: tel.maxDwellSeconds >= 6,
       maxDwellSec: tel.maxDwellSeconds,
+      longestPauseQuestion: longestQIdx + 1,
+      longestPauseTopic: longestQ?.topic || 'Conceptual Evaluation',
       burstCount: tel.backspaceBurstCount,
       optionFlips: tel.optionFlips,
       avgIkiMs: avgIki,
@@ -606,6 +685,30 @@ export const DiagnosticAssessmentModal: React.FC = () => {
       ? submitEconomicsDiagnostic(answers)
       : submitDiagnostic(answers);
     setLocalSubmission(submission);
+
+    const studentUid = authUser?.uid || 'std-rohan';
+    syncStudentProgress(studentUid, isEconomics ? 'Economics' : 'Chemistry', {
+      recentScore: submission.score,
+      strugglingTopic:
+        submission.missedQuestions.length > 0
+          ? submission.missedQuestions[0].topic
+          : 'All Concepts Mastered',
+      hesitationLevel:
+        tel.maxDwellSeconds >= 6 ? 'high' : tel.maxDwellSeconds >= 3 ? 'moderate' : 'low',
+      telemetry: {
+        maxDwellSec: tel.maxDwellSeconds,
+        longestPauseQuestion: longestQIdx + 1,
+        longestPauseTopic: longestQ?.topic || 'Conceptual Evaluation',
+        wpm: calculatedWpm,
+        avgIkiMs: avgIki,
+        burstCount: tel.backspaceBurstCount,
+        erasureRatio: calculatedErasureRatio,
+        cognitiveFreezes: tel.cognitiveFreezes,
+        totalKeystrokes: tel.keystrokeTimestamps.length,
+        optionFlips: tel.optionFlips,
+        solvedViaStealthCount: Object.keys(solvedViaStealth).length,
+      },
+    });
   };
 
   const handleGoToPersonalizedPlatform = () => {
@@ -621,6 +724,8 @@ export const DiagnosticAssessmentModal: React.FC = () => {
     telemetryRef.current = {
       idleSeconds: 0,
       maxDwellSeconds: 0,
+      longestPauseQuestionIndex: 0,
+      questionDwellSeconds: {},
       questionStartTimes: { 0: Date.now() },
       firstInteractionTimes: {},
       backspaceBurstCount: 0,
@@ -634,6 +739,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
       lastSelectedOption: null,
       hesitationFlagged: false,
     };
+    setLiveTelemetry({ chars: 0, wpm: 0, pauseSec: 0, freezes: 0, bursts: 0 });
     setAnswers({});
     setSolvedViaStealth({});
     setCurrentIndex(0);
@@ -665,10 +771,10 @@ export const DiagnosticAssessmentModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="relative w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="relative w-full max-w-3xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh] transition-colors">
         
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between shrink-0">
+        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div
               className={`w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0 ${
@@ -678,10 +784,10 @@ export const DiagnosticAssessmentModal: React.FC = () => {
               <IconSparkles className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-slate-900">
+              <h2 className="text-sm font-bold text-slate-900 dark:text-white">
                 {isEconomics ? 'Economics Diagnostic Assessment' : 'Chemistry Diagnostic Assessment Engine'}
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 {isEconomics
                   ? '10 Microeconomics Questions · Scarcity, Opportunity Cost & Demand-Supply'
                   : '10 Core Diagnostic Questions · Stoichiometry, Moles & Atomic Structure'}
@@ -691,8 +797,8 @@ export const DiagnosticAssessmentModal: React.FC = () => {
 
           <div className="flex items-center gap-4">
             {/* Gamification ON/OFF Toggle */}
-            <div className="flex items-center gap-2 bg-white px-2.5 py-1 rounded-md border border-slate-200 shadow-xs">
-              <span className="text-[11px] font-semibold text-slate-600">Gamification:</span>
+            <div className="flex items-center gap-2 bg-white dark:bg-slate-800 px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-700 shadow-xs">
+              <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">Gamification:</span>
               <button
                 onClick={() => setGamificationEnabled(!gamificationEnabled)}
                 className={`px-2 py-0.5 text-[10px] font-mono font-bold rounded-md transition-all cursor-pointer ${
@@ -700,7 +806,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                     ? isEconomics
                       ? 'bg-emerald-600 text-white'
                       : 'bg-indigo-600 text-white'
-                    : 'bg-slate-200 text-slate-600'
+                    : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
                 }`}
                 title="Toggle gamification elements (points, streaks, energy cells)"
               >
@@ -710,7 +816,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
 
             <button
               onClick={() => setIsDiagnosticOpen(false)}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <IconX className="w-5 h-5" />
             </button>
@@ -769,13 +875,13 @@ export const DiagnosticAssessmentModal: React.FC = () => {
           {!localSubmission ? (
             <div>
               {/* Stepper Progress Bar */}
-              <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
+              <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-2">
                 <span>
                   Question {currentIndex + 1} of {questionsList.length}
                 </span>
                 <span
                   className={`font-mono font-semibold ${
-                    isEconomics ? 'text-emerald-700' : 'text-indigo-700'
+                    isEconomics ? 'text-emerald-700 dark:text-emerald-400' : 'text-indigo-700 dark:text-indigo-400'
                   }`}
                 >
                   Topic: {currentQ.topic}
@@ -783,7 +889,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
               </div>
 
               {/* Progress bar */}
-              <div className="w-full h-2 bg-slate-100 rounded-md overflow-hidden mb-4">
+              <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-md overflow-hidden mb-4">
                 <div
                   className={`h-full transition-all duration-300 ${
                     isEconomics ? 'bg-emerald-600' : 'bg-indigo-600'
@@ -795,13 +901,13 @@ export const DiagnosticAssessmentModal: React.FC = () => {
               </div>
 
               {/* Mode Switcher: Standard Quiz vs Stealth Interactive Mode */}
-              <div className="flex items-center justify-between gap-2 p-1.5 bg-slate-100 rounded-xl mb-5">
+              <div className="flex items-center justify-between gap-2 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl mb-5">
                 <button
                   onClick={() => setStealthModeActive(false)}
                   className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                     !stealthModeActive
-                      ? 'bg-white text-slate-900 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
                   Standard Assessment Question
@@ -813,7 +919,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                       ? isEconomics
                         ? 'bg-emerald-700 text-white shadow-xs'
                         : 'bg-indigo-600 text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
                   <IconAtom className="w-3.5 h-3.5" />
@@ -826,20 +932,20 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                 <div>
                   <div className="space-y-4 mb-6">
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                         {currentQ.questionType === 'multiple_choice'
                           ? 'Multiple Choice'
                           : 'Short Text Response'}
                       </span>
                       {solvedViaStealth[currentIndex] && (
-                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1">
-                          <Check className="w-3 h-3 text-emerald-600" />
+                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                          <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                           <span>Solved via {solvedViaStealth[currentIndex]}</span>
                         </span>
                       )}
                     </div>
 
-                    <h3 className="text-base font-bold text-slate-900 leading-relaxed">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white leading-relaxed">
                       {currentQ.prompt}
                     </h3>
 
@@ -913,9 +1019,23 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                       <label className="font-semibold text-slate-700 dark:text-slate-300">
                         Scratchpad & Step Working (Optional):
                       </label>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        Cadence & Hesitation Telemetry Active
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        {liveTelemetry.chars > 0 && (
+                          <span className="text-[10px] font-mono font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-200 dark:border-indigo-800 px-2 py-0.5 rounded-md">
+                            {liveTelemetry.chars} keys · {liveTelemetry.wpm} WPM
+                          </span>
+                        )}
+                        {liveTelemetry.pauseSec >= 2 ? (
+                          <span className="text-[10px] font-mono font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-800 px-2 py-0.5 rounded-md flex items-center gap-1 animate-pulse">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" />
+                            <span>Paused: {liveTelemetry.pauseSec}s</span>
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-slate-400 font-mono">
+                            Live Keystroke & Pause Telemetry Active
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <textarea
                       rows={2}
@@ -1916,7 +2036,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                           </p>
                           <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
                             <span>Detected Key Concepts:</span>
-                            {(voiceAnalysisResult.detectedKeywords || []).map((kw, i) => (
+                            {voiceAnalysisResult.detectedKeywords.map((kw, i) => (
                               <span key={i} className="px-1.5 py-0.5 rounded bg-slate-700 text-indigo-200 font-mono">
                                 {kw}
                               </span>
@@ -2110,15 +2230,13 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                   {/* Card 1: Affective Latency */}
                   <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-1.5">
                     <span className="text-[10px] text-slate-400 uppercase tracking-wider font-mono block">
-                      Affective Latency Index
+                      Affective Latency & Hesitation
                     </span>
-                    <span className="font-bold text-slate-100 block">
-                      {telemetryProfile.affectivePauseFlagged ? 'Dwell Pause Flagged' : 'Fluid Cognitive Pace'}
+                    <span className="font-bold text-slate-100 block text-sm">
+                      Longest Pause: {telemetryProfile.maxDwellSec}s
                     </span>
-                    <p className="text-[11px] text-slate-400 leading-relaxed">
-                      {telemetryProfile.affectivePauseFlagged
-                        ? 'Observed initial reading pause (>6s) on multi-step stems; no off-task distraction.'
-                        : 'Consistent dwell latency across all conceptual stems with zero freeze paralysis.'}
+                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                      You paused for <strong className="text-amber-300 font-bold">{telemetryProfile.maxDwellSec} seconds</strong> on Question {telemetryProfile.longestPauseQuestion} ({telemetryProfile.longestPauseTopic}) before deciding on an answer. {telemetryProfile.affectivePauseFlagged ? 'Observed initial reading hesitation (>6s threshold); flagged for teacher diagnostic review.' : 'Consistent dwell pace maintained across all conceptual stems.'}
                     </p>
                   </div>
 
@@ -2134,13 +2252,13 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                         </span>
                       )}
                     </div>
-                    <span className="font-bold text-slate-100 block">
+                    <span className="font-bold text-slate-100 block text-sm">
                       Avg IKI: {telemetryProfile.avgIkiMs} ms
                     </span>
-                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                    <p className="text-[11px] text-slate-300 leading-relaxed">
                       {telemetryProfile.totalKeystrokes > 0
-                        ? `Logged ${telemetryProfile.totalKeystrokes} keystrokes with rhythmic inter-keystroke interval tracking.`
-                        : 'Smooth multiple choice selections with instantaneous option locking.'}
+                        ? `Logged ${telemetryProfile.totalKeystrokes} keystrokes with rhythmic inter-keystroke interval tracking. Measured deliberate input cadence.`
+                        : 'Quick multiple-choice selections logged with instantaneous option confirmation.'}
                     </p>
                   </div>
 
@@ -2156,14 +2274,18 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                         </span>
                       )}
                     </div>
-                    <span className="font-bold text-slate-100 block">
-                      {telemetryProfile.optionFlips > 1 || telemetryProfile.burstCount > 0
-                        ? 'Second-Guessing Detected'
-                        : 'High Answer Certainty'}
-                    </span>
-                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                    <span className="font-bold text-slate-100 block text-sm">
                       {telemetryProfile.burstCount > 0
-                        ? `${telemetryProfile.burstCount} rapid erasure clusters detected before locking final answers.`
+                        ? `${telemetryProfile.burstCount} Revision Bursts`
+                        : telemetryProfile.optionFlips > 1
+                        ? `${telemetryProfile.optionFlips} Option Flips`
+                        : 'High Certainty'}
+                    </span>
+                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                      {telemetryProfile.burstCount > 0
+                        ? `Detected ${telemetryProfile.burstCount} rapid erasure clusters (>3 backspaces in 1.2s), indicating answer re-formulation.`
+                        : telemetryProfile.optionFlips > 1
+                        ? `Switched options ${telemetryProfile.optionFlips} times before confirming, reflecting second-guessing.`
                         : 'Minimal backspace friction and decisive answer confirmation.'}
                     </p>
                   </div>
@@ -2173,14 +2295,16 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                     <span className="text-[10px] text-slate-400 uppercase tracking-wider font-mono block">
                       Cognitive Freeze & Solves
                     </span>
-                    <span className="font-bold text-slate-100 block">
+                    <span className="font-bold text-slate-100 block text-sm">
                       {telemetryProfile.cognitiveFreezes > 0
-                        ? `${telemetryProfile.cognitiveFreezes} Mid-Thought Pauses`
+                        ? `${telemetryProfile.cognitiveFreezes} Mid-Thought Halts`
                         : 'Continuous Flow'}
                     </span>
-                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                    <p className="text-[11px] text-slate-300 leading-relaxed">
                       {Object.keys(solvedViaStealth).length > 0
-                        ? `${Object.keys(solvedViaStealth).length} questions verified via interactive tactile sandboxes.`
+                        ? `Verified ${Object.keys(solvedViaStealth).length} concepts via interactive tactile sandboxes.`
+                        : telemetryProfile.cognitiveFreezes > 0
+                        ? `Stalled mid-sentence ${telemetryProfile.cognitiveFreezes} times (>1.8s gap) while formulating reasoning.`
                         : 'Direct conceptual derivations with no working memory stalls.'}
                     </p>
                   </div>
@@ -2190,56 +2314,56 @@ export const DiagnosticAssessmentModal: React.FC = () => {
               {/* Mistake & Error Breakdown */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
                     Diagnostic Error Analysis & Conceptual Traps:
                   </h4>
-                  <span className="text-xs font-mono text-slate-500">
-                    {(localSubmission?.missedQuestions || []).length} Concepts Routed to Personalized Study
+                  <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
+                    {localSubmission.missedQuestions.length} Concepts Routed to Personalized Study
                   </span>
                 </div>
 
-                {(localSubmission?.missedQuestions || []).length === 0 ? (
-                  <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold flex items-center gap-2">
-                    <IconCheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
+                {localSubmission.missedQuestions.length === 0 ? (
+                  <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 text-xs font-semibold flex items-center gap-2">
+                    <IconCheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>Flawless setup! All 10 diagnostic questions answered accurately with zero traps.</span>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {(localSubmission?.missedQuestions || []).map((missed, i) => (
+                    {localSubmission.missedQuestions.map((missed, i) => (
                       <div
                         key={i}
-                        className="p-4 rounded-xl border border-rose-200 bg-rose-50/50 space-y-2 text-xs"
+                        className="p-4 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/50 dark:bg-rose-950/30 space-y-2 text-xs"
                       >
-                        <div className="flex items-center justify-between text-rose-900 font-bold">
+                        <div className="flex items-center justify-between text-rose-900 dark:text-rose-300 font-bold">
                           <span>
                             Question {missed.questionNumber}: {missed.topic}
                           </span>
-                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-300">
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-900/60 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800">
                             Deep Conceptual Void
                           </span>
                         </div>
 
-                        <div className="p-2.5 rounded-lg bg-white border border-rose-100 space-y-1">
-                          <div>
+                        <div className="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-rose-100 dark:border-rose-900/40 space-y-1">
+                          <div className="text-slate-800 dark:text-slate-200">
                             Your Answer:{' '}
-                            <span className="text-rose-700 font-semibold line-through">
+                            <span className="text-rose-700 dark:text-rose-400 font-semibold line-through">
                               {missed.studentAnswer}
                             </span>
                           </div>
-                          <div>
+                          <div className="text-slate-800 dark:text-slate-200">
                             Correct Answer:{' '}
-                            <span className="text-emerald-700 font-semibold">
+                            <span className="text-emerald-700 dark:text-emerald-400 font-semibold">
                               {missed.correctAnswer}
                             </span>
                           </div>
                         </div>
 
-                        <div className="text-rose-950 font-medium">
+                        <div className="text-rose-950 dark:text-rose-200 font-medium">
                           <strong>Trap Identified: </strong>
                           {missed.trapIdentified}
                         </div>
 
-                        <div className="p-2.5 rounded-md bg-indigo-50 border border-indigo-100 text-indigo-950">
+                        <div className="p-2.5 rounded-md bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-900 text-indigo-950 dark:text-indigo-200">
                           <strong>Correction: </strong>
                           {missed.explanation}
                         </div>
@@ -2253,13 +2377,13 @@ export const DiagnosticAssessmentModal: React.FC = () => {
         </div>
 
         {/* Modal Bottom Controls */}
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0">
+        <div className="px-6 py-4 bg-slate-50 dark:bg-slate-950/80 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
           {!localSubmission ? (
             <>
               <button
                 onClick={handlePrev}
                 disabled={currentIndex === 0}
-                className="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer btn-tactile"
+                className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer btn-tactile"
               >
                 Previous
               </button>
@@ -2282,11 +2406,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                   <button
                     onClick={handleSubmit}
                     disabled={!isCurrentAnswered()}
-                    className={`px-5 py-2 text-xs font-bold text-white rounded-lg shadow-xs transition-all flex items-center gap-1.5 cursor-pointer btn-tactile disabled:bg-slate-300 ${
-                      isEconomics
-                        ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800'
-                        : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'
-                    }`}
+                    className={`px-5 py-2 text-xs font-bold text-white rounded-lg shadow-xs transition-all flex items-center gap-1.5 cursor-pointer btn-tactile disabled:bg-slate-300 dark:disabled:bg-slate-800`}
                   >
                     <span>Submit & Analyze Diagnostic</span>
                     <IconCheckCircle className="w-4 h-4" />
@@ -2298,7 +2418,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
             <>
               <button
                 onClick={handleRetake}
-                className="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 active:bg-slate-200 transition-all cursor-pointer btn-tactile"
+                className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 active:bg-slate-200 transition-all cursor-pointer btn-tactile"
               >
                 Retake Diagnostic
               </button>

@@ -2,9 +2,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { OpportunityItem, StudentPerformanceContext } from '../../types/opportunities';
 import {
-  fetchCuratedChemistryOpportunities as fetchCuratedOpportunities,
+  fetchCuratedOpportunities,
   getDynamicSearchQuery,
-} from '../../services/chemistryOpportunitiesService';
+} from '../../services/opportunitiesGeminiService';
 import {
   Compass,
   Calendar,
@@ -47,7 +47,7 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
     const score = diagnosticSubmission?.score ?? 10; // Default to 10 if not taken or if 10/10
     const totalQuestions = diagnosticSubmission?.total ?? 10;
     const isPerfect = diagnosticSubmission?.generatedLearningPlan?.isPerfectScore ?? (score === 10);
-    const weakTopics = (diagnosticSubmission?.missedQuestions || []).map((m) => m.topic);
+    const weakTopics = diagnosticSubmission?.missedQuestions.map((m) => m.topic) || [];
     const focusTopic =
       currentFocusTitle ||
       diagnosticSubmission?.generatedLearningPlan?.priorityArea ||
@@ -170,7 +170,7 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
             onClick={loadOpportunities}
             disabled={isLoading}
             className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 hover:text-indigo-600 transition-colors cursor-pointer disabled:opacity-50"
-            title="Recalibrate recommendations using Outstand AI"
+            title="Recalibrate recommendations using Gemini AI"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-indigo-600' : ''}`} />
           </button>
@@ -225,30 +225,24 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
               <div
                 key={item.id}
                 onClick={() => setSelectedOpportunity(item)}
-                className="p-6 sm:p-7 rounded-2xl bg-white border border-slate-200 hover:border-indigo-300 card-hover hover:shadow-md transition-all flex flex-col justify-between space-y-4 cursor-pointer group"
+                className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-600 card-hover hover:shadow-md transition-all flex flex-col justify-between space-y-4 cursor-pointer group"
               >
-                {/* Top Row: Verified & Tier on Left, 5 Star Rating on Right */}
+                {/* Top Row: Clean Category Scope on Left, 5 Star Rating on Right */}
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex flex-wrap items-center gap-1.5">
-                    {(item.isVerified || item.categoryTags?.some((t) => t.toLowerCase() === 'verified')) && (
-                      <span className="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-semibold flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                        <span>Verified</span>
-                      </span>
-                    )}
-                    {item.tier && (
-                      <span
-                        className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${
-                          item.tier === 'elite'
-                            ? 'bg-purple-50 text-purple-700 border-purple-200'
-                            : item.tier === 'standard'
-                            ? 'bg-blue-50 text-blue-700 border-blue-200'
-                            : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                        }`}
-                      >
-                        {item.tier}
-                      </span>
-                    )}
+                    {item.categoryTags
+                      ?.filter((tag) => !['verified', 'competition'].includes(tag.toLowerCase()))
+                      .map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-semibold border border-slate-200 dark:border-slate-700"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    <span className="px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-[10px] font-mono font-bold border border-indigo-200/80 dark:border-indigo-800/60 uppercase">
+                      {item.tier || 'Curated'}
+                    </span>
                   </div>
 
                   {/* 5-Star Rating */}
@@ -261,33 +255,33 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
 
                 {/* Title */}
                 <div>
-                  <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors leading-snug">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-snug">
                     {item.title}
                   </h3>
                 </div>
 
                 {/* Inset Description Blockquote */}
-                <div className="p-4 sm:p-5 rounded-xl bg-slate-50 border border-slate-200/80 text-slate-700 text-xs sm:text-sm leading-relaxed italic">
+                <div className="p-4 sm:p-5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 text-slate-700 dark:text-slate-300 text-xs sm:text-sm leading-relaxed italic">
                   "{item.summaryQuote}"
                 </div>
 
                 {/* Metadata Row: 4 Icons arranged in 2 columns */}
-                <div className="grid grid-cols-2 gap-y-2 gap-x-4 pt-1 text-xs text-slate-600 font-medium">
+                <div className="grid grid-cols-2 gap-y-2 gap-x-4 pt-1 text-xs text-slate-600 dark:text-slate-400 font-medium">
                   <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
-                    <span className="text-slate-800">{item.deadline}</span>
+                    <Calendar className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
+                    <span className="text-slate-800 dark:text-slate-200">{item.deadline}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 text-slate-400 shrink-0" />
-                    <span className="text-slate-800">{item.cost}</span>
+                    <DollarSign className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
+                    <span className="text-slate-800 dark:text-slate-200">{item.cost}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-slate-400 shrink-0" />
-                    <span className="text-slate-800">{item.effort}</span>
+                    <Zap className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
+                    <span className="text-slate-800 dark:text-slate-200">{item.effort}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-slate-400 shrink-0" />
-                    <span className="text-slate-800">{item.ageGroup}</span>
+                    <User className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
+                    <span className="text-slate-800 dark:text-slate-200">{item.ageGroup}</span>
                   </div>
                 </div>
 
@@ -310,10 +304,10 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
                       e.stopPropagation();
                       setSelectedOpportunity(item);
                     }}
-                    className="py-2.5 px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs border border-slate-200 flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0"
+                    className="py-2.5 px-3.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs border border-slate-200 dark:border-slate-700 flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0"
                     title="View Program Details & Evaluation"
                   >
-                    <Info className="w-3.5 h-3.5 text-slate-500" />
+                    <Info className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                     <span>Details</span>
                   </button>
                 </div>
@@ -333,23 +327,20 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-2">
                 <div className="flex flex-wrap items-center gap-1.5">
+                  {selectedOpportunity.categoryTags
+                    .filter((t) => t.toLowerCase() !== 'verified')
+                    .map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200"
+                      >
+                        {tag}
+                      </span>
+                    ))}
                   <span className="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-200 flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                     <span>Verified Program</span>
                   </span>
-                  {selectedOpportunity.tier && (
-                    <span
-                      className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${
-                        selectedOpportunity.tier === 'elite'
-                          ? 'bg-purple-50 text-purple-700 border-purple-200'
-                          : selectedOpportunity.tier === 'standard'
-                          ? 'bg-blue-50 text-blue-700 border-blue-200'
-                          : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                      }`}
-                    >
-                      {selectedOpportunity.tier}
-                    </span>
-                  )}
                 </div>
 
                 <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 leading-snug">

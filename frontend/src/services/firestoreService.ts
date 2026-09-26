@@ -22,6 +22,20 @@ export interface FirestoreUser {
   createdAt?: any;
 }
 
+export interface StudentTelemetryMetrics {
+  maxDwellSec?: number;
+  longestPauseQuestion?: number;
+  longestPauseTopic?: string;
+  wpm?: number;
+  avgIkiMs?: number;
+  burstCount?: number;
+  erasureRatio?: number;
+  cognitiveFreezes?: number;
+  totalKeystrokes?: number;
+  optionFlips?: number;
+  solvedViaStealthCount?: number;
+}
+
 export interface StudentProgressDoc {
   studentId: string;
   subject: 'Chemistry' | 'Economics';
@@ -31,6 +45,7 @@ export interface StudentProgressDoc {
   activeModality?: 'analogical' | 'visual' | 'tactile' | 'scaffolded';
   recoveryRate?: number;
   lastUpdated?: any;
+  telemetry?: StudentTelemetryMetrics;
 }
 
 export interface ChatMessage {
@@ -129,10 +144,21 @@ export function listenToStudentUsers(callback: (students: FirestoreUser[]) => vo
  */
 /**
  * Normalizes student identifiers to guarantee facilitator and student connect to the exact same thread.
+ * Both 'std-rohan', 'demo-std-demo', 'demo-student', etc. normalize to 'std-rohan'.
  */
 export function normalizeStudentChatId(studentUid: string): string {
-  if (!studentUid) return 'std-demo-student';
-  return studentUid.trim();
+  if (!studentUid) return 'std-rohan';
+  const cleaned = studentUid.trim();
+  if (
+    cleaned === 'demo-std-demo' ||
+    cleaned === 'std-rohan' ||
+    cleaned === 'demo-std-rohan' ||
+    cleaned === 'demo-student' ||
+    cleaned === 'std-demo'
+  ) {
+    return 'std-rohan';
+  }
+  return cleaned;
 }
 
 /**
@@ -147,6 +173,7 @@ export async function syncStudentProgress(
     hesitationLevel: 'low' | 'moderate' | 'high';
     activeModality?: 'analogical' | 'visual' | 'tactile' | 'scaffolded';
     recoveryRate?: number;
+    telemetry?: StudentTelemetryMetrics;
   }
 ): Promise<void> {
   if (!studentUid) return;
@@ -165,6 +192,7 @@ export async function syncStudentProgress(
         hesitationLevel: metrics.hesitationLevel || 'low',
         activeModality: metrics.activeModality,
         recoveryRate: metrics.recoveryRate,
+        telemetry: metrics.telemetry,
         lastUpdated: new Date().toISOString(),
       })
     );
@@ -190,7 +218,8 @@ export async function syncStudentProgress(
         strugglingTopic: metrics.strugglingTopic || 'None',
         hesitationLevel: metrics.hesitationLevel || 'low',
         activeModality: metrics.activeModality || null,
-        recoveryRate: metrics.recoveryRate || null,
+        recoveryRate: metrics.recoveryRate !== undefined ? metrics.recoveryRate : null,
+        telemetry: metrics.telemetry || null,
         lastUpdated: serverTimestamp(),
       },
       { merge: true }
@@ -218,6 +247,8 @@ export function listenToSubjectProgress(
             const data = JSON.parse(raw);
             if (data.studentId) {
               map[data.studentId] = data;
+              map['std-rohan'] = data;
+              map['demo-std-demo'] = data;
             }
           }
         }

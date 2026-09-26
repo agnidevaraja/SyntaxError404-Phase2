@@ -71,10 +71,10 @@ export const PERSONALIZED_FOCUS_PACKAGES: Record<string, FocusAreaPackage> = {
     formulaSnippet: 'Average Atomic Mass = (f₁ × m₁) + (f₂ × m₂) + ...   |   Neutrons (N) = Mass Number (A) - Atomic Number (Z)',
     videoLesson: {
       title: 'How To Calculate Average Atomic Mass & Isotope Percentages',
-      youtubeId: '7UEe_q0YFjQ',
+      youtubeId: 'ULr76-r3m28',
       duration: '10:48',
-      instructor: 'Tyler DeWitt',
-      channel: 'Tyler DeWitt Chemistry',
+      instructor: 'Sal Khan',
+      channel: 'Khan Academy Chemistry',
       description: 'Master fractional abundance weighting, distinguishing mass numbers from atomic numbers, and calculating subatomic particles with clear step-by-step examples.',
       keyTimestamps: [
         { time: '0:00', label: 'What is an Isotope?' },
@@ -651,10 +651,10 @@ export const PERSONALIZED_FOCUS_PACKAGES: Record<string, FocusAreaPackage> = {
     formulaSnippet: '[ P + (a·n² / V²) ] · (V - n·b) = n·R·T   |   Compressibility Factor Z = (P·V) / (n·R·T)',
     videoLesson: {
       title: 'Van der Waals Equation & Real Gases vs Ideal Gases',
-      youtubeId: 'GIPrsVuYtQc',
+      youtubeId: 'jPjCgY3c-d8',
       duration: '12:20',
-      instructor: 'The Organic Chemistry Tutor',
-      channel: 'The Organic Chemistry Tutor',
+      instructor: 'Sal Khan',
+      channel: 'Khan Academy Chemistry',
       description: 'Explore deviations from ideal gas behavior, real molecular volumes, intermolecular forces, and solving the Van der Waals equation for Olympiad competitions.',
       keyTimestamps: [
         { time: '0:00', label: 'Why Real Gases Deviate from PV=nRT' },

@@ -52,22 +52,26 @@ export const Navbar: React.FC = () => {
 
           {/* Contextual Navigation Breadcrumb */}
           {role === 'student' && (
-            <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 border-l border-slate-200 pl-4 py-1">
+            <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 border-l border-slate-200 dark:border-slate-800 pl-4 py-1">
               <button
                 onClick={() => setActiveView('student_hub')}
-                className={`px-2 py-1 rounded-md transition-colors cursor-pointer hover:bg-slate-100 ${
-                  activeView === 'student_hub' ? 'font-bold text-slate-900 bg-slate-100' : 'hover:text-slate-900'
+                className={`px-2 py-1 rounded-md transition-colors cursor-pointer ${
+                  activeView === 'student_hub'
+                    ? 'font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800'
+                    : 'hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 Student Hub
               </button>
               {(activeView === 'subject_chemistry' || activeView === 'personalized_learning') && (
                 <>
-                  <IconChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <IconChevronRight className="w-3.5 h-3.5 text-slate-400 dark:text-slate-600 shrink-0" />
                   <button
                     onClick={() => setActiveView('subject_chemistry')}
-                    className={`px-2 py-1 rounded-md transition-colors cursor-pointer hover:bg-slate-100 ${
-                      activeView === 'subject_chemistry' ? 'font-bold text-indigo-700 bg-indigo-50' : 'hover:text-slate-900'
+                    className={`px-2 py-1 rounded-md transition-colors cursor-pointer ${
+                      activeView === 'subject_chemistry'
+                        ? 'font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/60 dark:border-indigo-800'
+                        : 'hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                     }`}
                   >
                     Chemistry
@@ -76,8 +80,8 @@ export const Navbar: React.FC = () => {
               )}
               {activeView === 'personalized_learning' && (
                 <>
-                  <IconChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  <span className="font-bold text-indigo-700 bg-indigo-50 px-2 py-1 rounded-md">
+                  <IconChevronRight className="w-3.5 h-3.5 text-slate-400 dark:text-slate-600 shrink-0" />
+                  <span className="font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/60 dark:border-indigo-800 px-2 py-1 rounded-md">
                     Personalized Learning
                   </span>
                 </>
@@ -85,11 +89,13 @@ export const Navbar: React.FC = () => {
 
               {(activeView === 'subject_economics' || activeView === 'personalized_learning_economics') && (
                 <>
-                  <IconChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <IconChevronRight className="w-3.5 h-3.5 text-slate-400 dark:text-slate-600 shrink-0" />
                   <button
                     onClick={() => setActiveView('subject_economics')}
-                    className={`px-2 py-1 rounded-md transition-colors cursor-pointer hover:bg-slate-100 ${
-                      activeView === 'subject_economics' ? 'font-bold text-amber-700 bg-amber-50' : 'hover:text-slate-900'
+                    className={`px-2 py-1 rounded-md transition-colors cursor-pointer ${
+                      activeView === 'subject_economics'
+                        ? 'font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border border-amber-200/60 dark:border-amber-800'
+                        : 'hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                     }`}
                   >
                     Economics
@@ -98,8 +104,8 @@ export const Navbar: React.FC = () => {
               )}
               {activeView === 'personalized_learning_economics' && (
                 <>
-                  <IconChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  <span className="font-bold text-amber-700 bg-amber-50 px-2 py-1 rounded-md">
+                  <IconChevronRight className="w-3.5 h-3.5 text-slate-400 dark:text-slate-600 shrink-0" />
+                  <span className="font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border border-amber-200/60 dark:border-amber-800 px-2 py-1 rounded-md">
                     Personalized Learning
                   </span>
                 </>
@@ -108,15 +114,15 @@ export const Navbar: React.FC = () => {
           )}
 
           {role === 'facilitator' && (
-            <div className="hidden sm:flex items-center gap-2 text-xs text-slate-500 border-l border-slate-200 pl-4 py-1">
+            <div className="hidden sm:flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 border-l border-slate-200 dark:border-slate-800 pl-4 py-1">
               <button
                 onClick={() => setActiveView('facilitator_portal')}
-                className="font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded-md cursor-pointer hover:bg-slate-200"
+                className="font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700"
               >
                 Facilitator Portal
               </button>
-              <span aria-hidden="true" className="text-slate-300">·</span>
-              <span className="font-semibold text-slate-800 capitalize">
+              <span aria-hidden="true" className="text-slate-300 dark:text-slate-700">·</span>
+              <span className="font-semibold text-slate-800 dark:text-slate-200 capitalize">
                 {facilitatorSubject} Department
               </span>
               {canSwitchSubject && (
@@ -125,7 +131,7 @@ export const Navbar: React.FC = () => {
                     const nextSubj = facilitatorSubject === 'chemistry' ? 'economics' : 'chemistry';
                     setFacilitatorSubject(nextSubj);
                   }}
-                  className="ml-1 text-[11px] font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
+                  className="ml-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline cursor-pointer"
                 >
                   Switch to {facilitatorSubject === 'chemistry' ? 'Economics' : 'Chemistry'}
                 </button>
@@ -173,21 +179,21 @@ export const Navbar: React.FC = () => {
 
           {role !== 'guest' && activeView !== 'landing' ? (
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="flex items-center gap-2 text-xs text-slate-700 font-medium bg-slate-50 border border-slate-200/80 px-2.5 py-1.5 rounded-lg">
-                <div className="w-6 h-6 rounded-md bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-[10px] shrink-0">
+              <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-200 font-medium bg-slate-50 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 px-2.5 py-1.5 rounded-lg">
+                <div className="w-6 h-6 rounded-md bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-[10px] shrink-0">
                   {getInitials(displayName)}
                 </div>
-                <span className="font-semibold text-slate-800 truncate max-w-[110px] sm:max-w-none">
+                <span className="font-semibold text-slate-800 dark:text-white truncate max-w-[110px] sm:max-w-none">
                   {displayName}
                 </span>
-                <span className="text-[10px] uppercase font-bold text-slate-400 border-l border-slate-200 pl-2 shrink-0">
+                <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 border-l border-slate-200 dark:border-slate-700 pl-2 shrink-0">
                   {role === 'student' ? 'Student' : 'Facilitator'}
                 </span>
               </div>
 
               <button
                 onClick={logout}
-                className="px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 active:bg-rose-100 rounded-lg border border-rose-200 transition-all cursor-pointer btn-tactile flex items-center gap-1.5 shrink-0"
+                className="px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 active:bg-rose-100 rounded-lg border border-rose-200 dark:border-rose-900/60 transition-all cursor-pointer btn-tactile flex items-center gap-1.5 shrink-0"
                 title="Sign out of your session"
               >
                 <LogOut className="w-3.5 h-3.5 shrink-0" />
@@ -198,13 +204,13 @@ export const Navbar: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => openAuthModal('student')}
-                className="px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 rounded-lg border border-indigo-200 transition-all cursor-pointer btn-tactile"
+                className="px-3 py-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 hover:text-indigo-900 dark:hover:text-indigo-200 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 rounded-lg border border-indigo-200 dark:border-indigo-800 transition-all cursor-pointer btn-tactile"
               >
                 Student Sign In
               </button>
               <button
                 onClick={() => openAuthModal('facilitator')}
-                className="px-3 py-1.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-2xs transition-all cursor-pointer btn-tactile"
+                className="px-3 py-1.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-lg shadow-2xs transition-all cursor-pointer btn-tactile border border-slate-700"
               >
                 Facilitator Sign In
               </button>
