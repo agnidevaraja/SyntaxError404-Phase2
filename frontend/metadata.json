@@ -1,0 +1,6 @@
+{
+  "name": "Outstand — Adaptive Chemistry & Educator Triage",
+  "description": "Adaptive learning and educator triage platform engineered around high school chemistry with prerequisite knowledge graphs, isomorphic context re-theming, and clinical struggle velocity alerts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
