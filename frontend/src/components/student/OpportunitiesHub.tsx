@@ -6,7 +6,7 @@ import {
   getDynamicSearchQuery,
 } from '../../services/opportunitiesGeminiService';
 import {
-  Sparkles,
+  Compass,
   Calendar,
   Zap,
   DollarSign,
@@ -107,18 +107,18 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
   }, [opportunities, activeFilter]);
 
   return (
-    <section className={`bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6 ${className}`}>
+    <section className={`bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-xs space-y-6 transition-colors ${className}`}>
       
       {/* Hub Top Bar: Header, Personalization Badge, Filter Tabs & Refresh */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
         <div className="space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-md flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-              <span>AI-Powered Opportunities Hub</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-900 px-2.5 py-0.5 rounded-md flex items-center gap-1.5">
+              <Compass className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+              <span>Extracurricular Discovery Hub</span>
             </span>
-            <span className="text-xs text-slate-300">·</span>
-            <span className="text-xs text-slate-500 font-mono">
+            <span className="text-xs text-slate-300 dark:text-slate-700">·</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
               Profile: {performanceContext.studentName} ({performanceContext.diagnosticScore}/10 Mastery)
             </span>
           </div>
@@ -205,9 +205,9 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
       ) : filteredOpportunities.length === 0 ? (
         /* Empty Filter State */
         <div className="py-16 text-center space-y-3">
-          <Sparkles className="w-8 h-8 text-indigo-400 mx-auto" />
-          <h3 className="text-base font-bold text-slate-900">No Matching Opportunities Found</h3>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+          <Compass className="w-8 h-8 text-indigo-400 mx-auto" />
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">No Matching Opportunities Found</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
             Try switching filter tabs or click the refresh button to discover more verified opportunities.
           </p>
           <button

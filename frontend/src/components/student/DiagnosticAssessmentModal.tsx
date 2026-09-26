@@ -22,7 +22,7 @@ import {
   Brain,
   Check,
   RotateCcw,
-  Sparkles,
+  Award,
   ArrowRight,
 } from 'lucide-react';
 import { syncStudentProgress } from '../../services/firestoreService';
@@ -71,6 +71,9 @@ export const DiagnosticAssessmentModal: React.FC = () => {
     recentBackspaceTimestamps: number[];
     keystrokeTimestamps: number[];
     interKeystrokeIntervals: number[];
+    totalCharactersTyped: number;
+    totalDeletions: number;
+    cognitiveFreezes: number;
     optionFlips: number;
     lastSelectedOption: number | null;
     hesitationFlagged: boolean;
@@ -83,10 +86,16 @@ export const DiagnosticAssessmentModal: React.FC = () => {
     recentBackspaceTimestamps: [],
     keystrokeTimestamps: [],
     interKeystrokeIntervals: [],
+    totalCharactersTyped: 0,
+    totalDeletions: 0,
+    cognitiveFreezes: 0,
     optionFlips: 0,
     lastSelectedOption: null,
     hesitationFlagged: false,
   });
+
+  // Optional student scratchpad notes per question
+  const [scratchpadNotes, setScratchpadNotes] = useState<Record<number, string>>({});
 
   // Finalized behavioral metrics profile computed upon submission for results review
   const [telemetryProfile, setTelemetryProfile] = useState<{
@@ -96,6 +105,9 @@ export const DiagnosticAssessmentModal: React.FC = () => {
     optionFlips: number;
     avgIkiMs: number;
     totalKeystrokes: number;
+    wpm: number;
+    erasureRatio: number;
+    cognitiveFreezes: number;
   }>({
     affectivePauseFlagged: false,
     maxDwellSec: 0,
@@ -103,6 +115,9 @@ export const DiagnosticAssessmentModal: React.FC = () => {
     optionFlips: 0,
     avgIkiMs: 180,
     totalKeystrokes: 0,
+    wpm: 0,
+    erasureRatio: 0,
+    cognitiveFreezes: 0,
   });
 
   // Metacognitive Confidence Dial state
@@ -279,8 +294,8 @@ export const DiagnosticAssessmentModal: React.FC = () => {
     }));
   };
 
-  // High-performance keystroke listener (0ms overhead, tracks IKI and doubt backspace bursts without re-renders)
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  // High-performance keystroke listener (0ms overhead, tracks IKI, WPM velocity, deletions, and freeze pauses)
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const now = Date.now();
     const tel = telemetryRef.current;
     tel.idleSeconds = 0;
@@ -293,15 +308,22 @@ export const DiagnosticAssessmentModal: React.FC = () => {
       const lastKeyTime = tel.keystrokeTimestamps[tel.keystrokeTimestamps.length - 1];
       const iki = now - lastKeyTime;
       tel.interKeystrokeIntervals.push(iki);
+      // Detect mid-sentence cognitive freeze (>1800ms gap during active typing)
+      if (iki > 1800) {
+        tel.cognitiveFreezes += 1;
+      }
     }
     tel.keystrokeTimestamps.push(now);
 
-    if (e.key === 'Backspace') {
+    if (e.key === 'Backspace' || e.key === 'Delete') {
+      tel.totalDeletions += 1;
       tel.recentBackspaceTimestamps.push(now);
       tel.recentBackspaceTimestamps = tel.recentBackspaceTimestamps.filter((t) => now - t <= 1200);
       if (tel.recentBackspaceTimestamps.length >= 3) {
         tel.backspaceBurstCount += 1;
       }
+    } else if (e.key.length === 1) {
+      tel.totalCharactersTyped += 1;
     }
   };
 
@@ -551,6 +573,23 @@ export const DiagnosticAssessmentModal: React.FC = () => {
         ? Math.round(ikiTotal / tel.interKeystrokeIntervals.length)
         : 180;
 
+    let calculatedWpm = 0;
+    if (tel.keystrokeTimestamps.length >= 2) {
+      const durationMin =
+        (tel.keystrokeTimestamps[tel.keystrokeTimestamps.length - 1] -
+          tel.keystrokeTimestamps[0]) /
+        60000;
+      if (durationMin > 0.05) {
+        const words = tel.totalCharactersTyped / 5;
+        calculatedWpm = Math.min(140, Math.round(words / durationMin));
+      }
+    }
+
+    const calculatedErasureRatio =
+      tel.totalCharactersTyped > 0
+        ? Math.min(100, Math.round((tel.totalDeletions / tel.totalCharactersTyped) * 100))
+        : 0;
+
     setTelemetryProfile({
       affectivePauseFlagged: tel.maxDwellSeconds >= 6,
       maxDwellSec: tel.maxDwellSeconds,
@@ -558,6 +597,9 @@ export const DiagnosticAssessmentModal: React.FC = () => {
       optionFlips: tel.optionFlips,
       avgIkiMs: avgIki,
       totalKeystrokes: tel.keystrokeTimestamps.length,
+      wpm: calculatedWpm,
+      erasureRatio: calculatedErasureRatio,
+      cognitiveFreezes: tel.cognitiveFreezes,
     });
 
     const submission = isEconomics
@@ -585,6 +627,9 @@ export const DiagnosticAssessmentModal: React.FC = () => {
       recentBackspaceTimestamps: [],
       keystrokeTimestamps: [],
       interKeystrokeIntervals: [],
+      totalCharactersTyped: 0,
+      totalDeletions: 0,
+      cognitiveFreezes: 0,
       optionFlips: 0,
       lastSelectedOption: null,
       hesitationFlagged: false,
@@ -698,7 +743,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
               </div>
               {solvedViaStealth[currentIndex] && (
                 <span className="text-[11px] font-bold text-amber-300 flex items-center gap-1 bg-amber-950/60 border border-amber-700/60 px-2 py-0.5 rounded-md">
-                  <Sparkles className="w-3 h-3" />
+                  <Award className="w-3 h-3" />
                   <span>Stealth Solved: {solvedViaStealth[currentIndex]}</span>
                 </span>
               )}
@@ -861,6 +906,30 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                       </p>
                     </div>
                   )}
+
+                  {/* Telemetrized Calculation & Reasoning Scratchpad */}
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-1.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <label className="font-semibold text-slate-700 dark:text-slate-300">
+                        Scratchpad & Step Working (Optional):
+                      </label>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        Cadence & Hesitation Telemetry Active
+                      </span>
+                    </div>
+                    <textarea
+                      rows={2}
+                      value={scratchpadNotes[currentIndex] || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setScratchpadNotes((prev) => ({ ...prev, [currentIndex]: val }));
+                        telemetryRef.current.idleSeconds = 0;
+                      }}
+                      onKeyDown={handleKeyDown}
+                      placeholder="Jot down formulas, molar ratios, or deduction steps here..."
+                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 focus:border-indigo-600 dark:focus:border-indigo-400 focus:bg-white dark:focus:bg-slate-900 rounded-xl text-xs text-slate-900 dark:text-slate-100 font-mono transition-all outline-none resize-none"
+                    />
+                  </div>
                 </div>
               ) : (
                 /* STEALTH INTERACTIVE MODE (4 Modalities) */
@@ -2037,46 +2106,82 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                  {/* Card 1: Affective Latency */}
                   <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-1.5">
                     <span className="text-[10px] text-slate-400 uppercase tracking-wider font-mono block">
                       Affective Latency Index
                     </span>
                     <span className="font-bold text-slate-100 block">
-                      {telemetryProfile.affectivePauseFlagged ? 'Cognitive Dwell Pause Flagged' : 'Fluid Cognitive Pace'}
+                      {telemetryProfile.affectivePauseFlagged ? 'Dwell Pause Flagged' : 'Fluid Cognitive Pace'}
                     </span>
                     <p className="text-[11px] text-slate-400 leading-relaxed">
                       {telemetryProfile.affectivePauseFlagged
-                        ? 'Observed initial reading pause (>6s) on multi-step concepts; no off-task distraction.'
+                        ? 'Observed initial reading pause (>6s) on multi-step stems; no off-task distraction.'
                         : 'Consistent dwell latency across all conceptual stems with zero freeze paralysis.'}
                     </p>
                   </div>
 
+                  {/* Card 2: Typing Velocity & Cadence */}
                   <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-1.5">
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-mono block">
-                      Doubt Velocity & Revision
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider font-mono block">
+                        Typing Velocity & Cadence
+                      </span>
+                      {telemetryProfile.wpm > 0 && (
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800 font-bold">
+                          {telemetryProfile.wpm} WPM
+                        </span>
+                      )}
+                    </div>
                     <span className="font-bold text-slate-100 block">
-                      {telemetryProfile.optionFlips > 1 || telemetryProfile.burstCount > 0
-                        ? 'Imposter Second-Guessing Noted'
-                        : 'High Answer Certainty'}
+                      Avg IKI: {telemetryProfile.avgIkiMs} ms
                     </span>
                     <p className="text-[11px] text-slate-400 leading-relaxed">
-                      {telemetryProfile.optionFlips > 1 || telemetryProfile.burstCount > 0
-                        ? 'Initial intuitive reasoning was correct; confidence reassurance prompt delivered.'
-                        : 'Clean direct responses with minimal backspace friction or option oscillation.'}
+                      {telemetryProfile.totalKeystrokes > 0
+                        ? `Logged ${telemetryProfile.totalKeystrokes} keystrokes with rhythmic inter-keystroke interval tracking.`
+                        : 'Smooth multiple choice selections with instantaneous option locking.'}
                     </p>
                   </div>
 
+                  {/* Card 3: Doubt Velocity & Revision Ratio */}
                   <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-1.5">
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-mono block">
-                      Stealth Modality Solves
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider font-mono block">
+                        Doubt Velocity & Revision
+                      </span>
+                      {telemetryProfile.erasureRatio > 0 && (
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 font-bold">
+                          {telemetryProfile.erasureRatio}% Erased
+                        </span>
+                      )}
+                    </div>
                     <span className="font-bold text-slate-100 block">
-                      {Object.keys(solvedViaStealth).length} Questions Solved via Sandbox
+                      {telemetryProfile.optionFlips > 1 || telemetryProfile.burstCount > 0
+                        ? 'Second-Guessing Detected'
+                        : 'High Answer Certainty'}
                     </span>
                     <p className="text-[11px] text-slate-400 leading-relaxed">
-                      Tactile models and Socratic voice probes converted abstract reasoning into verified solutions.
+                      {telemetryProfile.burstCount > 0
+                        ? `${telemetryProfile.burstCount} rapid erasure clusters detected before locking final answers.`
+                        : 'Minimal backspace friction and decisive answer confirmation.'}
+                    </p>
+                  </div>
+
+                  {/* Card 4: Cognitive Freeze & Stealth Solves */}
+                  <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-1.5">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-mono block">
+                      Cognitive Freeze & Solves
+                    </span>
+                    <span className="font-bold text-slate-100 block">
+                      {telemetryProfile.cognitiveFreezes > 0
+                        ? `${telemetryProfile.cognitiveFreezes} Mid-Thought Pauses`
+                        : 'Continuous Flow'}
+                    </span>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      {Object.keys(solvedViaStealth).length > 0
+                        ? `${Object.keys(solvedViaStealth).length} questions verified via interactive tactile sandboxes.`
+                        : 'Direct conceptual derivations with no working memory stalls.'}
                     </p>
                   </div>
                 </div>

@@ -166,28 +166,24 @@ export const AuthModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[94vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[94vh] transition-colors">
         
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
-              <IconAtom className="w-5 h-5" />
+        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 flex items-center justify-between shrink-0">
+          <div className="flex flex-col">
+            <div className="text-xl font-black tracking-tight select-none font-sans">
+              <span className="text-indigo-600 dark:text-indigo-400">O</span>
+              <span className="text-slate-900 dark:text-white">utstand</span>
             </div>
-            <div>
-              <h2 className="text-base font-bold text-slate-900 leading-snug">
-                Sign In to Outstand
-              </h2>
-              <p className="text-xs text-slate-500">
-                Personalized Adaptive Learning Portal
-              </p>
-            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Personalized Adaptive Learning Portal
+            </p>
           </div>
 
           <button
             onClick={() => setIsAuthModalOpen(false)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <IconX className="w-5 h-5" />
           </button>
