@@ -328,7 +328,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     // 1.C: Sync live student progress and telemetry to Firestore
-    const currentStudentUid = authUser?.uid || 'demo-std-demo';
+    const currentStudentUid = authUser?.uid || 'std-rohan';
     const topStruggle = missedQuestions[0]?.topic || priorityArea;
     const calcHesitation: 'low' | 'moderate' | 'high' =
       score >= 8 ? 'low' : score >= 5 ? 'moderate' : 'high';
@@ -524,7 +524,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     // 1.C: Sync live student progress and telemetry to Firestore (Economics)
-    const currentStudentUid = authUser?.uid || 'demo-std-demo';
+    const currentStudentUid = authUser?.uid || 'std-rohan';
     const topEconStruggle = missedQuestions[0]?.topic || priorityArea;
     const calcEconHesitation: 'low' | 'moderate' | 'high' =
       score >= 8 ? 'low' : score >= 5 ? 'moderate' : 'high';
@@ -692,7 +692,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const displayName = 'Demo Student';
       const email = 'student@outstand.edu';
       const profile: AuthUser = {
-        uid: 'demo-std-demo',
+        uid: 'std-rohan',
         email,
         displayName,
         role: 'student',

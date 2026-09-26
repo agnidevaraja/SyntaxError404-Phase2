@@ -19,7 +19,7 @@ import {
 import { DollarSign, Award, CheckCircle2, Lock, Lightbulb, MessageSquare } from 'lucide-react';
 import { OpportunitiesHubEconomics } from './OpportunitiesHubEconomics';
 import { RealLifeAnalogyExplorer } from './RealLifeAnalogyExplorer';
-import { FocusAreaPackage } from '../../data/personalizedResourcesData';
+import { EconomicsFocusAreaPackage } from '../../data/mockEconomicsData';
 import { AdaptiveConceptExplainerModal } from './AdaptiveConceptExplainerModal';
 import { PersonalizedChatView } from '../common/PersonalizedChatView';
 import { syncStudentProgress } from '../../services/firestoreService';
@@ -69,7 +69,7 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
     }
   }, [economicsDiagnosticSubmission]);
 
-  const priorityPackages: FocusAreaPackage[] = useMemo(() => {
+  const priorityPackages: EconomicsFocusAreaPackage[] = useMemo(() => {
     if (!economicsDiagnosticSubmission) {
       return [
         ECONOMICS_FOCUS_PACKAGES['econ_scarcity'],
@@ -87,7 +87,7 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
         const node = ECONOMICS_CONCEPT_NODES.find((n) => n.unitId === uid);
         return node ? ECONOMICS_FOCUS_PACKAGES[node.packageId] : null;
       })
-      .filter((pkg): pkg is FocusAreaPackage => !!pkg);
+      .filter((pkg): pkg is EconomicsFocusAreaPackage => !!pkg);
 
     return matched.length > 0 ? matched : [ECONOMICS_FOCUS_PACKAGES['econ_scarcity']];
   }, [economicsDiagnosticSubmission, isPerfectScore, weakUnits]);
@@ -127,7 +127,7 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
     setPracticeFeedback((prev) => ({ ...prev, [exerciseId]: isCorrect }));
 
     // 1.C: Live Student Activity and Telemetry Firestore Sync (Economics)
-    const currentUid = authUser?.uid || 'demo-std-demo';
+    const currentUid = authUser?.uid || 'std-rohan';
     syncStudentProgress(currentUid, 'Economics', {
       recentScore: isCorrect ? 9 : 6,
       strugglingTopic: isCorrect ? 'None' : currentPackage.topic,
@@ -647,12 +647,12 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
         </div>
 
         <PersonalizedChatView
-          studentUid={authUser?.uid || 'demo-std-demo'}
+          studentUid={authUser?.uid || 'std-rohan'}
           studentName={authUser?.displayName || 'Student'}
           subject="Economics"
           currentUserRole="student"
           currentUserName={authUser?.displayName || 'Student'}
-          currentUserId={authUser?.uid || 'demo-std-demo'}
+          currentUserId={authUser?.uid || 'std-rohan'}
           isInlineCard={true}
         />
       </section>
@@ -669,12 +669,12 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
       {/* Slide-over Drawer / Modal for 1-on-1 Instructor Support */}
       {isChatDrawerOpen && (
         <PersonalizedChatView
-          studentUid={authUser?.uid || 'demo-std-demo'}
+          studentUid={authUser?.uid || 'std-rohan'}
           studentName={authUser?.displayName || 'Student'}
           subject="Economics"
           currentUserRole="student"
           currentUserName={authUser?.displayName || 'Student'}
-          currentUserId={authUser?.uid || 'demo-std-demo'}
+          currentUserId={authUser?.uid || 'std-rohan'}
           onClose={() => setIsChatDrawerOpen(false)}
         />
       )}

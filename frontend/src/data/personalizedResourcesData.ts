@@ -19,6 +19,8 @@ export interface FocusAreaPackage {
   isEnrichment?: boolean;
   targetQuestions: number[];
   identifiedTrap: string;
+  diagnosticTrapHeadline?: string;
+  studentTrapQuote?: string;
   coreRule: string;
   formulaSnippet: string;
   videoLesson: VideoLesson;
@@ -26,9 +28,12 @@ export interface FocusAreaPackage {
     id: string;
     title: string;
     filename: string;
-    slidesCount: number;
+    fileType?: 'pptx' | 'pdf' | string;
     fileSize: string;
     uploadedBy: string;
+    uploadedAt?: string;
+    unit?: string;
+    slidesCount: number;
     slides: SlideContent[];
   };
   studyGuide: {

@@ -188,12 +188,12 @@ export interface StudentProfile {
   name: string;
   avatar: string;
   grade: string;
-  diagnosticStatus: 'completed' | 'pending';
+  diagnosticStatus: 'completed' | 'pending' | 'needs_remediation' | 'not_started';
   diagnosticScore?: number;
   commonMistakes: string[];
   recommendedFocus: string;
   tasksCompleted: number;
-  totalTasks: number;
+  totalTasks?: number;
   weeklyProgression?: StudentWeeklyProgression;
 }
 

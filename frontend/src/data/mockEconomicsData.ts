@@ -556,7 +556,56 @@ export const ECONOMICS_DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
   },
 ];
 
-export const ECONOMICS_FOCUS_PACKAGES: Record<string, FocusAreaPackage> = {
+export interface EconomicsPracticeExercise {
+  id: string;
+  type: string;
+  prompt: string;
+  options?: string[];
+  correctIndex?: number;
+  hint: string;
+  explanation: string;
+}
+
+export interface EconomicsFocusAreaPackage {
+  id: string;
+  unit: string;
+  topic: string;
+  diagnosticTrapHeadline?: string;
+  studentTrapQuote?: string;
+  formulaSnippet?: string;
+  coreRule?: string;
+  customSlideDeck: {
+    id: string;
+    title: string;
+    filename: string;
+    fileType: string;
+    fileSize: string;
+    uploadedBy: string;
+    uploadedAt: string;
+    unit: string;
+    slidesCount: number;
+    slides: {
+      pageNumber: number;
+      title: string;
+      contentBullets: string[];
+      callout?: string;
+      diagramDescription?: string;
+      formulaSnippet?: string;
+    }[];
+  };
+  studyGuide: {
+    title: string;
+    summary?: string;
+    analogy?: string;
+    conceptualModel?: string;
+    realWorldAnalogy?: string;
+    goldenSteps: string[];
+    keyTakeaways?: string[];
+  };
+  practiceExercises: EconomicsPracticeExercise[];
+}
+
+export const ECONOMICS_FOCUS_PACKAGES: Record<string, EconomicsFocusAreaPackage> = {
   econ_scarcity: {
     id: 'econ_scarcity',
     unit: 'Unit 1',

@@ -125,6 +125,28 @@ export function listenToStudentUsers(callback: (students: FirestoreUser[]) => vo
 /**
  * 1.C: Update progress/${studentUid}_${subject} with live telemetry and scores
  */
+/**
+ * Normalizes student identifiers to guarantee facilitator and student connect to the exact same thread.
+ * Both 'std-rohan', 'demo-std-demo', 'demo-student', etc. normalize to 'std-rohan'.
+ */
+export function normalizeStudentChatId(studentUid: string): string {
+  if (!studentUid) return 'std-rohan';
+  const cleaned = studentUid.trim();
+  if (
+    cleaned === 'demo-std-demo' ||
+    cleaned === 'std-rohan' ||
+    cleaned === 'demo-std-rohan' ||
+    cleaned === 'demo-student' ||
+    cleaned === 'std-demo'
+  ) {
+    return 'std-rohan';
+  }
+  return cleaned;
+}
+
+/**
+ * 1.C: Update progress/${studentUid}_${subject} with live telemetry and scores
+ */
 export async function syncStudentProgress(
   studentUid: string,
   subject: 'Chemistry' | 'Economics',
@@ -135,14 +157,39 @@ export async function syncStudentProgress(
   }
 ): Promise<void> {
   if (!studentUid) return;
+  const normId = normalizeStudentChatId(studentUid);
+  
+  // Local reactive cache
   try {
-    const docId = `${studentUid}_${subject}`;
+    const progKey = `outstand_progress_${normId}_${subject}`;
+    localStorage.setItem(
+      progKey,
+      JSON.stringify({
+        studentId: normId,
+        subject,
+        recentScore: metrics.recentScore,
+        strugglingTopic: metrics.strugglingTopic || 'None',
+        hesitationLevel: metrics.hesitationLevel || 'low',
+        lastUpdated: new Date().toISOString(),
+      })
+    );
+    window.dispatchEvent(
+      new CustomEvent('outstand-progress-update', {
+        detail: { studentId: normId, subject },
+      })
+    );
+  } catch (e) {
+    // ignore
+  }
+
+  try {
+    const docId = `${normId}_${subject}`;
     const progressRef = doc(db, 'progress', docId);
 
     await setDoc(
       progressRef,
       {
-        studentId: studentUid,
+        studentId: normId,
         subject,
         recentScore: metrics.recentScore,
         strugglingTopic: metrics.strugglingTopic || 'None',
@@ -163,40 +210,82 @@ export function listenToSubjectProgress(
   subject: 'Chemistry' | 'Economics',
   callback: (progressMap: Record<string, StudentProgressDoc>) => void
 ): () => void {
+  const getLocalProgressMap = (): Record<string, StudentProgressDoc> => {
+    const map: Record<string, StudentProgressDoc> = {};
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('outstand_progress_') && key.endsWith(`_${subject}`)) {
+          const raw = localStorage.getItem(key);
+          if (raw) {
+            const data = JSON.parse(raw);
+            if (data.studentId) {
+              map[data.studentId] = data;
+              map['std-rohan'] = data;
+              map['demo-std-demo'] = data;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+    return map;
+  };
+
+  callback(getLocalProgressMap());
+
+  const handleLocalUpdate = () => {
+    callback(getLocalProgressMap());
+  };
+
+  window.addEventListener('outstand-progress-update', handleLocalUpdate);
+  window.addEventListener('storage', handleLocalUpdate);
+
   try {
     const progressCol = collection(db, 'progress');
     const q = query(progressCol, where('subject', '==', subject));
 
-    return onSnapshot(
+    const unsubFirestore = onSnapshot(
       q,
       (snapshot) => {
-        const progressMap: Record<string, StudentProgressDoc> = {};
+        const progressMap = getLocalProgressMap();
         snapshot.forEach((docSnap) => {
           const data = docSnap.data() as StudentProgressDoc;
           if (data.studentId) {
-            progressMap[data.studentId] = {
+            const normId = normalizeStudentChatId(data.studentId);
+            const entry = {
               ...data,
               lastUpdated: data.lastUpdated instanceof Timestamp ? data.lastUpdated.toDate() : data.lastUpdated,
             };
+            progressMap[data.studentId] = entry;
+            progressMap[normId] = entry;
           }
         });
         callback(progressMap);
       },
       (err) => {
         console.warn('[FirestoreSync] Progress listener error:', err);
-        callback({});
       }
     );
+
+    return () => {
+      window.removeEventListener('outstand-progress-update', handleLocalUpdate);
+      window.removeEventListener('storage', handleLocalUpdate);
+      unsubFirestore();
+    };
   } catch (err) {
     console.warn('[FirestoreSync] Could not initialize progress listener:', err);
-    callback({});
-    return () => {};
+    return () => {
+      window.removeEventListener('outstand-progress-update', handleLocalUpdate);
+      window.removeEventListener('storage', handleLocalUpdate);
+    };
   }
 }
 
 /**
  * 4.A & 4.B & 4.C: Send 1-on-1 personalized chat message
- * personalized_chats/${studentUid}_${subject}/messages/${messageId}
+ * Writes to both localStorage event bus (for 0ms instant tab/role sync) and Firestore
  */
 export async function sendPersonalizedMessage(
   studentUid: string,
@@ -208,14 +297,42 @@ export async function sendPersonalizedMessage(
     text: string;
   }
 ): Promise<void> {
-  if (!studentUid || !message.text.trim()) return;
+  const normUid = normalizeStudentChatId(studentUid);
+  if (!normUid || !message.text.trim()) return;
+
+  const newMsg: ChatMessage = {
+    id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    senderId: message.senderId,
+    senderRole: message.senderRole,
+    senderName: message.senderName,
+    text: message.text.trim(),
+    subject,
+    createdAt: new Date().toISOString(),
+  };
+
+  // 1. Instant local storage & event bus dispatch across tabs and windows
+  const storageKey = `outstand_chat_${normUid}_${subject}`;
   try {
-    const parentChatDoc = doc(db, 'personalized_chats', `${studentUid}_${subject}`);
-    // Ensure parent document exists
+    const rawStored = localStorage.getItem(storageKey);
+    const existingList: ChatMessage[] = rawStored ? JSON.parse(rawStored) : [];
+    existingList.push(newMsg);
+    localStorage.setItem(storageKey, JSON.stringify(existingList));
+    window.dispatchEvent(
+      new CustomEvent('outstand-chat-update', {
+        detail: { studentUid: normUid, subject, message: newMsg },
+      })
+    );
+  } catch (localErr) {
+    console.warn('[LocalChatSync] Could not write to local storage:', localErr);
+  }
+
+  // 2. Cloud Firestore dispatch
+  try {
+    const parentChatDoc = doc(db, 'personalized_chats', `${normUid}_${subject}`);
     await setDoc(
       parentChatDoc,
       {
-        studentUid,
+        studentUid: normUid,
         subject,
         lastUpdated: serverTimestamp(),
       },
@@ -232,55 +349,140 @@ export async function sendPersonalizedMessage(
       createdAt: serverTimestamp(),
     });
   } catch (err) {
-    console.error('[FirestoreChat] Error sending message:', err);
-    throw err;
+    console.warn('[FirestoreChat] Cloud write note (message preserved in local real-time bus):', err);
   }
 }
 
 /**
  * 4.B & 4.C: Real-time listener for 1-on-1 personalized chat messages
+ * Listens to both real-time Firestore onSnapshot and reactive localStorage event bus
  */
 export function listenToPersonalizedChat(
   studentUid: string,
   subject: 'Chemistry' | 'Economics',
   callback: (messages: ChatMessage[]) => void
 ): () => void {
-  if (!studentUid) {
+  const normUid = normalizeStudentChatId(studentUid);
+  if (!normUid) {
     callback([]);
     return () => {};
   }
 
+  const storageKey = `outstand_chat_${normUid}_${subject}`;
+
+  const getStoredMessages = (): ChatMessage[] => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {
+      // ignore
+    }
+    return [];
+  };
+
+  // Seed default welcome message if empty
+  const seedIfEmpty = () => {
+    const current = getStoredMessages();
+    if (current.length === 0) {
+      const instructorName = subject === 'Chemistry' ? 'Dr. Eleanor Vance' : 'Prof. Arthur Sterling';
+      const initialSeed: ChatMessage[] = [
+        {
+          id: `seed-${subject}`,
+          senderId: subject === 'Chemistry' ? 'demo-fac-chem' : 'demo-fac-econ',
+          senderRole: 'facilitator',
+          senderName: instructorName,
+          text:
+            subject === 'Chemistry'
+              ? `Welcome to your 1-on-1 Chemistry focus channel! I've reviewed your diagnostic results. Let me know if you want to break down polyatomic ion charges, mole conversions, or limiting reagents together.`
+              : `Welcome to your 1-on-1 Economics guidance channel! I'm monitoring your diagnostic responses. Feel free to ask about PPF opportunity costs, market equilibrium, or price controls anytime.`,
+          subject,
+          createdAt: new Date(Date.now() - 3600000).toISOString(),
+        },
+      ];
+      localStorage.setItem(storageKey, JSON.stringify(initialSeed));
+      return initialSeed;
+    }
+    return current;
+  };
+
+  let localMsgs = seedIfEmpty();
+  callback(localMsgs);
+
+  // Listen to local event bus & window storage events
+  const handleLocalUpdate = (e: Event) => {
+    const customEvt = e as CustomEvent;
+    if (
+      !customEvt.detail ||
+      (customEvt.detail.studentUid === normUid && customEvt.detail.subject === subject)
+    ) {
+      const updated = getStoredMessages();
+      localMsgs = updated;
+      callback(updated);
+    }
+  };
+
+  const handleStorageEvent = (e: StorageEvent) => {
+    if (e.key === storageKey) {
+      const updated = getStoredMessages();
+      localMsgs = updated;
+      callback(updated);
+    }
+  };
+
+  window.addEventListener('outstand-chat-update', handleLocalUpdate);
+  window.addEventListener('storage', handleStorageEvent);
+
+  let unsubFirestore = () => {};
+
   try {
-    const parentChatDoc = doc(db, 'personalized_chats', `${studentUid}_${subject}`);
+    const parentChatDoc = doc(db, 'personalized_chats', `${normUid}_${subject}`);
     const messagesCol = collection(parentChatDoc, 'messages');
     const q = query(messagesCol, orderBy('createdAt', 'asc'));
 
-    return onSnapshot(
+    unsubFirestore = onSnapshot(
       q,
       (snapshot) => {
-        const msgs: ChatMessage[] = [];
-        snapshot.forEach((docSnap) => {
-          const data = docSnap.data();
-          msgs.push({
-            id: docSnap.id,
-            senderId: data.senderId,
-            senderRole: data.senderRole,
-            senderName: data.senderName,
-            text: data.text,
-            subject: data.subject || subject,
-            createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : data.createdAt,
+        if (!snapshot.empty) {
+          const cloudMsgs: ChatMessage[] = [];
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            cloudMsgs.push({
+              id: docSnap.id,
+              senderId: data.senderId,
+              senderRole: data.senderRole,
+              senderName: data.senderName,
+              text: data.text,
+              subject: data.subject || subject,
+              createdAt:
+                data.createdAt instanceof Timestamp
+                  ? data.createdAt.toDate().toISOString()
+                  : data.createdAt,
+            });
           });
-        });
-        callback(msgs);
+
+          // Merge cloud messages with local messages, deduplicating
+          const mergedMap = new Map<string, ChatMessage>();
+          localMsgs.forEach((m) => mergedMap.set(`${m.senderRole}_${m.text}_${m.subject}`, m));
+          cloudMsgs.forEach((m) => mergedMap.set(`${m.senderRole}_${m.text}_${m.subject}`, m));
+          const mergedList = Array.from(mergedMap.values()).sort(
+            (a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime()
+          );
+
+          localStorage.setItem(storageKey, JSON.stringify(mergedList));
+          callback(mergedList);
+        }
       },
       (err) => {
-        console.warn('[FirestoreChat] Messages listener error:', err);
-        callback([]);
+        console.warn('[FirestoreChat] Cloud listener notice (real-time local event bus active):', err);
       }
     );
   } catch (err) {
-    console.warn('[FirestoreChat] Could not initialize messages listener:', err);
-    callback([]);
-    return () => {};
+    console.warn('[FirestoreChat] Could not initialize cloud listener:', err);
   }
+
+  return () => {
+    window.removeEventListener('outstand-chat-update', handleLocalUpdate);
+    window.removeEventListener('storage', handleStorageEvent);
+    unsubFirestore();
+  };
 }

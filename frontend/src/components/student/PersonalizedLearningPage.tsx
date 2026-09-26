@@ -172,7 +172,7 @@ export const PersonalizedLearningPage: React.FC = () => {
     setPracticeFeedback((prev) => ({ ...prev, [exerciseId]: isCorrect }));
 
     // 1.C: Live Student Activity and Telemetry Firestore Sync
-    const currentUid = authUser?.uid || 'demo-std-demo';
+    const currentUid = authUser?.uid || 'std-rohan';
     syncStudentProgress(currentUid, 'Chemistry', {
       recentScore: isCorrect ? 9 : 6,
       strugglingTopic: isCorrect ? 'None' : currentPackage.topic,
@@ -918,7 +918,7 @@ export const PersonalizedLearningPage: React.FC = () => {
               Key Rules to Remember:
             </span>
             <ul className="space-y-1.5 text-xs text-slate-700">
-              {currentPackage.studyGuide.keyTakeaways.map((point, idx) => (
+              {(currentPackage.studyGuide.keyTakeaways || []).map((point, idx) => (
                 <li key={idx} className="flex items-start gap-2">
                   <IconCheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
                   <span>{point}</span>
@@ -1140,12 +1140,12 @@ export const PersonalizedLearningPage: React.FC = () => {
         </div>
 
         <PersonalizedChatView
-          studentUid={authUser?.uid || 'demo-std-demo'}
+          studentUid={authUser?.uid || 'std-rohan'}
           studentName={authUser?.displayName || 'Student'}
           subject="Chemistry"
           currentUserRole="student"
           currentUserName={authUser?.displayName || 'Student'}
-          currentUserId={authUser?.uid || 'demo-std-demo'}
+          currentUserId={authUser?.uid || 'std-rohan'}
           isInlineCard={true}
         />
       </section>
@@ -1162,12 +1162,12 @@ export const PersonalizedLearningPage: React.FC = () => {
       {/* Slide-over Drawer / Modal for 1-on-1 Instructor Support */}
       {isChatDrawerOpen && (
         <PersonalizedChatView
-          studentUid={authUser?.uid || 'demo-std-demo'}
+          studentUid={authUser?.uid || 'std-rohan'}
           studentName={authUser?.displayName || 'Student'}
           subject="Chemistry"
           currentUserRole="student"
           currentUserName={authUser?.displayName || 'Student'}
-          currentUserId={authUser?.uid || 'demo-std-demo'}
+          currentUserId={authUser?.uid || 'std-rohan'}
           onClose={() => setIsChatDrawerOpen(false)}
         />
       )}
