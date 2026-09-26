@@ -6,7 +6,7 @@ import {
   getDynamicEconomicsSearchQuery,
 } from '../../services/economicsOpportunitiesService';
 import {
-  Sparkles,
+  Compass,
   Calendar,
   Zap,
   DollarSign,
@@ -112,7 +112,7 @@ export const OpportunitiesHubEconomics: React.FC<OpportunitiesHubEconomicsProps>
         <div className="space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-md flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <Compass className="w-3.5 h-3.5 text-emerald-600" />
               <span>AI-Powered Opportunities Hub (Economics)</span>
             </span>
             <span className="text-xs text-slate-300">·</span>
@@ -184,7 +184,7 @@ export const OpportunitiesHubEconomics: React.FC<OpportunitiesHubEconomicsProps>
 
           <div className="space-y-2 max-w-md mx-auto">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <Compass className="w-3.5 h-3.5 text-emerald-600" />
               <span>Searching Economic-Based Opportunities & Competitions</span>
             </div>
             <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
@@ -202,7 +202,7 @@ export const OpportunitiesHubEconomics: React.FC<OpportunitiesHubEconomicsProps>
         </div>
       ) : filteredOpportunities.length === 0 ? (
         <div className="py-16 text-center space-y-3">
-          <Sparkles className="w-8 h-8 text-emerald-400 mx-auto" />
+          <Compass className="w-8 h-8 text-emerald-400 mx-auto" />
           <h3 className="text-base font-bold text-slate-900">No Matching Programs Found</h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
             Try switching filter tabs or click the refresh button to discover more verified economics programs.
