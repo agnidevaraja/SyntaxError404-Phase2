@@ -15,7 +15,7 @@ import {
   IconRefreshCw,
   IconAtom,
 } from '../common/Icons';
-import { Video, Play, ExternalLink, Clock, Award, Layers, CheckCircle2, Lock, Lightbulb, MessageSquare, Volume2, VolumeX, Pause, RotateCcw, MonitorPlay, Sparkles } from 'lucide-react';
+import { Video, Play, ExternalLink, Clock, Award, Layers, CheckCircle2, Lock, Lightbulb, MessageSquare, Volume2, VolumeX, Pause, RotateCcw, MonitorPlay, Compass } from 'lucide-react';
 import { OpportunitiesHub } from './OpportunitiesHub';
 import { RealLifeAnalogyExplorer } from './RealLifeAnalogyExplorer';
 import { AdaptiveConceptExplainerModal } from './AdaptiveConceptExplainerModal';
@@ -276,7 +276,7 @@ export const PersonalizedLearningPage: React.FC = () => {
               }}
               className="w-full sm:w-auto px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile"
             >
-              <IconSparkles className="w-4 h-4 text-indigo-200" />
+              <IconZap className="w-4 h-4 text-indigo-200" />
               <span>Take Chemistry Diagnostic (10 Questions)</span>
               <IconArrowRight className="w-4 h-4" />
             </button>
@@ -438,7 +438,7 @@ export const PersonalizedLearningPage: React.FC = () => {
                 }}
                 className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-bold text-xs rounded-xl shadow-xs transition-colors shrink-0 flex items-center justify-center gap-2 cursor-pointer btn-tactile"
               >
-                <IconSparkles className="w-4 h-4" />
+                <Award className="w-4 h-4 text-slate-950" />
                 <span>Active Olympiad Deck Loaded</span>
               </button>
             </div>

@@ -15,7 +15,7 @@ import {
   IconAtom,
   IconZap,
 } from '../common/Icons';
-import { User, Plus, Check, FlaskConical, TrendingUp, MessageSquare, Sparkles, Copy, RefreshCw as RefreshIcon } from 'lucide-react';
+import { User, Plus, Check, FlaskConical, TrendingUp, MessageSquare, Cpu, Copy, RefreshCw as RefreshIcon } from 'lucide-react';
 import { SevenDayProficiencyChart } from '../common/SevenDayProficiencyChart';
 import {
   COHORT_WEEKLY_PROGRESSIONS,
@@ -1202,11 +1202,11 @@ export const FacilitatorPortal: React.FC = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div className="flex items-center gap-2.5">
                         <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
-                          <Sparkles className="w-5 h-5" />
+                          <Cpu className="w-5 h-5" />
                         </div>
                         <div>
                           <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                            <span>Facilitator AI Advisory Engine</span>
+                            <span>Facilitator Pedagogical Advisory Engine</span>
                             <span className="text-[10px] font-mono uppercase bg-indigo-500/30 text-indigo-200 px-2 py-0.5 rounded-md border border-indigo-400/30">
                               4-Line Diagnostic
                             </span>
@@ -1229,7 +1229,7 @@ export const FacilitatorPortal: React.FC = () => {
                           </>
                         ) : (
                           <>
-                            <Sparkles className="w-3.5 h-3.5 text-indigo-200" />
+                            <Cpu className="w-3.5 h-3.5 text-indigo-200" />
                             <span>Analyze Student Roadblock</span>
                           </>
                         )}
