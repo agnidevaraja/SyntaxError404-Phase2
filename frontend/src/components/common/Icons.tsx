@@ -19,7 +19,7 @@ import {
   LockClosedIcon,
   LockOpenIcon,
   XMarkIcon,
-  SparklesIcon,
+  CpuChipIcon,
   BoltIcon,
   CalendarIcon,
   AcademicCapIcon,
@@ -62,7 +62,7 @@ export const IconSliders = AdjustmentsHorizontalIcon;
 export const IconLock = LockClosedIcon;
 export const IconUnlock = LockOpenIcon;
 export const IconX = XMarkIcon;
-export const IconSparkles = SparklesIcon;
+export const IconSparkles = CpuChipIcon;
 export const IconZap = BoltIcon;
 export const IconZapSolid = BoltSolid;
 export const IconCalendar = CalendarIcon;

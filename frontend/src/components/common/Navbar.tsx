@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { IconAtom, IconChevronRight, IconUser, IconShield } from './Icons';
+import { IconChevronRight, IconUser, IconShield } from './Icons';
 import { LogOut, Sun, Moon, Sliders } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -34,17 +34,16 @@ export const Navbar: React.FC = () => {
     <header className="sticky top-0 z-40 w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 shadow-xs transition-colors">
       <div className="max-w-[1580px] w-full mx-auto px-4 sm:px-6 lg:px-10 h-16 flex items-center justify-between">
         
-        {/* Brand Wordmark & Context Breadcrumb */}
+        {/* Brand Wordmark - Typographic Logo (Name is logo, 1st letter distinct color, no bud/icon) */}
         <div className="flex items-center gap-4">
           <button
             onClick={() => setActiveView('landing')}
-            className="flex items-center gap-2.5 text-left focus:outline-hidden group cursor-pointer btn-tactile"
+            className="flex items-center text-left focus:outline-hidden group cursor-pointer btn-tactile"
+            title="Outstand - Home"
           >
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-xs group-hover:bg-indigo-700 transition-colors">
-              <IconAtom className="w-5 h-5" />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white group-hover:text-indigo-950 dark:group-hover:text-indigo-300 transition-colors">
-              Outstand
+            <span className="text-2xl font-black tracking-tight select-none font-sans">
+              <span className="text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-500 transition-colors">O</span>
+              <span className="text-slate-900 dark:text-white group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors">utstand</span>
             </span>
           </button>
 
