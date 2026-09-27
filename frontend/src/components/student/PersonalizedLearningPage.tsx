@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { PERSONALIZED_FOCUS_PACKAGES, FocusAreaPackage } from '../../data/personalizedResourcesData';
-import { CURRICULUM_CONCEPT_NODES } from '../../data/diagnosticQuestions';
+import { CURRICULUM_CONCEPT_NODES, CURRICULUM_CONCEPT_NODES_BY_UNIT_ID } from '../../data/diagnosticQuestions';
 import { ConceptKnowledgeGraph } from '../common/ConceptKnowledgeGraph';
 import {
   IconBookOpen,
@@ -50,7 +50,7 @@ export const PersonalizedLearningPage: React.FC = () => {
       }
       if (diagnosticSubmission.weakUnitIds?.length > 0) {
         const firstWeakUnitId = diagnosticSubmission.weakUnitIds[0];
-        const matchedNode = CURRICULUM_CONCEPT_NODES.find((n) => n.unitId === firstWeakUnitId);
+        const matchedNode = CURRICULUM_CONCEPT_NODES_BY_UNIT_ID.get(firstWeakUnitId);
         if (matchedNode && PERSONALIZED_FOCUS_PACKAGES[matchedNode.packageId]) {
           return matchedNode.packageId;
         }
@@ -103,7 +103,7 @@ export const PersonalizedLearningPage: React.FC = () => {
         setSelectedFocusId('olympiad_enrichment');
       } else if (diagnosticSubmission.weakUnitIds?.length > 0) {
         const firstWeakUnitId = diagnosticSubmission.weakUnitIds[0];
-        const matchedNode = CURRICULUM_CONCEPT_NODES.find((n) => n.unitId === firstWeakUnitId);
+        const matchedNode = CURRICULUM_CONCEPT_NODES_BY_UNIT_ID.get(firstWeakUnitId);
         if (matchedNode && PERSONALIZED_FOCUS_PACKAGES[matchedNode.packageId]) {
           setSelectedFocusId(matchedNode.packageId);
         }
@@ -129,7 +129,7 @@ export const PersonalizedLearningPage: React.FC = () => {
     // Only serve packages corresponding to student's actual identified weak topics
     const matched = weakUnits
       .map((uid) => {
-        const node = CURRICULUM_CONCEPT_NODES.find((n) => n.unitId === uid);
+        const node = CURRICULUM_CONCEPT_NODES_BY_UNIT_ID.get(uid);
         return node ? PERSONALIZED_FOCUS_PACKAGES[node.packageId] : null;
       })
       .filter((pkg): pkg is FocusAreaPackage => !!pkg);
@@ -477,7 +477,7 @@ export const PersonalizedLearningPage: React.FC = () => {
             {/* List of identified weak topics with specific missed questions & traps */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
               {weakUnits.map((uid) => {
-                const node = CURRICULUM_CONCEPT_NODES.find((n) => n.unitId === uid);
+                const node = CURRICULUM_CONCEPT_NODES_BY_UNIT_ID.get(uid);
                 const pkg = node ? PERSONALIZED_FOCUS_PACKAGES[node.packageId] : null;
                 const unitMissed = missedQuestions.filter((m) => node?.questionNumbers.includes(m.questionNumber));
                 const isSelected = selectedFocusId === node?.packageId;
