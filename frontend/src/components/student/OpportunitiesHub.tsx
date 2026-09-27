@@ -76,10 +76,7 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
   const loadOpportunities = async () => {
     setIsLoading(true);
     try {
-      const [items] = await Promise.all([
-        fetchCuratedOpportunities(performanceContext),
-        new Promise((resolve) => setTimeout(resolve, 700)),
-      ]);
+      const items = await fetchCuratedOpportunities(performanceContext);
       setOpportunities(items);
     } catch (err) {
       console.error('Error loading opportunities:', err);
