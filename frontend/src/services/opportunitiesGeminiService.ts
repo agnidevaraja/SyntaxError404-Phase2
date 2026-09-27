@@ -264,6 +264,8 @@ Return ONLY a valid JSON array of objects matching this exact TypeScript structu
           categoryTags: item.categoryTags?.includes('Verified')
             ? item.categoryTags
             : [...(item.categoryTags || ['Academic', 'Verified']), 'Verified'],
+          learnMoreUrl: sanitizeUrl(item.learnMoreUrl, 'https://www.google.com'),
+          registrationUrl: sanitizeUrl(item.registrationUrl, 'https://www.google.com'),
         }));
       }
     }
@@ -291,4 +293,23 @@ export async function fetchCuratedOpportunities(
 
 export function getDynamicSearchQuery(context: StudentPerformanceContext): string {
   return 'Global STEM and academic competitions';
+}
+
+/**
+ * Security: Validates and sanitizes external or AI-generated URLs to prevent XSS (e.g. javascript: or data: schemes)
+ */
+export function sanitizeUrl(url?: string, fallback: string = '#'): string {
+  if (!url || typeof url !== 'string') return fallback;
+  const trimmed = url.trim();
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return trimmed;
+    }
+  } catch {
+    if (/^https?:\/\//i.test(trimmed)) {
+      return trimmed;
+    }
+  }
+  return fallback;
 }
