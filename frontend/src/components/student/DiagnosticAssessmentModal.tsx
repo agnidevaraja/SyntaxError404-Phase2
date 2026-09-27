@@ -1231,8 +1231,8 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
                                 <button
                                   onClick={() => {
                                     const calcMoles = (waterMassGrams / 18.02).toFixed(2);
-                                    const matchedOptIdx = currentQ.options?.findIndex((opt) =>
-                                      opt.text.startsWith(calcMoles)
+                                    const matchedOptIdx = currentQ.options?.findIndex((opt: any) =>
+                                      (typeof opt === 'string' ? opt : opt?.text || '')?.startsWith(calcMoles)
                                     );
                                     const chosenIndex =
                                       matchedOptIdx !== -1 && matchedOptIdx !== undefined

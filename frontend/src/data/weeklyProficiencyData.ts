@@ -321,8 +321,6 @@ export const COHORT_WEEKLY_PROGRESSIONS: Record<string, StudentWeeklyProgression
     ],
   },
   'std-rohan': ROHAN_WEEKLY_PROGRESSION,
-  'std-rohan-v': ROHAN_WEEKLY_PROGRESSION,
-  'std-demo-student': DEMO_STUDENT_WEEKLY_PROGRESSION,
 };
 
 export const VIKRAM_WEEKLY_PROGRESSION: StudentWeeklyProgression = {
