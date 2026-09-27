@@ -1323,10 +1323,16 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
                                 <button
                                   onClick={() => {
                                     const calcMoles = (waterMassGrams / 18.02).toFixed(2);
+<<<<<<< HEAD
                                     const matchedOptIdx = currentQ.options?.findIndex((optStr) => {
                                       const text = typeof optStr === 'string' ? optStr : (optStr as any)?.text || '';
                                       return text.startsWith(calcMoles);
                                     });
+=======
+                                    const matchedOptIdx = currentQ.options?.findIndex((opt: any) =>
+                                      (typeof opt === 'string' ? opt : opt?.text || '')?.startsWith(calcMoles)
+                                    );
+>>>>>>> 2a42ea897ca9a138f3c0b0f9fa4882936f0c0ded
                                     const chosenIndex =
                                       matchedOptIdx !== -1 && matchedOptIdx !== undefined
                                         ? matchedOptIdx

@@ -799,6 +799,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setAuthUser(profile);
         setRole(savedRole);
         localStorage.setItem('outstand_auth_user', JSON.stringify(profile));
+      } else {
+        const storedUser = localStorage.getItem('outstand_auth_user');
+        if (storedUser) {
+          try {
+            const parsed = JSON.parse(storedUser);
+            if (parsed.uid && !parsed.uid.startsWith('std-') && !parsed.uid.startsWith('demo-')) {
+              setAuthUser(null);
+              setRole('guest');
+              localStorage.removeItem('outstand_auth_user');
+              localStorage.removeItem('outstand_auth_role');
+              localStorage.removeItem('outstand_can_switch_subject');
+              localStorage.removeItem('outstand_facilitator_subject');
+            }
+          } catch (e) {
+            // ignore
+          }
+        }
       }
     });
 
@@ -1002,6 +1019,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setRole('guest');
     localStorage.removeItem('outstand_auth_user');
     localStorage.removeItem('outstand_auth_role');
+    localStorage.removeItem('outstand_can_switch_subject');
+    localStorage.removeItem('outstand_facilitator_subject');
+    sessionStorage.clear();
     setActiveView('landing');
     setSelectedStudentForInspect(null);
     showToast('Signed Out', 'Returned to Outstand Adaptive Learning Hub homepage.');
