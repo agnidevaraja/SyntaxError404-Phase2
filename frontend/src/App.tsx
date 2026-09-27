@@ -1,20 +1,33 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Navbar } from './components/common/Navbar';
-import { LandingPage } from './components/landing/LandingPage';
-import { StudentMainHub } from './components/student/StudentMainHub';
-import { ChemistrySubjectPage } from './components/student/ChemistrySubjectPage';
-import { PersonalizedLearningPage } from './components/student/PersonalizedLearningPage';
-import { EconomicsSubjectPage } from './components/student/EconomicsSubjectPage';
-import { PersonalizedLearningPageEconomics } from './components/student/PersonalizedLearningPageEconomics';
-import { FacilitatorPortal } from './components/facilitator/FacilitatorPortal';
-import { FacilitatorSubjectSelectPage } from './components/facilitator/FacilitatorSubjectSelectPage';
 import { DiagnosticAssessmentModal } from './components/student/DiagnosticAssessmentModal';
 import { SlidePreviewModal } from './components/student/SlidePreviewModal';
 import { AuthModal } from './components/common/AuthModal';
 import { SettingsModal } from './components/common/SettingsModal';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { IconCheckCircle, IconAlertTriangle, IconX } from './components/common/Icons';
+
+// Bolt Optimization: Lazy-load route view components to code-split the application bundle
+const LandingPage = lazy(() => import('./components/landing/LandingPage').then((m) => ({ default: m.LandingPage })));
+const StudentMainHub = lazy(() => import('./components/student/StudentMainHub').then((m) => ({ default: m.StudentMainHub })));
+const ChemistrySubjectPage = lazy(() => import('./components/student/ChemistrySubjectPage').then((m) => ({ default: m.ChemistrySubjectPage })));
+const PersonalizedLearningPage = lazy(() => import('./components/student/PersonalizedLearningPage').then((m) => ({ default: m.PersonalizedLearningPage })));
+const EconomicsSubjectPage = lazy(() => import('./components/student/EconomicsSubjectPage').then((m) => ({ default: m.EconomicsSubjectPage })));
+const PersonalizedLearningPageEconomics = lazy(() => import('./components/student/PersonalizedLearningPageEconomics').then((m) => ({ default: m.PersonalizedLearningPageEconomics })));
+const FacilitatorPortal = lazy(() => import('./components/facilitator/FacilitatorPortal').then((m) => ({ default: m.FacilitatorPortal })));
+const FacilitatorSubjectSelectPage = lazy(() => import('./components/facilitator/FacilitatorSubjectSelectPage').then((m) => ({ default: m.FacilitatorSubjectSelectPage })));
+
+function ViewFallback() {
+  return (
+    <div className="flex items-center justify-center py-20">
+      <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400 text-sm font-semibold">
+        <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+        <span>Loading view...</span>
+      </div>
+    </div>
+  );
+}
 
 export function AppContent() {
   const { activeView, toast, dismissToast } = useApp();
@@ -27,26 +40,28 @@ export function AppContent() {
       {/* Main Content Viewport - Optimized Edge-to-Edge Responsive Grid */}
       <main className="flex-1 w-full max-w-[1580px] mx-auto px-4 sm:px-6 lg:px-10 py-6">
         <ErrorBoundary fallbackTitle="View Rendering Error">
-          {activeView === 'landing' && <LandingPage />}
-          {activeView === 'student_hub' && <StudentMainHub />}
-          {activeView === 'subject_chemistry' && <ChemistrySubjectPage />}
-          {activeView === 'personalized_learning' && <PersonalizedLearningPage />}
-          {activeView === 'subject_economics' && <EconomicsSubjectPage />}
-          {activeView === 'personalized_learning_economics' && <PersonalizedLearningPageEconomics />}
-          {activeView === 'facilitator_subject_select' && <FacilitatorSubjectSelectPage />}
-          {activeView === 'facilitator_portal' && <FacilitatorPortal />}
+          <Suspense fallback={<ViewFallback />}>
+            {activeView === 'landing' && <LandingPage />}
+            {activeView === 'student_hub' && <StudentMainHub />}
+            {activeView === 'subject_chemistry' && <ChemistrySubjectPage />}
+            {activeView === 'personalized_learning' && <PersonalizedLearningPage />}
+            {activeView === 'subject_economics' && <EconomicsSubjectPage />}
+            {activeView === 'personalized_learning_economics' && <PersonalizedLearningPageEconomics />}
+            {activeView === 'facilitator_subject_select' && <FacilitatorSubjectSelectPage />}
+            {activeView === 'facilitator_portal' && <FacilitatorPortal />}
 
-          {/* Fallback to prevent blank screen if activeView is unrecognized */}
-          {![
-            'landing',
-            'student_hub',
-            'subject_chemistry',
-            'personalized_learning',
-            'subject_economics',
-            'personalized_learning_economics',
-            'facilitator_subject_select',
-            'facilitator_portal',
-          ].includes(activeView) && <LandingPage />}
+            {/* Fallback to prevent blank screen if activeView is unrecognized */}
+            {![
+              'landing',
+              'student_hub',
+              'subject_chemistry',
+              'personalized_learning',
+              'subject_economics',
+              'personalized_learning_economics',
+              'facilitator_subject_select',
+              'facilitator_portal',
+            ].includes(activeView) && <LandingPage />}
+          </Suspense>
         </ErrorBoundary>
       </main>
 
