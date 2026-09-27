@@ -1,5 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 import { OpportunityItem, StudentPerformanceContext } from '../types/opportunities';
+import { sanitizeUrl } from './opportunitiesGeminiService';
 
 // Verified Real-World 2026 Chemistry & Physical Science Opportunities Database
 export const VERIFIED_2026_CHEMISTRY_OPPORTUNITIES: Record<'elite' | 'standard' | 'accessible', OpportunityItem[]> = {
@@ -347,6 +348,8 @@ Return ONLY a valid JSON array of 4 opportunity objects with this exact structur
           categoryTags: item.categoryTags?.includes('Verified')
             ? item.categoryTags
             : [...(item.categoryTags || ['Competition', 'Chemistry']), 'Verified'],
+          learnMoreUrl: sanitizeUrl(item.learnMoreUrl, 'https://www.google.com'),
+          registrationUrl: sanitizeUrl(item.registrationUrl, 'https://www.google.com'),
         }));
       }
     }
