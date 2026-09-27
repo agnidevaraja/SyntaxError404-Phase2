@@ -74,10 +74,7 @@ export const OpportunitiesHubEconomics: React.FC<OpportunitiesHubEconomicsProps>
   const loadOpportunities = async () => {
     setIsLoading(true);
     try {
-      const [items] = await Promise.all([
-        fetchCuratedEconomicsOpportunities(performanceContext),
-        new Promise((resolve) => setTimeout(resolve, 700)),
-      ]);
+      const items = await fetchCuratedEconomicsOpportunities(performanceContext);
       setOpportunities(items);
     } catch (err) {
       console.error('Error loading economics opportunities:', err);
