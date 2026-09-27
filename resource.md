@@ -48,7 +48,7 @@
 
 | # | Artifact | Google Drive Link | File Name | SHA-256 (first 16 chars) |
 |---|---|---|---|---|
-| 1 | Pitch and Code Walkthrough Video (under 10 min, MP4) |https://drive.google.com/file/d/1puFEYT9h9dAQ7j-15kEl8qPbXDrtWRRO/view?usp=sharing | e0c0d7bd4392efe5
+| 1 | Pitch and Code Walkthrough Video (under 10 min, MP4) |https://drive.google.com/file/d/1puFEYT9h9dAQ7j-15kEl8qPbXDrtWRRO/view?usp=sharing |SyntaxError-PPT.pdf | e0c0d7bd4392efe5
 | 2 | Decision Log (1 page, PDF) | https://drive.google.com/file/d/10V1FHLuZ180npKoFxAEeOeHnmg0xelgh/view?usp=sharing |desision log.pdf |  7FA7AB6BC0AA15BC |
 | 3 | Presentation Deck (under 10 slides, PDF) | NA
 ### Video Chapters
