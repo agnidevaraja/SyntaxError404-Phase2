@@ -297,6 +297,18 @@ export const DiagnosticAssessmentModal: React.FC = () => {
     setConfidenceLevel(85);
   }, [currentIndex]);
 
+  // Handle Escape key to dismiss diagnostic modal
+  useEffect(() => {
+    if (!isDiagnosticOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsDiagnosticOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isDiagnosticOpen, setIsDiagnosticOpen]);
+
   // Cleanup Web Speech & AudioContext
   useEffect(() => {
     return () => {
@@ -763,7 +775,12 @@ export const DiagnosticAssessmentModal: React.FC = () => {
   if (!isDiagnosticOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="diagnostic-modal-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150"
+    >
       <div className="relative w-full max-w-3xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh] transition-colors">
         
         {/* Header */}
@@ -777,7 +794,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
               <IconSparkles className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+              <h2 id="diagnostic-modal-title" className="text-sm font-bold text-slate-900 dark:text-white">
                 {isEconomics ? 'Economics Diagnostic Assessment' : 'Chemistry Diagnostic Assessment Engine'}
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -809,6 +826,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
 
             <button
               onClick={() => setIsDiagnosticOpen(false)}
+              aria-label="Close diagnostic assessment"
               className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <IconX className="w-5 h-5" />

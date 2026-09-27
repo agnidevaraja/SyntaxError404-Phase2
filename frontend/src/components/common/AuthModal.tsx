@@ -285,8 +285,8 @@ export const AuthModal: React.FC = () => {
                     onClick={() => loginDemoQuickFill('student')}
                     className="px-3.5 py-1.5 rounded-lg bg-indigo-500 hover:bg-indigo-400 active:bg-indigo-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer btn-tactile"
                   >
-                    <IconSparkles className="w-3.5 h-3.5" />
-                    <span>Launch Student ➔</span>
+                    <LogIn className="w-3.5 h-3.5" />
+                    <span>Launch Student Portal</span>
                   </button>
                 </div>
               </div>
@@ -322,8 +322,8 @@ export const AuthModal: React.FC = () => {
                       onClick={() => loginDemoQuickFill('facilitator', 'chemistry')}
                       className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-1 cursor-pointer"
                     >
-                      <IconSparkles className="w-3 h-3" />
-                      <span>Chemistry Portal ➔</span>
+                      <LogIn className="w-3 h-3" />
+                      <span>Chemistry Portal</span>
                     </button>
                   </div>
                 </div>
@@ -358,8 +358,8 @@ export const AuthModal: React.FC = () => {
                       onClick={() => loginDemoQuickFill('facilitator', 'economics')}
                       className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-1 cursor-pointer"
                     >
-                      <IconSparkles className="w-3 h-3" />
-                      <span>Economics Portal ➔</span>
+                      <LogIn className="w-3 h-3" />
+                      <span>Economics Portal</span>
                     </button>
                   </div>
                 </div>
