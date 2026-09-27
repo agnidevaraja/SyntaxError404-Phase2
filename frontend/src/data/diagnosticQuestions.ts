@@ -48,6 +48,10 @@ export const CURRICULUM_CONCEPT_NODES: ConceptNode[] = [
   },
 ];
 
+export const CURRICULUM_CONCEPT_NODES_BY_UNIT_ID: Map<string, ConceptNode> = new Map(
+  CURRICULUM_CONCEPT_NODES.map((node) => [node.unitId, node])
+);
+
 export const DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
   {
     id: 'diag-1',
