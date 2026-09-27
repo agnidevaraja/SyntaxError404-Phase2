@@ -72,7 +72,7 @@
 
 | Field | Value |
 |---|---|
-| Local Host URL | http://localhost:3000 or http://localhost:3001 |
+| URL | https://outstand-eight.vercel.app/ |
 | Platform | Web Application (React 19, Vite, Tailwind CSS, Firebase) |
 | Student Demo Login | Click "Launch Student Demo" on the landing page or quick-fill "Alex Chen" |
 | Facilitator Demo Login | Click "Launch Facilitator Demo" or quick-fill "Dr. Eleanor Vance" (Chemistry) / "Prof. Arthur Sterling" (Economics) |
