@@ -26,6 +26,17 @@
   }
 }
 
+/* Accessible Keyboard Focus-Visible Outlines */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
 /* Micro-interaction tactile feedback */
 .btn-tactile {
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);

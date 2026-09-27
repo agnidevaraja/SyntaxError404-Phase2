@@ -127,6 +127,7 @@ export const PersonalizedChatView: React.FC<PersonalizedChatViewProps> = ({
         {onClose && (
           <button
             onClick={onClose}
+            aria-label="Close support chat window"
             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             title="Close"
           >
@@ -201,6 +202,7 @@ export const PersonalizedChatView: React.FC<PersonalizedChatViewProps> = ({
           type="text"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
+          aria-label="Chat input message"
           placeholder={
             isFacilitator
               ? `Message ${studentName} directly with guidance...`
@@ -211,6 +213,7 @@ export const PersonalizedChatView: React.FC<PersonalizedChatViewProps> = ({
 
         <button
           type="submit"
+          aria-label="Send message"
           disabled={!inputText.trim() || isSending}
           className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer btn-tactile"
         >
@@ -233,7 +236,12 @@ export const PersonalizedChatView: React.FC<PersonalizedChatViewProps> = ({
 
   // Modal / Drawer Presentation
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Direct academic support chat"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150"
+    >
       <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col h-[600px] max-h-[92vh]">
         {content}
       </div>
