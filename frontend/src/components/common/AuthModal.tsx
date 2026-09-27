@@ -56,7 +56,7 @@ export const AuthModal: React.FC = () => {
     try {
       await loginWithGoogle(activeRole);
     } catch (err: any) {
-      console.error('Google Sign-In failed:', err);
+      console.error('Google Sign-In failed:', err?.code || 'auth-error');
       if (err.code === 'auth/popup-closed-by-user') {
         setErrorMessage('Google Sign-In was cancelled or popup window was closed.');
       } else if (err.code === 'auth/unauthorized-domain') {
@@ -106,7 +106,7 @@ export const AuthModal: React.FC = () => {
       try {
         await registerWithEmail(cleanEmail, password, name.trim(), activeRole);
       } catch (err: any) {
-        console.error('Registration failed:', err);
+        console.error('Registration failed:', err?.code || 'registration-error');
         if (err.code === 'auth/email-already-in-use') {
           setErrorMessage('An account with this email already exists. Switch to Sign In.');
         } else if (err.code === 'auth/invalid-email') {
@@ -124,7 +124,7 @@ export const AuthModal: React.FC = () => {
       try {
         await loginWithEmail(cleanEmail, password, activeRole);
       } catch (err: any) {
-        console.error('Email sign-in failed:', err);
+        console.error('Email sign-in failed:', err?.code || 'auth-error');
         // If demo credentials and not in Firebase yet, launch demo
         if (cleanEmail === 'student@outstand.edu') {
           loginDemoQuickFill('student');
