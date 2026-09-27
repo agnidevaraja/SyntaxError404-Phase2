@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import {
   ECONOMICS_FOCUS_PACKAGES,
   ECONOMICS_CONCEPT_NODES,
+  ECONOMICS_CONCEPT_NODES_BY_UNIT_ID,
 } from '../../data/mockEconomicsData';
 import { ConceptKnowledgeGraph } from '../common/ConceptKnowledgeGraph';
 import {
@@ -46,7 +47,7 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
   const getDefaultFocusId = (): string => {
     if (economicsDiagnosticSubmission && economicsDiagnosticSubmission.weakUnitIds?.length > 0) {
       const firstWeakUnitId = economicsDiagnosticSubmission.weakUnitIds[0];
-      const matchedNode = ECONOMICS_CONCEPT_NODES.find((n) => n.unitId === firstWeakUnitId);
+      const matchedNode = ECONOMICS_CONCEPT_NODES_BY_UNIT_ID.get(firstWeakUnitId);
       if (matchedNode && ECONOMICS_FOCUS_PACKAGES[matchedNode.packageId]) {
         return matchedNode.packageId;
       }
@@ -63,7 +64,7 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
   useEffect(() => {
     if (economicsDiagnosticSubmission && economicsDiagnosticSubmission.weakUnitIds?.length > 0) {
       const firstWeakUnitId = economicsDiagnosticSubmission.weakUnitIds[0];
-      const matchedNode = ECONOMICS_CONCEPT_NODES.find((n) => n.unitId === firstWeakUnitId);
+      const matchedNode = ECONOMICS_CONCEPT_NODES_BY_UNIT_ID.get(firstWeakUnitId);
       if (matchedNode && ECONOMICS_FOCUS_PACKAGES[matchedNode.packageId]) {
         setSelectedFocusId(matchedNode.packageId);
       }
@@ -85,7 +86,7 @@ export const PersonalizedLearningPageEconomics: React.FC = () => {
 
     const matched = weakUnits
       .map((uid) => {
-        const node = ECONOMICS_CONCEPT_NODES.find((n) => n.unitId === uid);
+        const node = ECONOMICS_CONCEPT_NODES_BY_UNIT_ID.get(uid);
         return node ? ECONOMICS_FOCUS_PACKAGES[node.packageId] : null;
       })
       .filter((pkg): pkg is EconomicsFocusAreaPackage => !!pkg);

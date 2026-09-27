@@ -333,6 +333,10 @@ export const ECONOMICS_CONCEPT_NODES: ConceptNode[] = [
   },
 ];
 
+export const ECONOMICS_CONCEPT_NODES_BY_UNIT_ID: Map<string, ConceptNode> = new Map(
+  ECONOMICS_CONCEPT_NODES.map((node) => [node.unitId, node])
+);
+
 export const ECONOMICS_DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
   {
     id: 'econ-q1',
