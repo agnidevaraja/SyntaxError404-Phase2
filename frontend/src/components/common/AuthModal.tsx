@@ -78,6 +78,11 @@ export const AuthModal: React.FC = () => {
       setErrorMessage('Please enter an email address.');
       return;
     }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      setErrorMessage('Please enter a valid email address.');
+      return;
+    }
     if (!password) {
       setErrorMessage('Please enter a password.');
       return;
