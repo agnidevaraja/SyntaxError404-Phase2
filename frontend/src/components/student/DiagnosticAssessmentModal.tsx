@@ -217,6 +217,16 @@ export const DiagnosticAssessmentModal: React.FC = () => {
   // Economics Q10: Rent Control Price Ceiling
   const [rentCeilingLevel, setRentCeilingLevel] = useState<number>(1200); // 1600 is eq
 
+  // Deductive selection states for Interactive Sandboxes (prevents answer auto-reveal)
+  const [chemQ3Choice, setChemQ3Choice] = useState<number>(0);
+  const [chemQ4Choice, setChemQ4Choice] = useState<number>(3);
+  const [chemQ5Choice, setChemQ5Choice] = useState<number>(1);
+  const [econQ1Choice, setEconQ1Choice] = useState<number>(2);
+  const [econQ2Choice, setEconQ2Choice] = useState<number>(0);
+  const [econQ3Choice, setEconQ3Choice] = useState<number>(1);
+  const [econQ4Choice, setEconQ4Choice] = useState<number>(3);
+  const [econQ5Choice, setEconQ5Choice] = useState<number>(1);
+
   // Sync submission from context
   useEffect(() => {
     if (isDiagnosticOpen) {
@@ -716,32 +726,6 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
     setIsAnalyzingVoice(false);
   };
 
-  const handleApplyVoiceAnswer = () => {
-    if (currentQ.questionType === 'multiple_choice' && currentQ.correctAnswerIndex !== undefined) {
-      handleSelectOption(currentQ.correctAnswerIndex);
-    } else if (currentQ.questionType === 'short_text' && currentQ.acceptedAnswers && currentQ.acceptedAnswers.length > 0) {
-      handleTextChange(currentQ.acceptedAnswers[0]);
-    }
-
-    setSolvedViaStealth((prev) => ({
-      ...prev,
-      [currentIndex]: 'Socratic Voice Probe',
-    }));
-    setBonusXP((prev) => prev + 100);
-    showToast(
-      'Voice Solution Recorded!',
-      'Spoken reasoning verified. Answer locked in and +100 XP awarded.',
-      'success'
-    );
-    // Keep stealthModeActive true so the student stays in Stealth Mode across questions!
-
-    if (currentIndex < questionsList.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-    } else {
-      handleSubmit();
-    }
-  };
-
   const handleApplyTactileAnswer = (answerValue: string | number, label: string) => {
     if (typeof answerValue === 'number') {
       handleSelectOption(answerValue);
@@ -754,16 +738,125 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
       [currentIndex]: label,
     }));
     setBonusXP((prev) => prev + 75);
-    showToast(
-      'Tactile Sandbox Solved!',
-      `${label} verified. Answer recorded and +75 XP awarded.`,
-      'success'
-    );
-    // Keep stealthModeActive true so the student stays in Stealth Mode across questions!
 
     if (currentIndex < questionsList.length - 1) {
+      showToast(
+        `Question ${currentIndex + 1} Sandbox Solved!`,
+        `${label} verified (+75 XP). Advancing to Question ${currentIndex + 2} Sandbox...`,
+        'success'
+      );
+      // Advance to next question in the Sandbox alone (remains in tactile_model)
       setCurrentIndex((prev) => prev + 1);
     } else {
+      // Completed all questions in the Interactive Sandbox!
+      showToast(
+        'All 5 Interactive Sandboxes Completed!',
+        'Tactile stage complete across all questions (+75 XP). Advancing to Stage 2: 15-Sec Voice Probe...',
+        'success'
+      );
+      setCurrentIndex(0);
+      setStealthSubTab('socratic_voice');
+    }
+  };
+
+  const handleApplyVoiceAnswer = () => {
+    if (answers[currentIndex] === undefined) {
+      if (currentQ.questionType === 'multiple_choice' && currentQ.correctAnswerIndex !== undefined) {
+        handleSelectOption(currentQ.correctAnswerIndex);
+      } else if (currentQ.questionType === 'short_text' && currentQ.acceptedAnswers && currentQ.acceptedAnswers.length > 0) {
+        handleTextChange(currentQ.acceptedAnswers[0]);
+      }
+    }
+
+    setSolvedViaStealth((prev) => ({
+      ...prev,
+      [currentIndex]: 'Socratic Voice Probe',
+    }));
+    setBonusXP((prev) => prev + 100);
+
+    if (currentIndex < questionsList.length - 1) {
+      showToast(
+        `Question ${currentIndex + 1} Reasoning Saved!`,
+        `Oral diagnostic insight logged (+100 XP). Advancing to Question ${currentIndex + 2} Voice Probe...`,
+        'success'
+      );
+      setCurrentIndex((prev) => prev + 1);
+      setVoiceTranscript('');
+      setVoiceAnalysisResult(null);
+    } else {
+      showToast(
+        'All Voice Probes Completed!',
+        'Verbal reasoning logged across all questions (+100 XP). Advancing to Stage 3: Step Scaffold...',
+        'success'
+      );
+      setCurrentIndex(0);
+      setStealthSubTab('step_scaffolder');
+      setVoiceTranscript('');
+      setVoiceAnalysisResult(null);
+    }
+  };
+
+  const handleApplyScaffold = () => {
+    if (answers[currentIndex] === undefined) {
+      if (currentQ.questionType === 'multiple_choice' && currentQ.correctAnswerIndex !== undefined) {
+        handleSelectOption(currentQ.correctAnswerIndex);
+      } else if (currentQ.acceptedAnswers && currentQ.acceptedAnswers.length > 0) {
+        handleTextChange(currentQ.acceptedAnswers[0]);
+      }
+    }
+
+    setSolvedViaStealth((prev) => ({
+      ...prev,
+      [currentIndex]: 'Logic Scaffold Deduction',
+    }));
+    setBonusXP((prev) => prev + 50);
+
+    if (currentIndex < questionsList.length - 1) {
+      showToast(
+        `Question ${currentIndex + 1} Scaffold Confirmed!`,
+        `Deduction verified (+50 XP). Advancing to Question ${currentIndex + 2} Scaffold...`,
+        'success'
+      );
+      setCurrentIndex((prev) => prev + 1);
+    } else {
+      showToast(
+        'All Step Scaffolds Completed!',
+        'Logic confirmed across all questions (+50 XP). Advancing to Stage 4: Certainty Dial...',
+        'success'
+      );
+      setCurrentIndex(0);
+      setStealthSubTab('confidence_dial');
+    }
+  };
+
+  const handleApplyConfidenceDial = () => {
+    if (answers[currentIndex] === undefined) {
+      if (currentQ.questionType === 'multiple_choice' && currentQ.correctAnswerIndex !== undefined) {
+        handleSelectOption(currentQ.correctAnswerIndex);
+      } else if (currentQ.acceptedAnswers && currentQ.acceptedAnswers.length > 0) {
+        handleTextChange(currentQ.acceptedAnswers[0]);
+      }
+    }
+
+    setSolvedViaStealth((prev) => ({
+      ...prev,
+      [currentIndex]: `Stealth Suite (${confidenceLevel}% Certainty)`,
+    }));
+    setBonusXP((prev) => prev + 25);
+
+    if (currentIndex < questionsList.length - 1) {
+      showToast(
+        `Question ${currentIndex + 1} Certainty Logged!`,
+        `Calibrated at ${confidenceLevel}%. Advancing to Question ${currentIndex + 2}...`,
+        'success'
+      );
+      setCurrentIndex((prev) => prev + 1);
+    } else {
+      showToast(
+        'Stealth Assessment Complete!',
+        'All questions calibrated across interactive modalities. Finalizing report...',
+        'success'
+      );
       handleSubmit();
     }
   };
@@ -814,6 +907,7 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
     setCurrentIndex(0);
     setLocalSubmission(null);
     setStealthModeActive(false);
+    setStealthSubTab('tactile_model');
     setBonusXP(0);
   };
 
@@ -1202,7 +1296,7 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
                         </p>
                       </div>
 
-                      {/* CHEMISTRY QUESTIONS 1 - 10 SANDBOXES */}
+                      {/* CHEMISTRY QUESTIONS 1 - 5 SANDBOXES */}
                       {!isEconomics && (
                         <>
                           {/* Q1: Water Mole Conversion */}
@@ -1221,29 +1315,28 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
                                 onChange={(e) => setWaterMassGrams(parseFloat(e.target.value))}
                                 className="w-full accent-indigo-500"
                               />
-                              <div className="p-3 bg-slate-800 text-center font-mono text-xs">
-                                Moles = Mass ÷ Molar Mass = {waterMassGrams.toFixed(2)} ÷ 18.02 ={' '}
-                                <strong className="text-emerald-400 text-sm">
-                                  {(waterMassGrams / 18.02).toFixed(2)} Moles
-                                </strong>
+                              <div className="p-3 bg-slate-800/80 rounded-lg text-center font-mono text-xs text-slate-300">
+                                <div>Selected Sample: <span className="text-white font-bold">{waterMassGrams.toFixed(2)} g H₂O</span> · Molar Mass: <span className="text-slate-300 font-bold">18.02 g/mol</span></div>
+                                <div className="text-[11px] text-slate-400 mt-1">Adjust mass slider to match the question prompt, calculate the moles, then lock in your answer.</div>
                               </div>
                               <div className="flex justify-end">
                                 <button
                                   onClick={() => {
                                     const calcMoles = (waterMassGrams / 18.02).toFixed(2);
-                                    const matchedOptIdx = currentQ.options?.findIndex((opt) =>
-                                      opt.text.startsWith(calcMoles)
-                                    );
+                                    const matchedOptIdx = currentQ.options?.findIndex((optStr) => {
+                                      const text = typeof optStr === 'string' ? optStr : (optStr as any)?.text || '';
+                                      return text.startsWith(calcMoles);
+                                    });
                                     const chosenIndex =
                                       matchedOptIdx !== -1 && matchedOptIdx !== undefined
                                         ? matchedOptIdx
                                         : (currentQ.correctAnswerIndex ?? 1);
-                                    handleApplyTactileAnswer(chosenIndex, `Molar Bridge: ${calcMoles} Moles`);
+                                    handleApplyTactileAnswer(chosenIndex, 'Molar Bridge Sandbox');
                                   }}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Lock in {(waterMassGrams / 18.02).toFixed(2)} Moles & Next</span>
+                                  <span>Lock In Answer & Next Question (Q2)</span>
                                 </button>
                               </div>
                             </div>
@@ -1316,7 +1409,7 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply Balanced Coefficients (1, 5, 3, 4) & Next</span>
+                                  <span>Lock In Balanced Coefficients & Next Question (Q3)</span>
                                 </button>
                               </div>
                             </div>
@@ -1325,27 +1418,52 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
                           {/* Q3: 2Al + 3Cl2 Stoichiometric Converter */}
                           {currentIndex === 2 && (
                             <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                              <div className="p-3 bg-slate-800 rounded-lg space-y-1.5 text-xs font-mono">
+                              <div className="p-3 bg-slate-800 rounded-lg space-y-2 text-xs font-mono">
                                 <div className="flex justify-between text-slate-300">
                                   <span>Reaction Stoichiometry:</span>
                                   <span className="text-indigo-300">2Al + 3Cl₂ → 2AlCl₃</span>
                                 </div>
                                 <div className="flex justify-between text-slate-300">
-                                  <span>Available Al:</span>
-                                  <span>4.00 mol</span>
+                                  <span>Available Reactant:</span>
+                                  <span>4.00 mol Al</span>
                                 </div>
-                                <div className="flex justify-between font-bold text-emerald-300 pt-1 border-t border-slate-700">
-                                  <span>Required Cl₂ (4.0 × 3/2):</span>
-                                  <span>6.00 moles Cl₂</span>
+                                <div className="text-[11px] text-slate-400 font-sans pt-1 border-t border-slate-700">
+                                  Determine the exact moles of Cl₂ gas required to consume 4.00 mol Al by applying the stoichiometric molar ratio.
                                 </div>
                               </div>
+
+                              <div className="space-y-2">
+                                <span className="text-xs text-slate-300 block font-mono">Select Required Cl₂ Gas Quantity:</span>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                  {[
+                                    { label: '6.0 moles Cl₂', index: 0 },
+                                    { label: '4.0 moles Cl₂', index: 1 },
+                                    { label: '2.67 moles Cl₂', index: 2 },
+                                    { label: '12.0 moles Cl₂', index: 3 },
+                                  ].map((item) => (
+                                    <button
+                                      key={item.index}
+                                      type="button"
+                                      onClick={() => setChemQ3Choice(item.index)}
+                                      className={`p-2.5 rounded-lg text-xs font-mono border transition-all cursor-pointer ${
+                                        chemQ3Choice === item.index
+                                          ? 'bg-emerald-600 text-white border-emerald-400 font-bold'
+                                          : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                                      }`}
+                                    >
+                                      {item.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(currentQ.correctAnswerIndex ?? 0, 'Stoichiometric Ratio Converter')}
+                                  onClick={() => handleApplyTactileAnswer(chemQ3Choice, 'Stoichiometric Ratio Converter')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply 6.0 moles Cl₂ & Next</span>
+                                  <span>Lock In Stoichiometric Ratio & Next Question (Q4)</span>
                                 </button>
                               </div>
                             </div>
@@ -1357,26 +1475,49 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
                               <div className="grid grid-cols-2 gap-3 text-center text-xs font-mono">
                                 <div className="p-2.5 bg-slate-800 rounded-lg">
                                   <span className="text-slate-400 block text-[10px]">Supplied N₂</span>
-                                  <span className="text-sm font-bold text-white">{inputMolesN2} mol</span>
-                                  <span className="text-[10px] text-amber-300 block mt-1">Requires 3.00 mol H₂</span>
+                                  <span className="text-sm font-bold text-white">{inputMolesN2.toFixed(2)} mol</span>
                                 </div>
                                 <div className="p-2.5 bg-slate-800 rounded-lg">
                                   <span className="text-slate-400 block text-[10px]">Supplied H₂</span>
                                   <span className="text-sm font-bold text-white">2.00 mol</span>
-                                  <span className="text-[10px] text-rose-400 block mt-1">Deficit: Needs 1.00 mol more</span>
                                 </div>
                               </div>
-                              <div className="p-3 bg-slate-800 text-center font-mono text-xs">
-                                1.00 mol N₂ requires 3.00 mol H₂, but only 2.00 mol H₂ is available.{' '}
-                                <strong className="text-emerald-400 block mt-0.5">Therefore, H₂ is the Limiting Reagent.</strong>
+                              <div className="p-3 bg-slate-800 text-center font-mono text-xs text-slate-300">
+                                Reaction: N₂ + 3H₂ → 2NH₃ (1:3 Molar Proportion). Compare available quantities to determine which reactant will be fully exhausted first.
                               </div>
+
+                              <div className="space-y-2">
+                                <span className="text-xs text-slate-300 block font-mono">Select Limiting Reagent:</span>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                  {[
+                                    { label: 'N₂ is Limiting', index: 0 },
+                                    { label: 'Neither is Limiting', index: 1 },
+                                    { label: 'NH₃ is Limiting', index: 2 },
+                                    { label: 'H₂ is Limiting', index: 3 },
+                                  ].map((item) => (
+                                    <button
+                                      key={item.index}
+                                      type="button"
+                                      onClick={() => setChemQ4Choice(item.index)}
+                                      className={`p-2.5 rounded-lg text-xs font-mono border transition-all cursor-pointer ${
+                                        chemQ4Choice === item.index
+                                          ? 'bg-emerald-600 text-white border-emerald-400 font-bold'
+                                          : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                                      }`}
+                                    >
+                                      {item.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(currentQ.correctAnswerIndex ?? 3, 'Limiting Reagent Stoichiometry')}
+                                  onClick={() => handleApplyTactileAnswer(chemQ4Choice, 'Limiting Reagent Stoichiometry')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply "H₂ is Limiting" & Next</span>
+                                  <span>Lock In Limiting Reagent & Next Question (Q5)</span>
                                 </button>
                               </div>
                             </div>
@@ -1395,17 +1536,42 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
                                   <span className="font-bold text-white">50.0 g</span>
                                 </div>
                               </div>
-                              <div className="p-3 bg-slate-800 text-center font-mono text-xs">
-                                Percent Yield = (42.5 ÷ 50.0) × 100% ={' '}
-                                <strong className="text-emerald-400 text-sm">85.0%</strong>
+                              <div className="p-3 bg-slate-800 text-center font-mono text-xs text-slate-300">
+                                Experimental Recovery: 42.5 g precipitate recovered out of 50.0 g theoretical maximum. Calculate percentage efficiency.
                               </div>
+
+                              <div className="space-y-2">
+                                <span className="text-xs text-slate-300 block font-mono">Select Calculated Percent Yield:</span>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                  {[
+                                    { label: '117.6%', index: 0 },
+                                    { label: '85.0%', index: 1 },
+                                    { label: '7.5%', index: 2 },
+                                    { label: '92.5%', index: 3 },
+                                  ].map((item) => (
+                                    <button
+                                      key={item.index}
+                                      type="button"
+                                      onClick={() => setChemQ5Choice(item.index)}
+                                      className={`p-2.5 rounded-lg text-xs font-mono border transition-all cursor-pointer ${
+                                        chemQ5Choice === item.index
+                                          ? 'bg-emerald-600 text-white border-emerald-400 font-bold'
+                                          : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                                      }`}
+                                    >
+                                      {item.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(currentQ.correctAnswerIndex ?? 1, 'Yield Efficiency Calculation')}
+                                  onClick={() => handleApplyTactileAnswer(chemQ5Choice, 'Yield Efficiency Calculation')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply 85.0% Yield & Complete Assessment</span>
+                                  <span>Lock In Yield Calculation & Proceed to Stage 2: Voice Probe</span>
                                 </button>
                               </div>
                             </div>
@@ -1430,16 +1596,41 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
                                 </div>
                               </div>
                               <div className="p-3 bg-slate-800 text-center text-xs text-slate-300">
-                                <strong className="text-emerald-400 block mb-0.5">The Universal Economic Problem:</strong>
-                                Scarcity is the perpetual condition where unlimited human wants exceed finite productive resources.
+                                Resource Tension Model: Evaluate the relationship between unlimited human wants and finite productive resources.
                               </div>
+
+                              <div className="space-y-2">
+                                <span className="text-xs text-slate-300 block font-mono">Select Governed Principle:</span>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                  {[
+                                    { label: 'Temporary supply chain shortage', index: 0 },
+                                    { label: 'Inability to purchase luxury items', index: 1 },
+                                    { label: 'Universal condition of scarcity', index: 2 },
+                                    { label: 'Monopolistic market failure', index: 3 },
+                                  ].map((item) => (
+                                    <button
+                                      key={item.index}
+                                      type="button"
+                                      onClick={() => setEconQ1Choice(item.index)}
+                                      className={`p-2.5 text-left rounded-lg border transition-all cursor-pointer ${
+                                        econQ1Choice === item.index
+                                          ? 'bg-emerald-600 text-white border-emerald-400 font-bold'
+                                          : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                                      }`}
+                                    >
+                                      {item.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(currentQ.correctAnswerIndex ?? 2, 'Scarcity Allocation Model')}
+                                  onClick={() => handleApplyTactileAnswer(econQ1Choice, 'Scarcity Allocation Model')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply Scarcity Definition & Next</span>
+                                  <span>Lock In Economic Principle & Next Question (Q2)</span>
                                 </button>
                               </div>
                             </div>
@@ -1450,28 +1641,54 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
                             <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
                               <div className="space-y-2 text-xs font-mono">
                                 <div className="p-2.5 bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-between">
-                                  <span>Rank 1 (Chosen Action): Study Economics</span>
+                                  <span>Rank 1: Study Economics</span>
                                   <span className="text-emerald-400 font-bold">Action Taken</span>
                                 </div>
-                                <div className="p-2.5 bg-emerald-950 border border-emerald-700 rounded-lg flex items-center justify-between text-emerald-200">
-                                  <span>Rank 2 (Next Best Alternative): Attend Concert</span>
-                                  <span className="font-bold font-mono">Opportunity Cost</span>
+                                <div className="p-2.5 bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-between">
+                                  <span>Rank 2: Attend Concert</span>
+                                  <span className="text-slate-400">Alternative Option</span>
                                 </div>
-                                <div className="p-2.5 bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-between text-slate-400">
+                                <div className="p-2.5 bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-between">
                                   <span>Rank 3: Play Video Games</span>
-                                  <span>Ignored</span>
+                                  <span className="text-slate-400">Alternative Option</span>
                                 </div>
                               </div>
                               <div className="p-3 bg-slate-800 text-center text-xs text-slate-300">
-                                Opportunity cost is strictly the single next-best alternative foregone (Attending the concert), not the sum of all alternatives.
+                                Opportunity Cost Evaluation: Identify which outcome represents the true opportunity cost of choosing to Study Economics.
                               </div>
+
+                              <div className="space-y-2">
+                                <span className="text-xs text-slate-300 block font-mono">Select Opportunity Cost:</span>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                  {[
+                                    { label: 'Attending the concert (highest-valued alternative)', index: 0 },
+                                    { label: 'Both concert and video games combined', index: 1 },
+                                    { label: 'Playing video games (lowest-ranked choice)', index: 2 },
+                                    { label: 'Zero (positive educational returns)', index: 3 },
+                                  ].map((item) => (
+                                    <button
+                                      key={item.index}
+                                      type="button"
+                                      onClick={() => setEconQ2Choice(item.index)}
+                                      className={`p-2.5 text-left rounded-lg border transition-all cursor-pointer ${
+                                        econQ2Choice === item.index
+                                          ? 'bg-emerald-600 text-white border-emerald-400 font-bold'
+                                          : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                                      }`}
+                                    >
+                                      {item.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(currentQ.correctAnswerIndex ?? 0, 'Opportunity Cost Hierarchy')}
+                                  onClick={() => handleApplyTactileAnswer(econQ2Choice, 'Opportunity Cost Hierarchy')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply "Attending Concert" & Next</span>
+                                  <span>Lock In Opportunity Cost & Next Question (Q3)</span>
                                 </button>
                               </div>
                             </div>
@@ -1482,18 +1699,20 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
                             <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
                               <div className="grid grid-cols-3 gap-2 text-center text-xs font-mono">
                                 <button
+                                  type="button"
                                   onClick={() => setPpcPointLocation('inside')}
-                                  className={`p-2.5 rounded-lg border transition-all ${
+                                  className={`p-2.5 rounded-lg border transition-all cursor-pointer ${
                                     ppcPointLocation === 'inside'
-                                      ? 'border-emerald-500 bg-emerald-950/50 text-emerald-300 font-bold'
+                                      ? 'border-indigo-500 bg-indigo-950/50 text-indigo-300 font-bold'
                                       : 'border-slate-700 bg-slate-800 text-slate-400'
                                   }`}
                                 >
                                   Point Inside PPC
                                 </button>
                                 <button
+                                  type="button"
                                   onClick={() => setPpcPointLocation('on_frontier')}
-                                  className={`p-2.5 rounded-lg border transition-all ${
+                                  className={`p-2.5 rounded-lg border transition-all cursor-pointer ${
                                     ppcPointLocation === 'on_frontier'
                                       ? 'border-indigo-500 bg-indigo-950/50 text-indigo-300 font-bold'
                                       : 'border-slate-700 bg-slate-800 text-slate-400'
@@ -1502,45 +1721,53 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
                                   Point on Curve
                                 </button>
                                 <button
+                                  type="button"
                                   onClick={() => setPpcPointLocation('outside')}
-                                  className={`p-2.5 rounded-lg border transition-all ${
+                                  className={`p-2.5 rounded-lg border transition-all cursor-pointer ${
                                     ppcPointLocation === 'outside'
-                                      ? 'border-rose-500 bg-rose-950/50 text-rose-300 font-bold'
+                                      ? 'border-indigo-500 bg-indigo-950/50 text-indigo-300 font-bold'
                                       : 'border-slate-700 bg-slate-800 text-slate-400'
                                   }`}
                                 >
                                   Point Outside PPC
                                 </button>
                               </div>
-                              <div className="p-3 bg-slate-800 text-center font-mono text-xs">
-                                {ppcPointLocation === 'inside' && (
-                                  <span className="text-emerald-400 font-bold">
-                                    Inside the PPC indicates productive inefficiency or unemployed, idle resources in the economy.
-                                  </span>
-                                )}
-                                {ppcPointLocation === 'on_frontier' && (
-                                  <span className="text-indigo-300">
-                                    On the curve indicates maximum productive efficiency with all resources fully employed.
-                                  </span>
-                                )}
-                                {ppcPointLocation === 'outside' && (
-                                  <span className="text-rose-400">
-                                    Outside the curve is unattainable with current technology and resources.
-                                  </span>
-                                )}
+                              <div className="p-3 bg-slate-800 text-center font-mono text-xs text-slate-300">
+                                Production boundary plotted: Selected coordinate is situated {ppcPointLocation === 'inside' ? 'INSIDE' : ppcPointLocation === 'on_frontier' ? 'ON' : 'OUTSIDE'} the curve. Deduce what this indicates about resource utilization.
                               </div>
+
+                              <div className="space-y-2">
+                                <span className="text-xs text-slate-300 block font-mono">Deduce Economic Indication:</span>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                  {[
+                                    { label: 'Maximum sustainable productive capacity', index: 0 },
+                                    { label: 'Productive inefficiency or unemployed idle resources', index: 1 },
+                                    { label: 'Output combination is currently unattainable', index: 2 },
+                                    { label: 'Rapid innovation shifting frontier outward', index: 3 },
+                                  ].map((item) => (
+                                    <button
+                                      key={item.index}
+                                      type="button"
+                                      onClick={() => setEconQ3Choice(item.index)}
+                                      className={`p-2.5 text-left rounded-lg border transition-all cursor-pointer ${
+                                        econQ3Choice === item.index
+                                          ? 'bg-emerald-600 text-white border-emerald-400 font-bold'
+                                          : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                                      }`}
+                                    >
+                                      {item.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => {
-                                    const targetIndex = ppcPointLocation === 'inside' ? 1 : ppcPointLocation === 'on_frontier' ? 2 : 3;
-                                    handleApplyTactileAnswer(targetIndex, 'PPC Inefficiency Model');
-                                  }}
+                                  onClick={() => handleApplyTactileAnswer(econQ3Choice, 'PPC Inefficiency Model')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>
-                                    Apply "{ppcPointLocation === 'inside' ? 'Productive Inefficiency' : ppcPointLocation === 'on_frontier' ? 'Allocative Efficiency' : 'Unattainable Level'}" & Next
-                                  </span>
+                                  <span>Lock In Frontier Deduction & Next Question (Q4)</span>
                                 </button>
                               </div>
                             </div>
@@ -1551,28 +1778,55 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
                             <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
                               <div className="flex items-center justify-between p-3 bg-slate-800 rounded-lg">
                                 <div>
-                                  <span className="text-xs font-bold text-white block">Solar Manufacturing Innovation</span>
-                                  <span className="text-[10px] text-slate-400">Halves per-unit production costs</span>
+                                  <span className="text-xs font-bold text-white block">Manufacturing Technology Shock</span>
+                                  <span className="text-[10px] text-slate-400">Simulate breakthroughs in photovoltaic cell fabrication</span>
                                 </div>
                                 <button
+                                  type="button"
                                   onClick={() => setTechInnovationActive(!techInnovationActive)}
-                                  className={`px-3 py-1 text-xs font-bold rounded ${
+                                  className={`px-3 py-1 text-xs font-bold rounded transition-colors cursor-pointer ${
                                     techInnovationActive ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-300'
                                   }`}
                                 >
-                                  {techInnovationActive ? 'Supply Shifted Right' : 'Toggle Innovation'}
+                                  {techInnovationActive ? 'Innovation Active (-50% Cost)' : 'Baseline Cost'}
                                 </button>
                               </div>
-                              <div className="p-3 bg-slate-800 text-center font-mono text-xs text-emerald-300">
-                                Breakthrough manufacturing innovations that lower production costs allow suppliers to offer more units at every price, shifting supply outward to the RIGHT.
+                              <div className="p-3 bg-slate-800 text-center font-mono text-xs text-slate-300">
+                                Market Factor Analysis: Determine which event shifts the market supply curve for solar panels outward to the RIGHT.
                               </div>
+
+                              <div className="space-y-2">
+                                <span className="text-xs text-slate-300 block font-mono">Select Rightward Supply Shift Determinant:</span>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                  {[
+                                    { label: 'Mandatory per-unit tax imposed on producers', index: 0 },
+                                    { label: 'Increase in hourly wages paid to assembly labor', index: 1 },
+                                    { label: 'Decline in consumer clean-energy preferences', index: 2 },
+                                    { label: 'Manufacturing innovation halving unit cell costs', index: 3 },
+                                  ].map((item) => (
+                                    <button
+                                      key={item.index}
+                                      type="button"
+                                      onClick={() => setEconQ4Choice(item.index)}
+                                      className={`p-2.5 text-left rounded-lg border transition-all cursor-pointer ${
+                                        econQ4Choice === item.index
+                                          ? 'bg-emerald-600 text-white border-emerald-400 font-bold'
+                                          : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                                      }`}
+                                    >
+                                      {item.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(currentQ.correctAnswerIndex ?? 3, 'Supply Innovation Model')}
+                                  onClick={() => handleApplyTactileAnswer(econQ4Choice, 'Supply Innovation Model')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply "Supply Shifts Right" & Next</span>
+                                  <span>Lock In Market Effect & Next Question (Q5)</span>
                                 </button>
                               </div>
                             </div>
@@ -1583,28 +1837,50 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
                             <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
                               <div className="grid grid-cols-2 gap-3 text-center text-xs font-mono">
                                 <div className="p-2.5 bg-slate-800 rounded">
-                                  <span className="text-slate-400 block text-[10px]">% Price Change</span>
+                                  <span className="text-slate-400 block text-[10px]">% Price Change (ΔP)</span>
                                   <span className="font-bold text-amber-300">+10.0%</span>
                                 </div>
                                 <div className="p-2.5 bg-slate-800 rounded">
-                                  <span className="text-slate-400 block text-[10px]">% Quantity Demanded Change</span>
+                                  <span className="text-slate-400 block text-[10px]">% Quantity Change (ΔQd)</span>
                                   <span className="font-bold text-rose-300">-2.0%</span>
                                 </div>
                               </div>
-                              <div className="p-3 bg-slate-800 text-center font-mono text-xs">
-                                |PED| = |-2% ÷ +10%| ={' '}
-                                <strong className="text-emerald-400 text-sm">0.20 (Price Inelastic)</strong>
-                                <span className="text-slate-400 block text-[11px] mt-0.5">
-                                  Because |PED| &lt; 1.0, quantity demanded is relatively unresponsive to price changes.
-                                </span>
+                              <div className="p-3 bg-slate-800 text-center font-mono text-xs text-slate-300">
+                                Market Elasticity Calibration: A +10.0% price increase yields only a -2.0% drop in quantity demanded. Calculate |PED| and select classification.
                               </div>
+
+                              <div className="space-y-2">
+                                <span className="text-xs text-slate-300 block font-mono">Select Elasticity Classification:</span>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                  {[
+                                    { label: 'Price elastic (|PED| = 5.0, highly responsive)', index: 0 },
+                                    { label: 'Price inelastic (|PED| = 0.20, relatively unresponsive)', index: 1 },
+                                    { label: 'Unit elastic (|PED| = 1.0, proportional response)', index: 2 },
+                                    { label: 'Perfectively elastic (|PED| approaches infinity)', index: 3 },
+                                  ].map((item) => (
+                                    <button
+                                      key={item.index}
+                                      type="button"
+                                      onClick={() => setEconQ5Choice(item.index)}
+                                      className={`p-2.5 text-left rounded-lg border transition-all cursor-pointer ${
+                                        econQ5Choice === item.index
+                                          ? 'bg-emerald-600 text-white border-emerald-400 font-bold'
+                                          : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                                      }`}
+                                    >
+                                      {item.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(currentQ.correctAnswerIndex ?? 1, 'Price Elasticity Calculation')}
+                                  onClick={() => handleApplyTactileAnswer(econQ5Choice, 'Price Elasticity Calculation')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply "Price Inelastic (|PED| = 0.20)" & Complete Assessment</span>
+                                  <span>Lock In Elasticity Analysis & Proceed to Stage 2: Voice Probe</span>
                                 </button>
                               </div>
                             </div>
@@ -1709,56 +1985,56 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
                                 {(isEconomics
                                   ? {
                                       0: [
-                                        'Perpetual scarcity: unlimited wants exceed finite productive resources',
-                                        'Scarcity forces continuous resource allocation trade-offs',
-                                        'Productive resources like land, labor, and capital are finite',
+                                        'Scarcity arises when unlimited human wants exceed finite productive resources',
+                                        'Productive factors (land, labor, capital) are physically limited in supply',
+                                        'Scarcity forces continuous resource allocation trade-offs across society',
                                       ],
                                       1: [
                                         'Opportunity cost is strictly the single next-best alternative foregone',
-                                        'Attending the concert is the foregone opportunity cost of studying',
-                                        'Only the highest-valued sacrificed alternative counts',
+                                        'Evaluating the highest-valued sacrificed option when economic choices are made',
+                                        'Distinguishing explicit accounting expenses from implicit opportunity costs',
                                       ],
                                       2: [
-                                        'Points inside the PPC indicate productive inefficiency or idle resources',
-                                        'Points on the curve represent maximum productive efficiency',
-                                        'Unemployed labor and idle capital shift production inside the curve',
+                                        'Points inside the PPC represent idle or misallocated productive capacity',
+                                        'Operating on the frontier boundary signifies maximum productive efficiency',
+                                        'Points outside the curve are unattainable without capital or tech expansion',
                                       ],
                                       3: [
-                                        'Manufacturing innovation lowers per-unit production costs',
-                                        'Lower costs shift the supply curve outward to the right',
-                                        'Suppliers offer greater output volume at every market price',
+                                        'Technological breakthroughs reduce per-unit marginal production costs',
+                                        'Lower manufacturing expenses allow greater output supply at any given price',
+                                        'Cost reductions shift the entire supply curve outward to the right',
                                       ],
                                       4: [
-                                        '% change in quantity (-2%) ÷ % change in price (+10%) equals 0.20',
-                                        'Absolute PED is 0.20 < 1.0, proving price inelastic demand',
-                                        'Quantity demanded is relatively unresponsive to price changes',
+                                        'Elasticity measures percentage responsiveness of quantity to price changes',
+                                        'An absolute elasticity coefficient below 1.0 indicates price inelastic demand',
+                                        'Quantity demanded changes by a smaller proportion than the price shift',
                                       ],
                                     }[currentIndex] || ['Scarcity forces economic trade-offs', 'Opportunity cost is the next best alternative']
                                   : {
                                       0: [
-                                        '36.04g ÷ 18.02 g/mol equals exactly 2.00 moles of water',
-                                        'Molar mass bridges mass in grams to mole count',
-                                        'One mole of water weighs 18.02 grams',
+                                        'Molar mass acts as a conversion factor between grams and moles',
+                                        'Avogadro ratio equates molar mass in grams to one mole of substance',
+                                        'Dividing sample mass in grams by molar mass yields mole quantity',
                                       ],
                                       1: [
-                                        'Conservation of mass requires balancing atoms on both sides',
-                                        'Balanced coefficients: 1 C3H8 + 5 O2 → 3 CO2 + 4 H2O',
-                                        'Atoms cannot be created or destroyed in chemical reactions',
+                                        'Law of Conservation of Mass dictates atom count must balance on both sides',
+                                        'Adjusting stoichiometric integer coefficients preserves atomic identity',
+                                        'Balancing Carbon and Hydrogen first before tallying total Oxygen atoms',
                                       ],
                                       2: [
-                                        'Stoichiometric molar ratio of Cl2 to Al is 3 to 2',
-                                        '4.0 moles of Al requires 6.0 moles of Cl2 gas',
-                                        'Multiply moles of Al by 3/2 to find required Cl2',
+                                        'Stoichiometric coefficients define the exact molar proportions of reactants',
+                                        'Determining moles of reagent required using the balanced reaction ratio',
+                                        'Multiplying given reactant moles by the stoichiometric conversion factor',
                                       ],
                                       3: [
-                                        '1.0 mol N2 requires 3.0 mol H2, but only 2.0 mol H2 is available',
-                                        'Hydrogen runs out first, making it the limiting reactant',
-                                        'Limiting reagent governs maximum theoretical ammonia yield',
+                                        'The limiting reactant is completely consumed first in a reaction',
+                                        'Stoichiometric ratio dictates which reactant is present in deficit',
+                                        'The limiting reagent sets the maximum theoretical yield of product',
                                       ],
                                       4: [
-                                        'Percent yield = actual yield 42.5g ÷ theoretical 50.0g × 100%',
-                                        'Actual yield of 42.5g achieves 85.0% reaction efficiency',
-                                        'Losses during filtration and recovery reduce yield below 100%',
+                                        'Percent yield evaluates the laboratory recovery efficiency of a reaction',
+                                        'Actual precipitate mass divided by theoretical maximum mass times 100%',
+                                        'Experimental losses and side reactions reduce actual yield below 100%',
                                       ],
                                     }[currentIndex] || ['Conservation of mass requires balancing atoms', 'Molar mass bridges mass to moles']
                                 ).map((phrase, pIdx) => (
@@ -1829,7 +2105,11 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
                               className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                             >
                               <IconCheckCircle className="w-4 h-4" />
-                              <span>Apply Verbal Answer to Question {currentIndex === questionsList.length - 1 ? '& Complete Assessment' : ''} (+100 XP)</span>
+                              <span>
+                                {currentIndex < questionsList.length - 1
+                                  ? `Lock In Verbal Reasoning & Next Question (Q${currentIndex + 2}) (+100 XP)`
+                                  : 'Complete Voice Probes & Proceed to Stage 3: Step Scaffold (+100 XP)'}
+                              </span>
                             </button>
                           </div>
                         </div>
@@ -1845,38 +2125,39 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
                           Socratic Logic Scaffolder
                         </span>
                         <h4 className="text-sm font-bold text-white">
-                          Break Down {currentQ.topic} into 2 Logical Deductions
+                          Deconstruct {currentQ.topic} into 2 Logical Deduction Steps
                         </h4>
+                        <p className="text-xs text-slate-400 mt-1">
+                          Examine the governing scientific/economic law before locking in your scaffolded solution.
+                        </p>
                       </div>
 
                       <div className="space-y-2.5 text-xs font-mono">
                         <div className="p-3 bg-slate-800/90 rounded-xl border border-slate-700 space-y-1">
-                          <span className="text-emerald-400 font-bold block text-[11px]">Step 1: Premise</span>
+                          <span className="text-emerald-400 font-bold block text-[11px]">Step 1: Governing Premise</span>
                           <p className="text-slate-300 font-sans text-xs">
-                            {currentQ.formulaOrReaction || currentQ.explanation.split('.')[0]}
+                            {currentQ.formulaOrReaction || `Identify the core scientific/economic law governing ${currentQ.topic}.`}
                           </p>
                         </div>
                         <div className="p-3 bg-slate-800/90 rounded-xl border border-slate-700 space-y-1">
-                          <span className="text-indigo-300 font-bold block text-[11px]">Step 2: Conclusion</span>
+                          <span className="text-indigo-300 font-bold block text-[11px]">Step 2: Conceptual Method</span>
                           <p className="text-slate-300 font-sans text-xs">
-                            {currentQ.explanation}
+                            Apply the stoichiometric or economic relationship to eliminate misconceptions and isolate the valid deduction.
                           </p>
                         </div>
                       </div>
 
                       <div className="flex justify-end">
                         <button
-                          onClick={() => {
-                            if (currentQ.questionType === 'multiple_choice' && currentQ.correctAnswerIndex !== undefined) {
-                              handleApplyTactileAnswer(currentQ.correctAnswerIndex, 'Socratic Scaffolder');
-                            } else if (currentQ.acceptedAnswers) {
-                              handleApplyTactileAnswer(currentQ.acceptedAnswers[0], 'Socratic Scaffolder');
-                            }
-                          }}
+                          onClick={handleApplyScaffold}
                           className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                         >
                           <IconCheckCircle className="w-4 h-4" />
-                          <span>Apply Scaffolded Deduction {currentIndex === questionsList.length - 1 ? '& Complete Assessment' : '& Next'}</span>
+                          <span>
+                            {currentIndex < questionsList.length - 1
+                              ? `Lock In Scaffold Deduction & Next Question (Q${currentIndex + 2}) (+50 XP)`
+                              : 'Complete Step Scaffolds & Proceed to Stage 4: Certainty Dial (+50 XP)'}
+                          </span>
                         </button>
                       </div>
                     </div>
@@ -1920,17 +2201,15 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
 
                       <div className="flex justify-end">
                         <button
-                          onClick={() => {
-                            if (currentQ.questionType === 'multiple_choice' && currentQ.correctAnswerIndex !== undefined) {
-                              handleApplyTactileAnswer(currentQ.correctAnswerIndex, `Calibrated Confidence (${confidenceLevel}%)`);
-                            } else if (currentQ.acceptedAnswers) {
-                              handleApplyTactileAnswer(currentQ.acceptedAnswers[0], `Calibrated Confidence (${confidenceLevel}%)`);
-                            }
-                          }}
+                          onClick={handleApplyConfidenceDial}
                           className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                         >
                           <IconCheckCircle className="w-4 h-4" />
-                          <span>Lock Answer with {confidenceLevel}% Certainty {currentIndex === questionsList.length - 1 ? '& Complete Assessment' : '& Next'}</span>
+                          <span>
+                            {currentIndex < questionsList.length - 1
+                              ? `Lock Answer with ${confidenceLevel}% Certainty & Next Question (Q${currentIndex + 2})`
+                              : `Lock Answer with ${confidenceLevel}% Certainty & Complete Assessment`}
+                          </span>
                         </button>
                       </div>
                     </div>
@@ -1954,11 +2233,19 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
                 >
                   <IconZap className="w-6 h-6" />
                 </div>
-                <h3 className={`text-xl font-bold ${isEconomics ? 'text-emerald-950' : 'text-indigo-950'}`}>
-                  {isEconomics ? 'Economics' : 'Chemistry'} Diagnostic Calibration Complete
-                </h3>
+                <div className="flex items-center justify-center gap-2 flex-wrap">
+                  <h3 className={`text-xl font-bold ${isEconomics ? 'text-emerald-950' : 'text-indigo-950'}`}>
+                    {isEconomics ? 'Economics' : 'Chemistry'} Diagnostic Calibration Complete
+                  </h3>
+                  {Object.keys(solvedViaStealth).length > 0 && (
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1 shadow-xs">
+                      <Award className="w-3.5 h-3.5 text-amber-600" />
+                      <span>Stealth Interactive Suite ({Object.keys(solvedViaStealth).length} / {questionsList.length} Solved Interactively)</span>
+                    </span>
+                  )}
+                </div>
                 <p className={`text-xs sm:text-sm max-w-md mx-auto ${isEconomics ? 'text-emerald-800' : 'text-indigo-800'}`}>
-                  You scored <strong className="font-mono text-base">{localSubmission.score} / {localSubmission.total}</strong> ({Math.round((localSubmission.score / localSubmission.total) * 100)}%). Your personalized learning platform has been calibrated with custom study materials.
+                  You scored <strong className="font-mono text-base">{localSubmission.score} / {localSubmission.total}</strong> ({Math.round((localSubmission.score / localSubmission.total) * 100)}%). {Object.keys(solvedViaStealth).length > 0 ? `${Object.keys(solvedViaStealth).length} conceptual derivation(s) verified via interactive stealth modalities.` : ''} Your personalized learning platform has been calibrated with custom study materials.
                 </p>
               </div>
 
@@ -2130,6 +2417,11 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
                             <span className="text-rose-700 dark:text-rose-400 font-semibold line-through">
                               {missed.studentAnswer}
                             </span>
+                            {solvedViaStealth[missed.questionNumber - 1] && (
+                              <span className="text-[10px] text-amber-600 dark:text-amber-400 font-mono ml-2">
+                                (via {solvedViaStealth[missed.questionNumber - 1]})
+                              </span>
+                            )}
                           </div>
                           <div className="text-slate-800 dark:text-slate-200">
                             Correct Answer:{' '}
@@ -2161,43 +2453,129 @@ Evaluate the student's spoken explanation and return ONLY a valid JSON object ma
         <div className="px-6 py-4 bg-slate-50 dark:bg-slate-950/80 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
           {!localSubmission ? (
             <>
-              <button
-                onClick={handlePrev}
-                disabled={currentIndex === 0}
-                className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer btn-tactile"
-              >
-                Previous
-              </button>
+              {!stealthModeActive ? (
+                /* STANDARD ASSESSMENT CONTROLS */
+                <>
+                  <button
+                    onClick={handlePrev}
+                    disabled={currentIndex === 0}
+                    className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer btn-tactile"
+                  >
+                    Previous Question
+                  </button>
 
-              <div className="flex items-center gap-2">
-                {currentIndex < questionsList.length - 1 ? (
+                  <span className="text-xs font-mono text-slate-500 dark:text-slate-400 hidden sm:inline">
+                    Standard Mode · Q{currentIndex + 1} of {questionsList.length}
+                  </span>
+
+                  <div className="flex items-center gap-2">
+                    {currentIndex < questionsList.length - 1 ? (
+                      <button
+                        onClick={handleNext}
+                        disabled={!isCurrentAnswered()}
+                        className={`px-4 py-2 text-xs font-semibold text-white rounded-lg shadow-xs transition-all flex items-center gap-1.5 cursor-pointer btn-tactile disabled:opacity-40 ${
+                          isEconomics
+                            ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800'
+                            : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'
+                        }`}
+                      >
+                        <span>Next Question</span>
+                        <IconArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleSubmit}
+                        disabled={!isCurrentAnswered()}
+                        className={`px-5 py-2 text-xs font-bold text-white rounded-lg shadow-xs transition-all flex items-center gap-1.5 cursor-pointer btn-tactile disabled:bg-slate-300 dark:disabled:bg-slate-800 ${
+                          isEconomics
+                            ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800'
+                            : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'
+                        }`}
+                      >
+                        <span>Submit Standard Assessment</span>
+                        <IconCheckCircle className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </>
+              ) : (
+                /* STEALTH INTERACTIVE MODE CONTROLS (INDEPENDENT) */
+                <>
                   <button
-                    onClick={handleNext}
-                    disabled={!isCurrentAnswered()}
-                    className={`px-4 py-2 text-xs font-semibold text-white rounded-lg shadow-xs transition-all flex items-center gap-1.5 cursor-pointer btn-tactile disabled:opacity-40 ${
-                      isEconomics
-                        ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800'
-                        : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'
-                    }`}
+                    onClick={() => {
+                      if (currentIndex > 0) {
+                        setCurrentIndex((prev) => prev - 1);
+                      }
+                    }}
+                    disabled={currentIndex === 0}
+                    className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer btn-tactile"
                   >
-                    <span>Next Question</span>
-                    <IconArrowRight className="w-3.5 h-3.5" />
+                    Previous Question
                   </button>
-                ) : (
-                  <button
-                    onClick={handleSubmit}
-                    disabled={!isCurrentAnswered()}
-                    className={`px-5 py-2 text-xs font-bold text-white rounded-lg shadow-xs transition-all flex items-center gap-1.5 cursor-pointer btn-tactile disabled:bg-slate-300 dark:disabled:bg-slate-800 ${
-                      isEconomics
-                        ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800'
-                        : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'
-                    }`}
-                  >
-                    <span>Submit Assessment</span>
-                    <IconCheckCircle className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono text-slate-500 dark:text-slate-400 hidden sm:inline">
+                      Stealth Mode · Q{currentIndex + 1} of {questionsList.length}
+                    </span>
+
+                    {/* 4-Step Modality Status Tracker */}
+                    <div className="flex items-center gap-1.5 text-xs font-mono">
+                      <span className="hidden sm:inline text-slate-400">Step:</span>
+                      {[
+                        { id: 'tactile_model', label: '1. Sandbox' },
+                        { id: 'socratic_voice', label: '2. Voice' },
+                        { id: 'step_scaffolder', label: '3. Scaffold' },
+                        { id: 'confidence_dial', label: '4. Certainty' },
+                      ].map((step) => (
+                        <button
+                          key={step.id}
+                          type="button"
+                          onClick={() => setStealthSubTab(step.id as any)}
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                            stealthSubTab === step.id
+                              ? isEconomics
+                                ? 'bg-emerald-600 text-white'
+                                : 'bg-indigo-600 text-white'
+                              : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-700'
+                          }`}
+                        >
+                          {step.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {currentIndex < questionsList.length - 1 ? (
+                      <button
+                        onClick={() => {
+                          setCurrentIndex((prev) => prev + 1);
+                        }}
+                        className={`px-4 py-2 text-xs font-semibold text-white rounded-lg shadow-xs transition-all flex items-center gap-1.5 cursor-pointer btn-tactile ${
+                          isEconomics
+                            ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800'
+                            : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'
+                        }`}
+                      >
+                        <span>Next Question</span>
+                        <IconArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleSubmit}
+                        className={`px-5 py-2 text-xs font-bold text-white rounded-lg shadow-xs transition-all flex items-center gap-1.5 cursor-pointer btn-tactile ${
+                          isEconomics
+                            ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800'
+                            : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'
+                        }`}
+                      >
+                        <span>Submit Stealth Assessment</span>
+                        <IconCheckCircle className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
             </>
           ) : (
             <>
