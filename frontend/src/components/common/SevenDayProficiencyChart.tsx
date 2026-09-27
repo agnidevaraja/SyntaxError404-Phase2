@@ -14,7 +14,8 @@ interface SevenDayProficiencyChartProps {
   compact?: boolean;
 }
 
-export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> = ({
+// Bolt Optimization: Wrap with React.memo to skip chart recalculations when parent re-renders with identical progression props
+export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> = React.memo(({
   progression,
   className = '',
   compact = false,
@@ -706,4 +707,4 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
       </div>
     </div>
   );
-};
+});

@@ -22,7 +22,8 @@ export interface ConceptKnowledgeGraphProps {
   onSelectNode?: (node: ConceptNode) => void;
 }
 
-export const ConceptKnowledgeGraph: React.FC<ConceptKnowledgeGraphProps> = ({
+// Bolt Optimization: Wrap with React.memo to prevent expensive dependency graph re-renders
+export const ConceptKnowledgeGraph: React.FC<ConceptKnowledgeGraphProps> = React.memo(({
   diagnosticSubmission = null,
   selectedPackageId,
   onSelectPackage,
@@ -274,4 +275,4 @@ export const ConceptKnowledgeGraph: React.FC<ConceptKnowledgeGraphProps> = ({
       </div>
     </div>
   );
-};
+});
