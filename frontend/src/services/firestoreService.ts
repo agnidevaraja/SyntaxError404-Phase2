@@ -222,7 +222,9 @@ export function listenToStudentUsers(callback: (students: FirestoreUser[]) => vo
  */
 export function normalizeStudentChatId(studentUid: string): string {
   if (!studentUid) return 'std-demo-student';
-  const cleaned = studentUid.trim();
+  // Sanitize path traversal characters (/ \ ..) to prevent Firestore document path traversal injection
+  const safeId = studentUid.replace(/[/\\.\s]+/g, '_').trim();
+  const cleaned = safeId || 'std-demo-student';
   if (
     cleaned === 'demo-std-demo' ||
     cleaned === 'demo-student' ||

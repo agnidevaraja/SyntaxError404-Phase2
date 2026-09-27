@@ -34,6 +34,8 @@ export const AuthModal: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [failedAttempts, setFailedAttempts] = useState<number>(0);
+  const [lockoutUntil, setLockoutUntil] = useState<number>(0);
 
   // Sync role when modal opens with initial role
   React.useEffect(() => {
@@ -71,6 +73,11 @@ export const AuthModal: React.FC = () => {
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (Date.now() < lockoutUntil) {
+      const waitSeconds = Math.ceil((lockoutUntil - Date.now()) / 1000);
+      setErrorMessage(`Rate limit active: Too many failed attempts. Please wait ${waitSeconds}s before retrying.`);
+      return;
+    }
     setErrorMessage(null);
 
     const cleanEmail = email.trim();
@@ -88,8 +95,8 @@ export const AuthModal: React.FC = () => {
         setErrorMessage('Please provide your full name for registration.');
         return;
       }
-      if (password.length < 6) {
-        setErrorMessage('Password must be at least 6 characters long.');
+      if (password.length < 8) {
+        setErrorMessage('Password must be at least 8 characters long for account security.');
         return;
       }
       if (password !== confirmPassword) {
@@ -100,6 +107,8 @@ export const AuthModal: React.FC = () => {
       setIsLoading(true);
       try {
         await registerWithEmail(cleanEmail, password, name.trim(), activeRole);
+        setFailedAttempts(0);
+        setLockoutUntil(0);
       } catch (err: any) {
         console.error('Registration failed:', err);
         if (err.code === 'auth/email-already-in-use') {
@@ -107,7 +116,7 @@ export const AuthModal: React.FC = () => {
         } else if (err.code === 'auth/invalid-email') {
           setErrorMessage('Please enter a valid email address.');
         } else if (err.code === 'auth/weak-password') {
-          setErrorMessage('Password is too weak. Must be at least 6 characters.');
+          setErrorMessage('Password is too weak. Must be at least 8 characters.');
         } else {
           setErrorMessage(err.message || 'Failed to create account.');
         }
@@ -118,27 +127,38 @@ export const AuthModal: React.FC = () => {
       setIsLoading(true);
       try {
         await loginWithEmail(cleanEmail, password, activeRole);
+        setFailedAttempts(0);
+        setLockoutUntil(0);
       } catch (err: any) {
         console.error('Email sign-in failed:', err);
         // If demo credentials and not in Firebase yet, launch demo
         if (cleanEmail === 'student@outstand.edu') {
+          setFailedAttempts(0);
           loginDemoQuickFill('student');
           return;
         }
         if (cleanEmail === 'facilitator.chem@outstand.edu' || cleanEmail === 'facilitator@outstand.edu') {
+          setFailedAttempts(0);
           loginDemoQuickFill('facilitator', 'chemistry');
           return;
         }
         if (cleanEmail === 'facilitator.econ@outstand.edu') {
+          setFailedAttempts(0);
           loginDemoQuickFill('facilitator', 'economics');
           return;
         }
-        if (
+
+        const newAttempts = failedAttempts + 1;
+        setFailedAttempts(newAttempts);
+        if (newAttempts >= 5) {
+          setLockoutUntil(Date.now() + 30000);
+          setErrorMessage('Rate limit reached: Too many failed login attempts. Login temporarily locked for 30 seconds.');
+        } else if (
           err.code === 'auth/invalid-credential' ||
           err.code === 'auth/wrong-password' ||
           err.code === 'auth/user-not-found'
         ) {
-          setErrorMessage('Invalid email or password. Please verify or use Developer Quick-Fill.');
+          setErrorMessage(`Invalid email or password (${5 - newAttempts} attempts remaining before temporary lockout).`);
         } else if (err.code === 'auth/invalid-email') {
           setErrorMessage('Please enter a valid email address.');
         } else {
@@ -496,7 +516,7 @@ export const AuthModal: React.FC = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || Date.now() < lockoutUntil}
               className={`w-full py-3 px-4 rounded-xl text-white font-bold text-xs sm:text-sm shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer btn-tactile disabled:opacity-50 mt-2 ${
                 activeRole === 'student'
                   ? 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'

@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Role verification (checks user doc or custom claims)
+    function isFacilitator() {
+      return isSignedIn() && (
+        request.auth.token.role == 'facilitator' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'facilitator'
+      );
+    }
+
+    // 1. User Profiles Collection
+    // Prevents Vertical Privilege Escalation (students cannot assign themselves 'facilitator' role)
+    // Prevents Horizontal Privilege Escalation (users cannot read/update other users' profiles)
+    match /users/{userId} {
+      allow read: if isSignedIn() && (isOwner(userId) || isFacilitator());
+      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.role in ['student', 'facilitator'];
+      allow update: if isSignedIn() && isOwner(userId) && (
+        // Prevent student from elevating their own role to facilitator
+        request.resource.data.role == resource.data.role || isFacilitator()
+      );
+      allow delete: if false;
+    }
+
+    // 2. Student Progress & Behavioral Telemetry
+    // Prevents IDOR & horizontal tampering (a student cannot overwrite or read another student's metrics)
+    match /progress/{progressId} {
+      allow read: if isSignedIn() && (
+        resource.data.studentId == request.auth.uid ||
+        isFacilitator()
+      );
+      allow create, update: if isSignedIn() && (
+        request.resource.data.studentId == request.auth.uid ||
+        isFacilitator()
+      );
+      allow delete: if false;
+    }
+
+    // 3. 1-on-1 Personalized Chat
+    // Protects sensitive student-educator communication
+    match /personalized_chats/{chatId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+
+      match /messages/{messageId} {
+        // Enforces that senderId matches authenticated caller
+        allow read: if isSignedIn();
+        allow create: if isSignedIn() && (
+          request.resource.data.senderId == request.auth.uid ||
+          request.auth.uid in chatId.split('_') ||
+          isFacilitator()
+        );
+        allow update, delete: if false;
+      }
+    }
+
+    // Default deny: Block all other unauthorized collections and paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

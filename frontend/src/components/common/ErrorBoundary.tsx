@@ -67,7 +67,9 @@ export class ErrorBoundary extends Component<Props, State> {
                 <span className="text-[10px] text-slate-500 block uppercase tracking-wider mb-1 font-sans">
                   Diagnostic Telemetry:
                 </span>
-                {this.state.error.message || String(this.state.error)}
+                {import.meta.env.DEV
+                  ? (this.state.error.message || String(this.state.error))
+                  : 'An unexpected application exception occurred. Full error telemetry has been captured.'}
               </div>
             )}
 
