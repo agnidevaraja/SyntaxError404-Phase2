@@ -202,7 +202,6 @@ export async function searchOpportunitiesWithAI(
   const fallbackResults = keywordFallback.length > 0 ? keywordFallback : VERIFIED_2026_STUDENT_GLOBAL_OPPORTUNITIES;
 
   if (!apiKey) {
-    console.log('[OpportunitiesGeminiService] No API key found, returning curated matching opportunities.');
     return fallbackResults;
   }
 
