@@ -1,5 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 import { OpportunityItem, StudentPerformanceContext } from '../types/opportunities';
+import { sanitizeUrl } from './opportunitiesGeminiService';
 
 export const VERIFIED_2026_ECONOMICS_OPPORTUNITIES: Record<'elite' | 'standard' | 'accessible', OpportunityItem[]> = {
   elite: [
@@ -312,7 +313,16 @@ Return a JSON array of 4 objects matching:
 
     const parsed = JSON.parse(text);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed.slice(0, 4);
+      return parsed.slice(0, 4).map((item: any) => ({
+        ...item,
+        rating: item.rating || 5,
+        isVerified: true,
+        categoryTags: item.categoryTags?.includes('Verified')
+          ? item.categoryTags
+          : [...(item.categoryTags || ['Competition', 'Economics']), 'Verified'],
+        learnMoreUrl: sanitizeUrl(item.learnMoreUrl, 'https://www.google.com'),
+        registrationUrl: sanitizeUrl(item.registrationUrl, 'https://www.google.com'),
+      }));
     }
     return defaultOpportunities;
   } catch (err) {

@@ -324,14 +324,19 @@ export async function sendPersonalizedMessage(
   }
 ): Promise<void> {
   const normUid = normalizeStudentChatId(studentUid);
-  if (!normUid || !message.text.trim()) return;
+  const trimmedText = message.text.trim().slice(0, 3000);
+  if (!normUid || !trimmedText) return;
+
+  const randomSuffix = typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID().slice(0, 8)
+    : Math.random().toString(36).slice(2, 7);
 
   const newMsg: ChatMessage = {
-    id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    id: `msg-${Date.now()}-${randomSuffix}`,
     senderId: message.senderId,
     senderRole: message.senderRole,
     senderName: message.senderName,
-    text: message.text.trim(),
+    text: trimmedText,
     subject,
     createdAt: new Date().toISOString(),
   };
@@ -370,7 +375,7 @@ export async function sendPersonalizedMessage(
       senderId: message.senderId,
       senderRole: message.senderRole,
       senderName: message.senderName,
-      text: message.text.trim(),
+      text: trimmedText,
       subject,
       createdAt: serverTimestamp(),
     });

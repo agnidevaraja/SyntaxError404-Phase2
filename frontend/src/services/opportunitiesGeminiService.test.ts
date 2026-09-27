@@ -1,11 +1,13 @@
 import { sanitizeUrl } from './opportunitiesGeminiService';
 
-// Declarations for Bun test environment
-declare const describe: (name: string, fn: () => void) => void;
-declare const test: (name: string, fn: () => void) => void;
-declare const expect: (actual: any) => {
-  toBe: (expected: any) => void;
-};
+// Bun test runner global definitions
+declare global {
+  function describe(name: string, fn: () => void): void;
+  function test(name: string, fn: () => void): void;
+  const expect: (actual: any) => {
+    toBe: (expected: any) => void;
+  };
+}
 
 describe('sanitizeUrl Security Tests', () => {
   test('allows valid http and https URLs', () => {
