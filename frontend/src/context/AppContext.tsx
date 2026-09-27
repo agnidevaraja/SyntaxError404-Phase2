@@ -285,7 +285,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       localStorage.setItem('outstand_facilitator_subject', subj);
     } catch (e) {
-      // ignore
+      console.warn('Failed to save facilitator subject to localStorage:', e);
     }
   };
 
@@ -298,7 +298,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       localStorage.setItem('outstand_can_switch_subject', String(can));
     } catch (e) {
-      // ignore
+      console.warn('Failed to save can switch subject preference to localStorage:', e);
     }
   };
 
@@ -446,7 +446,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       localStorage.setItem('outstand_diagnostic_submission', JSON.stringify(submission));
     } catch (e) {
-      // ignore
+      console.warn('Failed to save chemistry diagnostic submission to localStorage:', e);
     }
 
     // 1.C: Sync live student progress and telemetry to Firestore
@@ -534,7 +534,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.removeItem('outstand_diagnostic_submission');
       localStorage.removeItem('outstand_economics_diagnostic_submission');
     } catch (e) {
-      // ignore
+      console.warn('Failed to clear diagnostic submissions from localStorage:', e);
     }
   };
 
@@ -642,7 +642,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       localStorage.setItem('outstand_economics_diagnostic_submission', JSON.stringify(submission));
     } catch (e) {
-      // ignore
+      console.warn('Failed to save economics diagnostic submission to localStorage:', e);
     }
 
     // 1.C: Sync live student progress and telemetry to Firestore (Economics)
