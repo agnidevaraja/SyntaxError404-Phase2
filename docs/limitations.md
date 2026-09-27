@@ -16,7 +16,7 @@ As 10th-grade builders, we want to be completely honest about what Outstand can 
 
 ## Edge Cases We Don't Handle
 
-- **Intermittent network drops during Gemini streaming**: If a student's internet cuts out mid-way through a live Gemini request, the UI immediately shows an informative retry banner and defaults to the local curriculum fallback instead of hanging.
+- **Full offline Firestore write queuing**: If a student completely loses internet connectivity during a diagnostic assessment, the UI continues to function using in-memory React Context state, but background Firestore writes (progress telemetry, chat messages, diagnostic submissions) are not queued for later sync. We have not configured service worker background sync, so any writes attempted during a full outage are silently dropped and must be re-triggered once connectivity is restored.
 - **Multiple devices logged in simultaneously as the same user**: While Firestore synchronization keeps documents consistent, active assessment timers on two separate devices could record conflicting hesitation telemetry if a student opens quizzes concurrently.
 - **Browser tab switching during assessment**: We do not currently enforce strict fullscreen lockdown or anti-cheating tab detection because our goal is diagnostic learning and psychological safety, not high-stakes proctoring.
 - **Extreme screen sizes below 320px width**: While the interface is fully responsive on standard smartphones, tablets, and laptops, extremely narrow feature phones will experience layout wrapping.
@@ -31,7 +31,7 @@ As 10th-grade builders, we want to be completely honest about what Outstand can 
 
 ## Roadmap
 
-1. **Phase 1 (Current)**: High-precision diagnostic assessment, silent hesitation telemetry, 5-node concept graphs, 4-line teacher AI advisory, and real-time 1-on-1 chat across Chemistry and Economics.
-2. **Phase 2 (Next 3 Months)**: Add Grade 10 Physics and Mathematics modules, build a PWA offline cache, and provide one-click PDF report generation for parent-teacher conferences.
+1. **Phase 1 (Current)**: High-precision 5-question diagnostic assessment with silent hesitation telemetry, the Autonomous 4-Modality Cognitive Adaptation Engine (analogical, visual, tactile, scaffolded learning styles), 5-node concept dependency graphs, the Facilitator Priority Triage Roster with 60-second re-teach radar and AI-powered 4-line diagnostic advisory, real-time 1-on-1 instructor chat, and interactive AI-powered opportunities search across Chemistry and Economics.
+2. **Phase 2 (Next 3 Months)**: Add Grade 10 Physics and Mathematics modules, build a PWA offline cache with service worker background sync for Firestore writes, and provide one-click PDF report generation for parent-teacher conferences.
 3. **Phase 3 (Next 6 Months)**: Pilot Outstand in 3 partner high schools in Mysuru and Bangalore, gathering teacher feedback on hesitation thresholds and curriculum alignment.
 4. **Phase 4 (Long-Term)**: Add bilingual Kannada and English voice explanations, peer study rooms, and integration with state board and CBSE open educational resources.

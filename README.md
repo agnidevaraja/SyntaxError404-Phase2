@@ -16,7 +16,7 @@
 - **The gap we saw:** As 10th graders, we notice that standard tests only give students a single number at the end, like 65% or 80%. They never explain why you missed a question or what specific misconception caused you to pick the wrong option. In a normal classroom of 35 students, our teachers also have no way of knowing who is quietly hesitating on a concept until exam day when it is already too late.
 - **Why it matters:** When students fall behind on foundational concepts like stoichiometry in chemistry or price equilibrium in economics, everything that comes next feels impossible. Students lose confidence, develop subject anxiety, and get stuck doing repetitive generic worksheets that never target their actual learning bottleneck.
 - **Why we chose this over the others:** We live this problem every single day in school. Most study platforms just throw flashcards or long videos at you without identifying whether your issue is a math calculation trap, an intuitive misunderstanding, or a missing prerequisite.
-- **What solved looks like for us:** A student takes a quick 10-question diagnostic test, the system tracks their hesitation and identifies their exact conceptual trap, builds an instant custom learning deck with analogies and step-by-step routines, and gives their teacher a live dashboard with clear pedagogical intervention advice.
+- **What solved looks like for us:** A student takes a quick 5-question diagnostic test, the system tracks their hesitation and identifies their exact conceptual trap, builds an instant custom learning deck with analogies and step-by-step routines, and gives their teacher a live dashboard with clear pedagogical intervention advice.
 
 ## 2. Target Users & School Context
 
@@ -33,7 +33,7 @@
 Outstand is an intelligent learning portal that diagnoses conceptual roadblocks, builds adaptive remediation packages, and connects students with their teachers in real time.
 
 **Core flow:**
-1. A student logs in and takes a 10-question diagnostic assessment in Chemistry or Economics. While they answer, the app measures response timing and flags questions where they hesitated.
+1. A student logs in and takes a 5-question diagnostic assessment in Chemistry or Economics. While they answer, the app measures response timing and flags questions where they hesitated.
 2. The system analyzes errors, maps them to a sequenced 5-node Concept Knowledge Graph, and unlocks a tailored study space with custom presentation slides, real-world analogies, and guided practice exercises.
 3. If a student struggles on a practice question, they can click "Break It Down with AI" to generate an everyday analogy, a worked solution, and an interactive checkpoint question using the Google Gemini API. Students can also discover verified academic competitions and Olympiads through an interactive AI prompt search on their main learning hub.
 4. Meanwhile, the teacher sees a real-time cohort dashboard updated through Cloud Firestore. The dashboard highlights students with high hesitation, provides a 4-line AI advisory breakdown, and lets the teacher paste action plans directly into a 1-on-1 private intervention chat.
@@ -48,8 +48,8 @@ Diagram, components, data model and APIs: **[docs/architecture.md](./docs/archit
 
 **Stack:** React 19, TypeScript, Vite, Tailwind CSS 4, Firebase Auth, Cloud Firestore, Google Gemini API via @google/genai SDK (full details in [docs/architecture.md](./docs/architecture.md#tech-stack))
 
-**AI tools used in development:** Antigravity IDE, Claude, and Gemini for scaffolding code, debugging TypeScript types, and styling components.
-**AI inside the product:** Google Gemini 3.8 Flash (with Gemini 2.5 Flash fallback) for the Facilitator 4-Line Diagnostic Advisory Engine, the Adaptive Concept Explainer, and the multi-disciplinary Opportunities Hub with custom AI prompt search.
+**AI tools used in development:** Google AI Studio as our initial build platform, then Google Antigravity as our later build platform. Model used: Gemini 3.8 Flash.
+**AI inside the product:** Google Gemini 3.8 Flash (with Gemini 2.5 Flash fallback) for the Facilitator 4-Line Diagnostic Advisory Engine, the Adaptive Concept Explainer, the Autonomous 4-Modality Cognitive Adaptation Engine, and the multi-disciplinary Opportunities Hub with custom AI prompt search.
 
 Full disclosure: **[ai.md](./ai.md)**
 

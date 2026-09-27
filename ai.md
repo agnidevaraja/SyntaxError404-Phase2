@@ -21,15 +21,14 @@ AI tools are fully permitted at HackMysuru 1.0, and disclosing their role in bot
 
 | Tool | Model / plan | Used by | What we used it for |
 |---|---|---|---|
-| Google Antigravity IDE | Gemini 2.5 Pro / Flash | Team SyntaxError404 | Interactive coding, terminal execution, refactoring, and multi-file editing |
-| Anthropic Claude | Claude 3.7 Sonnet | Achalesh | Brainstorming pedagogical models, drafting Tailwind layouts, and refining TypeScript interfaces |
-| OpenAI ChatGPT | GPT-4o | Panav & Achalesh | Quick syntax lookups, debugging Vite configurations, and regex pattern matching |
+| Google AI Studio | Gemini 3.8 Flash | Team SyntaxError404 | Initial build platform for prototyping components, testing prompts, and scaffolding early UI layouts |
+| Google Antigravity IDE | Gemini 3.8 Flash | Team SyntaxError404 | Later build platform for interactive coding, terminal execution, refactoring, multi-file editing, and debugging TypeScript types |
 
 ## 2. Where AI Helped in the Codebase
 
 | Area / file | Level of AI help | What a human did |
 |---|---|---|
-| `frontend/src/components/student/` | Medium: Scaffolding JSX cards and Tailwind responsive layouts | Defined the 10-question diagnostic flows, idle hesitation listeners, and state machine transitions |
+| `frontend/src/components/student/` | Medium: Scaffolding JSX cards and Tailwind responsive layouts | Defined the 5-question diagnostic flows, idle hesitation listeners, and state machine transitions |
 | `frontend/src/components/facilitator/` | Medium: Layout design for roster cards and telemetry badges | Programmed the real-time Firestore listeners, hesitation thresholds, and chat drawer logic |
 | `frontend/src/services/aiAdvisoryService.ts` | High: Prompt formatting and SDK invocation | Designed the strict 4-line diagnostic format and implemented local pedagogical fallbacks |
 | `frontend/src/services/conceptExplainerService.ts` | High: Structured output JSON parsing | Formulated the 3-step worked problem structure and Gentner analogy boundary mapping |
@@ -49,7 +48,7 @@ AI tools are fully permitted at HackMysuru 1.0, and disclosing their role in bot
 - **Accuracy we measured:** In our manual evaluations across 20 synthetic student profiles with varying error clusters, the Gemini 4-line advisory correctly identified the underlying misconception in 19 out of 20 test runs (95% diagnostic precision).
 - **What happens when the model is wrong or unavailable:** If the API key is missing, network is offline, or the response fails JSON parsing, the system immediately falls back to pre-authored pedagogical packages curated for that exact unit or Gemini 2.5 Flash fallback. The student or teacher is never left with an empty screen or error code.
 - **Does it work offline?** The live Gemini API call requires internet connectivity. However, all curriculum units include complete offline fallbacks with analogies and worked steps.
-- **Student data sent to third parties:** Only anonymized academic performance signals (such as "Student scored 6/10 in Stoichiometry, missed questions 3 and 4 on limiting reagents, hesitated 9 seconds") are sent in the prompt. No student passwords, emails, or personal identification details are ever transmitted to the LLM.
+- **Student data sent to third parties:** Only anonymized academic performance signals (such as "Student scored 4/5 in Stoichiometry, missed questions 3 and 4 on limiting reagents, hesitated 9 seconds") are sent in the prompt. No student passwords, emails, or personal identification details are ever transmitted to the LLM.
 - **Cost at scale:** Using Gemini 3.8 Flash costs fractions of a cent per diagnostic evaluation (approximately 0.0003 dollars per student breakdown), making it highly economical for public school rollouts.
 
 ## 4. Key Prompts
@@ -60,7 +59,7 @@ You are an expert high school academic facilitator analyzing a Grade 9 student r
 Analyze the following student performance:
 - Subject: ${subject}
 - Focus Topic: ${strugglingTopic}
-- Score: ${recentScore} / 10
+- Score: ${recentScore} / 5
 - Hesitation Signal: ${hesitationLevel}
 - Specific Errors / Context: ${studentContext}
 

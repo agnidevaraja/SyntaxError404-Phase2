@@ -27,7 +27,7 @@
 
 **Sub-problem:** Adaptive Diagnostic Evaluation, Silent Hesitation Telemetry, and Real-Time Remediation for High School Learners.
 
-**In one sentence:** An adaptive educational intelligence web application that pinpoints the root cause of student mistakes in Chemistry and Economics through 10-question diagnostic quizzes, logs silent hesitation in real time, generates custom visual analogies and slides with Gemini AI, and connects students with teachers via live Firestore dashboards and 1-on-1 chats.
+**In one sentence:** An adaptive educational intelligence web application that pinpoints the root cause of student mistakes in Chemistry and Economics through 5-question diagnostic quizzes, logs silent hesitation in real time, generates custom visual analogies and slides with Gemini AI, and connects students with teachers via live Firestore dashboards and 1-on-1 chats.
 
 ---
 
@@ -77,7 +77,7 @@
 | Platform | Web Application (React 19, Vite, Tailwind CSS, Firebase) |
 | Student Demo Login | Click "Launch Student Demo" on the landing page or quick-fill "Alex Chen" |
 | Facilitator Demo Login | Click "Launch Facilitator Demo" or quick-fill "Dr. Eleanor Vance" (Chemistry) / "Prof. Arthur Sterling" (Economics) |
-| Sample Data Loaded | Yes: Grade 9 Chemistry and Economics syllabi, 10-question diagnostic banks, student cohort telemetry |
+| Sample Data Loaded | Yes: Grade 9 Chemistry and Economics syllabi, 5-question diagnostic banks, student cohort telemetry |
 | How to test offline mode | In Chrome DevTools, open Network tab, toggle "Offline". Local slide decks and pedagogical fallbacks load smoothly. |
 | Troubleshooting | Refer to [docs/setup.md](./docs/setup.md) |
 
@@ -87,7 +87,7 @@
 
 1. Open the app at http://localhost:3000 or http://localhost:3001 and click "Launch Student Demo".
 2. On the Student Hub, click on Chemistry or Economics, then click "Take Diagnostic Assessment".
-3. Answer the 10 questions. Notice that if you pause on a question for 7 seconds, the system logs silent hesitation telemetry.
+3. Answer the 5 questions. Notice that if you pause on a question for 7 seconds, the system logs silent hesitation telemetry.
 4. Submit the quiz to view your personalized learning space. Inspect the Sequenced Concept Knowledge Graph, the custom slide deck, click "Break It Down with AI" on any concept, or search for 2026 competitions using the new AI search bar on the Student Hub.
 5. In another tab or by logging out, click "Launch Facilitator Demo". View your live student card on the teacher roster with real-time hesitation badges.
 6. Click "Analyze Student Roadblock" to see the 4-line Gemini AI diagnostic advice, then click "Copy Action Plan to 1-on-1 Chat" and send a message. Switch back to the student view to verify the real-time sync.

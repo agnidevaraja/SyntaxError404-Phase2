@@ -34,7 +34,7 @@ flowchart LR
 
 Here is the exact end-to-end flow when a student takes an assessment and receives personalized intervention:
 
-1. **Student Begins Diagnostic**: The student opens the 10-question Chemistry or Economics diagnostic quiz. As they view each question, a local timer measures idle seconds. If the student spends more than 7 seconds on a single question without selecting an option, an in-memory hesitation event triggers.
+1. **Student Begins Diagnostic**: The student opens the 5-question Chemistry or Economics diagnostic quiz. As they view each question, a local timer measures idle seconds. If the student spends more than 7 seconds on a single question without selecting an option, an in-memory hesitation event triggers.
 2. **Telemetry Logging**: The client immediately calls `syncStudentProgress` via Firestore, updating the document `progress/{studentUid}_{subject}` with `hesitationLevel: 'high'`, recent score trends, and active topic.
 3. **Assessment Evaluation**: Upon submission, `submitDiagnostic` evaluates each response against the curriculum concept nodes, identifies missed question clusters, calculates topic weights, and maps the student to priority remediation packages in `PersonalizedLearningPage`.
 4. **Live Facilitator Alert**: The teacher portal, which maintains an active `onSnapshot()` subscription to `users` and `progress`, updates instantly without a page refresh. The student card displays a warning badge indicating high hesitation.
@@ -137,7 +137,7 @@ erDiagram
 
 | Dataset | Source and licence | Real or synthetic | Used for |
 |---|---|---|---|
-| Chemistry Diagnostic Questions | Curated by our team based on Grade 9-10 CBSE, ICSE, and IGCSE chemistry standards | Real pedagogical questions | 10-question diagnostic quiz covering matter, bonding, reactions, and kinetics |
-| Economics Diagnostic Questions | Curated by our team based on Grade 9-10 introductory microeconomics curricula | Real pedagogical questions | 10-question diagnostic quiz covering scarcity, opportunity cost, supply, demand, and equilibrium |
+| Chemistry Diagnostic Questions | Curated by our team based on Grade 9-10 CBSE, ICSE, and IGCSE chemistry standards | Real pedagogical questions | 5-question diagnostic quiz covering mole conversions, equation balancing, stoichiometry, limiting reagents, and yield |
+| Economics Diagnostic Questions | Curated by our team based on Grade 9-10 introductory microeconomics curricula | Real pedagogical questions | 5-question diagnostic quiz covering scarcity, opportunity cost, production possibilities, supply and demand, and price elasticity |
 | Verified Competitions and Olympiads | Curated list of legitimate youth competitions (Chemistry Olympiad, Wharton High School Investment, Regeneron ISEF, etc.) | Real public opportunities | Opportunities Hub recommendations for high-achieving or motivated students |
 | Curriculum Dependency Nodes | Designed based on educational prerequisite sequencing models | Real structured sequence | Concept Knowledge Graph rendering and adaptive learning path generation |
