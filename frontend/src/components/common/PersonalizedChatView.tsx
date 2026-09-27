@@ -41,7 +41,7 @@ export const PersonalizedChatView: React.FC<PersonalizedChatViewProps> = ({
   const [inputText, setInputText] = useState<string>(initialMessageText);
   const [isSending, setIsSending] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatBodyRef = useRef<HTMLDivElement>(null);
 
   // Sync initial message text prop changes (e.g. from "Copy to Chat")
   useEffect(() => {
@@ -63,9 +63,11 @@ export const PersonalizedChatView: React.FC<PersonalizedChatViewProps> = ({
     return () => unsubscribe();
   }, [studentUid, subject]);
 
-  // Auto-scroll to bottom on message update
+  // Auto-scroll internal chat container only on message update (does not hijack page window scroll)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (chatBodyRef.current) {
+      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+    }
   }, [messages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -136,7 +138,7 @@ export const PersonalizedChatView: React.FC<PersonalizedChatViewProps> = ({
       </div>
 
       {/* Message Thread Body */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 bg-slate-50/50 dark:bg-slate-950/50">
+      <div ref={chatBodyRef} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 bg-slate-50/50 dark:bg-slate-950/50">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center h-full text-slate-400 space-y-2">
             <RefreshCw className="w-5 h-5 animate-spin text-indigo-500" />
@@ -189,7 +191,6 @@ export const PersonalizedChatView: React.FC<PersonalizedChatViewProps> = ({
             );
           })
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Input Field & Send Action */}

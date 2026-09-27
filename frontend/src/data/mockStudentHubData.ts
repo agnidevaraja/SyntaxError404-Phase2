@@ -408,6 +408,7 @@ export const COHORT_STUDENTS_LIST: StudentProfile[] = [
     grade: 'Grade 9',
     diagnosticStatus: 'needs_remediation',
     diagnosticScore: 3,
+    triagePriority: 'Critical Roadblock',
     commonMistakes: [
       'Question 4: Direct mass ratio comparison across reaction arrow without converting to moles',
       'Question 6: Conservation of atoms in unbalanced skeletal equations',
@@ -426,6 +427,7 @@ export const COHORT_STUDENTS_LIST: StudentProfile[] = [
     grade: 'Grade 9',
     diagnosticStatus: 'needs_remediation',
     diagnosticScore: 5,
+    triagePriority: 'Moderate Gap',
     commonMistakes: [
       'Question 2: Omitted valence electron shielding effect in electronegativity trend',
       'Question 5: High hesitation (9.2s dwell) on atomic radius contraction across Period 3',
@@ -443,6 +445,7 @@ export const COHORT_STUDENTS_LIST: StudentProfile[] = [
     grade: 'Grade 9',
     diagnosticStatus: 'needs_remediation',
     diagnosticScore: 6,
+    triagePriority: 'Needs Practice',
     commonMistakes: [
       'Question 8: Inverted molar ratio coefficient on gas stoichiometry calculations',
       'Question 10: Inverted STP volume multiplication (22.4 L/mol) instead of dividing',
@@ -460,6 +463,7 @@ export const COHORT_STUDENTS_LIST: StudentProfile[] = [
     grade: 'Grade 9',
     diagnosticStatus: 'completed',
     diagnosticScore: 10,
+    triagePriority: 'Mastered',
     commonMistakes: [],
     recommendedFocus: 'Thermochemistry & Reaction Enthalpy (Olympiad Honors Extension)',
     tasksCompleted: 4,
@@ -473,7 +477,8 @@ export const COHORT_STUDENTS_LIST: StudentProfile[] = [
     avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
     grade: 'Grade 9',
     diagnosticStatus: 'not_started',
-    diagnosticScore: 0,
+    diagnosticScore: undefined,
+    triagePriority: 'Calibration Required',
     commonMistakes: [],
     recommendedFocus: 'Diagnostic Assessment Calibration Required',
     tasksCompleted: 0,
@@ -482,3 +487,4 @@ export const COHORT_STUDENTS_LIST: StudentProfile[] = [
     recoveryRate: 85,
   },
 ];
+

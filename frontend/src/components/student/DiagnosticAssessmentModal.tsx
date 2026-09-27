@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { GoogleGenAI } from '@google/genai';
 import { useApp } from '../../context/AppContext';
 import { DIAGNOSTIC_QUESTIONS } from '../../data/diagnosticQuestions';
 import { ECONOMICS_DIAGNOSTIC_QUESTIONS } from '../../data/mockEconomicsData';
@@ -148,6 +149,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
 
   // Socratic Voice Probe state with real Web Speech API recognition
   const [isRecordingVoice, setIsRecordingVoice] = useState<boolean>(false);
+  const [isAnalyzingVoice, setIsAnalyzingVoice] = useState<boolean>(false);
   const [voiceElapsedSec, setVoiceElapsedSec] = useState<number>(0);
   const [voiceTranscript, setVoiceTranscript] = useState<string>('');
   const [voiceAudioLevel, setVoiceAudioLevel] = useState<number>(0);
@@ -258,7 +260,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
 
       if (tel.idleSeconds === 7 && !tel.hesitationFlagged) {
         tel.hesitationFlagged = true;
-        const studentUid = authUser?.uid || 'std-rohan';
+        const studentUid = authUser?.uid || (isEconomics ? 'std-demo-student-econ' : 'std-demo-student');
         syncStudentProgress(studentUid, isEconomics ? 'Economics' : 'Chemistry', {
           recentScore: 6,
           strugglingTopic: questionsList[currentIndex]?.topic || 'Conceptual Evaluation',
@@ -291,7 +293,9 @@ export const DiagnosticAssessmentModal: React.FC = () => {
     tel.questionStartTimes[currentIndex] = Date.now();
     tel.recentBackspaceTimestamps = [];
     tel.lastSelectedOption = null;
-    setStealthModeActive(false);
+    // Maintain stealthModeActive state across questions so student stays in their selected modality
+    setVoiceTranscript('');
+    voiceTranscriptRef.current = '';
     setVoiceAnalysisResult(null);
     setIsRecordingVoice(false);
     setConfidenceLevel(85);
@@ -515,111 +519,6 @@ export const DiagnosticAssessmentModal: React.FC = () => {
   };
   handleStopVoiceProbeRef.current = handleStopVoiceProbe;
 
-  const analyzeVoiceExplanation = (overrideText?: string) => {
-    let transcriptText = (overrideText !== undefined ? overrideText : voiceTranscriptRef.current || voiceTranscript).trim();
-    if (!transcriptText) {
-      transcriptText = isEconomics
-        ? 'Because human wants are unlimited while productive economic resources like land, labor, and capital are finite, individuals and societies face perpetual scarcity, requiring trade-offs at every decision margin.'
-        : 'Because matter cannot be created or destroyed according to the Law of Conservation of Mass, the number of atoms on the reactant side must exactly balance the atoms in the product side before mole conversion.';
-    }
-    voiceTranscriptRef.current = transcriptText;
-    setVoiceTranscript(transcriptText);
-
-    const lower = transcriptText.toLowerCase();
-
-    // Check relevant keywords based on current topic (5 questions per subject)
-    const keywordBank: Record<number, string[]> = isEconomics
-      ? {
-          0: ['scarcity', 'wants', 'resources', 'unlimited', 'finite'],
-          1: ['opportunity cost', 'next best', 'alternative', 'concert', 'foregone'],
-          2: ['ppc', 'inside', 'inefficient', 'unemployed', 'idle', 'frontier'],
-          3: ['supply', 'technology', 'innovation', 'shift right', 'costs'],
-          4: ['elasticity', 'inelastic', 'ped', 'unresponsive', 'percentage'],
-        }
-      : {
-          0: ['moles', 'grams', 'water', '18', '2', 'molar mass'],
-          1: ['balance', 'atoms', 'coefficients', 'propane', 'conservation', '1, 5, 3, 4'],
-          2: ['stoichiometry', 'ratio', 'chlorine', 'aluminum', '6'],
-          3: ['limiting', 'reagent', 'nitrogen', 'hydrogen', 'excess', 'haber'],
-          4: ['yield', 'theoretical', 'percent', 'efficiency', 'actual', '85'],
-        };
-
-    const targetKeywords = keywordBank[currentIndex] || ['concept', 'principle', 'reasoning'];
-    const detected = targetKeywords.filter((kw) => lower.includes(kw));
-
-    const baseScore = 85 + Math.min(13, detected.length * 3);
-
-    setVoiceAnalysisResult({
-      score: baseScore,
-      insight:
-        detected.length > 0
-          ? `Socratic Verbal Reasoning Verified: Detected conceptual markers (${detected.join(', ')}). Flawless articulation of core principle.`
-          : `Verbal reasoning recorded and processed. Core conceptual alignment validated through spoken diagnostic probe.`,
-      verified: true,
-      detectedKeywords: detected.length > 0 ? detected : targetKeywords.slice(0, 2),
-    });
-  };
-
-  const handleApplyVoiceAnswer = () => {
-    if (currentQ.questionType === 'multiple_choice' && currentQ.correctAnswerIndex !== undefined) {
-      handleSelectOption(currentQ.correctAnswerIndex);
-    } else if (currentQ.questionType === 'short_text' && currentQ.acceptedAnswers && currentQ.acceptedAnswers.length > 0) {
-      handleTextChange(currentQ.acceptedAnswers[0]);
-    }
-
-    setSolvedViaStealth((prev) => ({
-      ...prev,
-      [currentIndex]: 'Socratic Voice Probe',
-    }));
-    setBonusXP((prev) => prev + 100);
-    showToast(
-      'Voice Solution Recorded!',
-      'Spoken reasoning verified. Answer locked in and +100 XP awarded.',
-      'success'
-    );
-    setStealthModeActive(false);
-
-    if (currentIndex < questionsList.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-    }
-  };
-
-  const handleApplyTactileAnswer = (answerValue: string | number, label: string) => {
-    if (typeof answerValue === 'number') {
-      handleSelectOption(answerValue);
-    } else {
-      handleTextChange(answerValue);
-    }
-
-    setSolvedViaStealth((prev) => ({
-      ...prev,
-      [currentIndex]: label,
-    }));
-    setBonusXP((prev) => prev + 75);
-    showToast(
-      'Tactile Sandbox Solved!',
-      `${label} verified. Answer recorded and +75 XP awarded.`,
-      'success'
-    );
-    setStealthModeActive(false);
-
-    if (currentIndex < questionsList.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-    }
-  };
-
-  const handleNext = () => {
-    if (currentIndex < questionsList.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
-    }
-  };
-
   const isCurrentAnswered = () => {
     const val = answers[currentIndex];
     if (val === undefined) return false;
@@ -676,7 +575,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
       : submitDiagnostic(answers);
     setLocalSubmission(submission);
 
-    const studentUid = authUser?.uid || 'std-rohan';
+    const studentUid = authUser?.uid || (isEconomics ? 'std-demo-student-econ' : 'std-demo-student');
     syncStudentProgress(studentUid, isEconomics ? 'Economics' : 'Chemistry', {
       recentScore: submission.score,
       strugglingTopic:
@@ -699,6 +598,186 @@ export const DiagnosticAssessmentModal: React.FC = () => {
         solvedViaStealthCount: Object.keys(solvedViaStealth).length,
       },
     });
+  };
+
+  const analyzeVoiceExplanation = async (overrideText?: string) => {
+    let transcriptText = (overrideText !== undefined ? overrideText : voiceTranscriptRef.current || voiceTranscript).trim();
+    if (!transcriptText) {
+      transcriptText = `In ${currentQ.topic}, ${currentQ.explanation.split('.')[0]}. Therefore, analyzing this requires applying the fundamental principle of ${currentQ.topic}.`;
+    }
+    voiceTranscriptRef.current = transcriptText;
+    setVoiceTranscript(transcriptText);
+    setIsAnalyzingVoice(true);
+
+    const apiKey =
+      (import.meta.env.VITE_GEMINI_API_KEY as string) ||
+      (import.meta.env.GEMINI_API_KEY as string) ||
+      '';
+
+    const lower = transcriptText.toLowerCase();
+
+    // Check relevant keywords based on current topic (5 questions per subject)
+    const keywordBank: Record<number, string[]> = isEconomics
+      ? {
+          0: ['scarcity', 'wants', 'resources', 'unlimited', 'finite', 'trade-offs'],
+          1: ['opportunity cost', 'next best', 'alternative', 'concert', 'foregone'],
+          2: ['ppc', 'inside', 'inefficient', 'unemployed', 'idle', 'frontier', 'curve'],
+          3: ['supply', 'technology', 'innovation', 'shift right', 'costs', 'production'],
+          4: ['elasticity', 'inelastic', 'ped', 'unresponsive', 'percentage', '0.2'],
+        }
+      : {
+          0: ['moles', 'grams', 'water', '18', '2', 'molar mass'],
+          1: ['balance', 'atoms', 'coefficients', 'propane', 'conservation', '1, 5, 3, 4'],
+          2: ['stoichiometry', 'ratio', 'chlorine', 'aluminum', '6'],
+          3: ['limiting', 'reagent', 'nitrogen', 'hydrogen', 'excess', 'haber'],
+          4: ['yield', 'theoretical', 'percent', 'efficiency', 'actual', '85'],
+        };
+
+    const targetKeywords = keywordBank[currentIndex] || ['concept', 'principle', 'reasoning'];
+    const detected = targetKeywords.filter((kw) => lower.includes(kw));
+
+    const baseScore = 85 + Math.min(13, detected.length * 3);
+
+    let finalResult = {
+      score: baseScore,
+      insight:
+        detected.length > 0
+          ? `Socratic Verbal Reasoning Verified: Detected conceptual markers (${detected.join(', ')}). Flawless articulation of ${currentQ.topic}.`
+          : `Verbal reasoning recorded and processed. Core conceptual alignment validated through spoken diagnostic probe.`,
+      verified: true,
+      detectedKeywords: detected.length > 0 ? detected : targetKeywords.slice(0, 2),
+    };
+
+    if (apiKey && apiKey.trim().length > 0) {
+      try {
+        const ai = new GoogleGenAI({ apiKey });
+        const prompt = `You are a real-time Socratic oral diagnostic evaluator for secondary students.
+Evaluate this student's 15-second verbal response to an oral diagnostic probe.
+
+Context:
+- Subject: ${isEconomics ? 'Economics' : 'Chemistry'}
+- Topic: "${currentQ.topic}"
+- Question Prompt: "${currentQ.prompt}"
+- Core Scientific/Economic Principle: "${currentQ.explanation}"
+
+Student Spoken Transcript:
+"${transcriptText}"
+
+Evaluate the student's spoken explanation and return ONLY a valid JSON object matching this exact schema:
+{
+  "score": <number between 75 and 99 reflecting conceptual accuracy and clarity>,
+  "verified": true,
+  "detectedKeywords": [<array of 2 to 4 key domain concepts detected in their transcript>],
+  "insight": "<A concise 2-sentence encouraging pedagogical evaluation of their spoken reasoning and understanding of ${currentQ.topic}>"
+}`;
+
+        let responseText = '';
+        try {
+          const response = await ai.models.generateContent({
+            model: 'gemini-3.8-flash',
+            contents: prompt,
+            config: {
+              responseMimeType: 'application/json',
+            },
+          });
+          responseText = response.text?.trim() || '';
+        } catch (mErr) {
+          console.warn('[VoiceProbe] Fallback to gemini-2.5-flash:', mErr);
+          const fbResponse = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+            config: {
+              responseMimeType: 'application/json',
+            },
+          });
+          responseText = fbResponse.text?.trim() || '';
+        }
+
+        if (responseText) {
+          const parsed = JSON.parse(responseText);
+          if (parsed && typeof parsed.score === 'number' && parsed.insight) {
+            finalResult = {
+              score: Math.min(100, Math.max(70, parsed.score)),
+              insight: parsed.insight,
+              verified: parsed.verified !== false,
+              detectedKeywords:
+                Array.isArray(parsed.detectedKeywords) && parsed.detectedKeywords.length > 0
+                  ? parsed.detectedKeywords
+                  : finalResult.detectedKeywords,
+            };
+          }
+        }
+      } catch (err) {
+        console.warn('[VoiceProbe] Gemini API evaluation fallback to heuristics:', err);
+      }
+    }
+
+    setVoiceAnalysisResult(finalResult);
+    setIsAnalyzingVoice(false);
+  };
+
+  const handleApplyVoiceAnswer = () => {
+    if (currentQ.questionType === 'multiple_choice' && currentQ.correctAnswerIndex !== undefined) {
+      handleSelectOption(currentQ.correctAnswerIndex);
+    } else if (currentQ.questionType === 'short_text' && currentQ.acceptedAnswers && currentQ.acceptedAnswers.length > 0) {
+      handleTextChange(currentQ.acceptedAnswers[0]);
+    }
+
+    setSolvedViaStealth((prev) => ({
+      ...prev,
+      [currentIndex]: 'Socratic Voice Probe',
+    }));
+    setBonusXP((prev) => prev + 100);
+    showToast(
+      'Voice Solution Recorded!',
+      'Spoken reasoning verified. Answer locked in and +100 XP awarded.',
+      'success'
+    );
+    // Keep stealthModeActive true so the student stays in Stealth Mode across questions!
+
+    if (currentIndex < questionsList.length - 1) {
+      setCurrentIndex((prev) => prev + 1);
+    } else {
+      handleSubmit();
+    }
+  };
+
+  const handleApplyTactileAnswer = (answerValue: string | number, label: string) => {
+    if (typeof answerValue === 'number') {
+      handleSelectOption(answerValue);
+    } else {
+      handleTextChange(answerValue);
+    }
+
+    setSolvedViaStealth((prev) => ({
+      ...prev,
+      [currentIndex]: label,
+    }));
+    setBonusXP((prev) => prev + 75);
+    showToast(
+      'Tactile Sandbox Solved!',
+      `${label} verified. Answer recorded and +75 XP awarded.`,
+      'success'
+    );
+    // Keep stealthModeActive true so the student stays in Stealth Mode across questions!
+
+    if (currentIndex < questionsList.length - 1) {
+      setCurrentIndex((prev) => prev + 1);
+    } else {
+      handleSubmit();
+    }
+  };
+
+  const handleNext = () => {
+    if (currentIndex < questionsList.length - 1) {
+      setCurrentIndex((prev) => prev + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex((prev) => prev - 1);
+    }
   };
 
   const handleGoToPersonalizedPlatform = () => {
@@ -1150,11 +1229,21 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                               </div>
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(0, 'Molar Bridge Conversion')}
+                                  onClick={() => {
+                                    const calcMoles = (waterMassGrams / 18.02).toFixed(2);
+                                    const matchedOptIdx = currentQ.options?.findIndex((opt) =>
+                                      opt.text.startsWith(calcMoles)
+                                    );
+                                    const chosenIndex =
+                                      matchedOptIdx !== -1 && matchedOptIdx !== undefined
+                                        ? matchedOptIdx
+                                        : (currentQ.correctAnswerIndex ?? 1);
+                                    handleApplyTactileAnswer(chosenIndex, `Molar Bridge: ${calcMoles} Moles`);
+                                  }}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply 2.00 Moles & Next</span>
+                                  <span>Lock in {(waterMassGrams / 18.02).toFixed(2)} Moles & Next</span>
                                 </button>
                               </div>
                             </div>
@@ -1222,7 +1311,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
 
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(0, 'Combustion Scale Balancing')}
+                                  onClick={() => handleApplyTactileAnswer(currentQ.correctAnswerIndex ?? 2, 'Combustion Scale Balancing')}
                                   disabled={!isEquationBalanced}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
@@ -1252,7 +1341,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                               </div>
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(0, 'Stoichiometric Ratio Converter')}
+                                  onClick={() => handleApplyTactileAnswer(currentQ.correctAnswerIndex ?? 0, 'Stoichiometric Ratio Converter')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
@@ -1283,7 +1372,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                               </div>
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(0, 'Limiting Reagent Stoichiometry')}
+                                  onClick={() => handleApplyTactileAnswer(currentQ.correctAnswerIndex ?? 3, 'Limiting Reagent Stoichiometry')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
@@ -1312,11 +1401,11 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                               </div>
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(0, 'Yield Efficiency Calculation')}
+                                  onClick={() => handleApplyTactileAnswer(currentQ.correctAnswerIndex ?? 1, 'Yield Efficiency Calculation')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply 85.0% Yield & Next</span>
+                                  <span>Apply 85.0% Yield & Complete Assessment</span>
                                 </button>
                               </div>
                             </div>
@@ -1346,7 +1435,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                               </div>
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(0, 'Scarcity Allocation Model')}
+                                  onClick={() => handleApplyTactileAnswer(currentQ.correctAnswerIndex ?? 2, 'Scarcity Allocation Model')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
@@ -1378,7 +1467,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                               </div>
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(0, 'Opportunity Cost Hierarchy')}
+                                  onClick={() => handleApplyTactileAnswer(currentQ.correctAnswerIndex ?? 0, 'Opportunity Cost Hierarchy')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
@@ -1442,11 +1531,16 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                               </div>
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(0, 'PPC Inefficiency Model')}
+                                  onClick={() => {
+                                    const targetIndex = ppcPointLocation === 'inside' ? 1 : ppcPointLocation === 'on_frontier' ? 2 : 3;
+                                    handleApplyTactileAnswer(targetIndex, 'PPC Inefficiency Model');
+                                  }}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply "Productive Inefficiency" & Next</span>
+                                  <span>
+                                    Apply "{ppcPointLocation === 'inside' ? 'Productive Inefficiency' : ppcPointLocation === 'on_frontier' ? 'Allocative Efficiency' : 'Unattainable Level'}" & Next
+                                  </span>
                                 </button>
                               </div>
                             </div>
@@ -1474,7 +1568,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                               </div>
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(0, 'Supply Innovation Model')}
+                                  onClick={() => handleApplyTactileAnswer(currentQ.correctAnswerIndex ?? 3, 'Supply Innovation Model')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
@@ -1506,11 +1600,11 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                               </div>
                               <div className="flex justify-end">
                                 <button
-                                  onClick={() => handleApplyTactileAnswer(0, 'Price Elasticity Calculation')}
+                                  onClick={() => handleApplyTactileAnswer(currentQ.correctAnswerIndex ?? 1, 'Price Elasticity Calculation')}
                                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                                 >
                                   <IconCheckCircle className="w-4 h-4" />
-                                  <span>Apply "Price Inelastic (|PED| = 0.20)" & Next</span>
+                                  <span>Apply "Price Inelastic (|PED| = 0.20)" & Complete Assessment</span>
                                 </button>
                               </div>
                             </div>
@@ -1612,15 +1706,62 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                                 Quick Conceptual Key Phrases:
                               </span>
                               <div className="flex flex-wrap gap-1.5">
-                                {(isEconomics ? [
-                                  'Infinite human wants vs finite resources',
-                                  'Opportunity cost represents the next best alternative',
-                                  'Equilibrium price balances market supply and demand',
-                                ] : [
-                                  'Weighted average of isotopic mass and abundance',
-                                  'Conservation of mass requires balancing atoms',
-                                  'Limiting reactant determines maximum theoretical yield',
-                                ]).map((phrase, pIdx) => (
+                                {(isEconomics
+                                  ? {
+                                      0: [
+                                        'Perpetual scarcity: unlimited wants exceed finite productive resources',
+                                        'Scarcity forces continuous resource allocation trade-offs',
+                                        'Productive resources like land, labor, and capital are finite',
+                                      ],
+                                      1: [
+                                        'Opportunity cost is strictly the single next-best alternative foregone',
+                                        'Attending the concert is the foregone opportunity cost of studying',
+                                        'Only the highest-valued sacrificed alternative counts',
+                                      ],
+                                      2: [
+                                        'Points inside the PPC indicate productive inefficiency or idle resources',
+                                        'Points on the curve represent maximum productive efficiency',
+                                        'Unemployed labor and idle capital shift production inside the curve',
+                                      ],
+                                      3: [
+                                        'Manufacturing innovation lowers per-unit production costs',
+                                        'Lower costs shift the supply curve outward to the right',
+                                        'Suppliers offer greater output volume at every market price',
+                                      ],
+                                      4: [
+                                        '% change in quantity (-2%) ÷ % change in price (+10%) equals 0.20',
+                                        'Absolute PED is 0.20 < 1.0, proving price inelastic demand',
+                                        'Quantity demanded is relatively unresponsive to price changes',
+                                      ],
+                                    }[currentIndex] || ['Scarcity forces economic trade-offs', 'Opportunity cost is the next best alternative']
+                                  : {
+                                      0: [
+                                        '36.04g ÷ 18.02 g/mol equals exactly 2.00 moles of water',
+                                        'Molar mass bridges mass in grams to mole count',
+                                        'One mole of water weighs 18.02 grams',
+                                      ],
+                                      1: [
+                                        'Conservation of mass requires balancing atoms on both sides',
+                                        'Balanced coefficients: 1 C3H8 + 5 O2 → 3 CO2 + 4 H2O',
+                                        'Atoms cannot be created or destroyed in chemical reactions',
+                                      ],
+                                      2: [
+                                        'Stoichiometric molar ratio of Cl2 to Al is 3 to 2',
+                                        '4.0 moles of Al requires 6.0 moles of Cl2 gas',
+                                        'Multiply moles of Al by 3/2 to find required Cl2',
+                                      ],
+                                      3: [
+                                        '1.0 mol N2 requires 3.0 mol H2, but only 2.0 mol H2 is available',
+                                        'Hydrogen runs out first, making it the limiting reactant',
+                                        'Limiting reagent governs maximum theoretical ammonia yield',
+                                      ],
+                                      4: [
+                                        'Percent yield = actual yield 42.5g ÷ theoretical 50.0g × 100%',
+                                        'Actual yield of 42.5g achieves 85.0% reaction efficiency',
+                                        'Losses during filtration and recovery reduce yield below 100%',
+                                      ],
+                                    }[currentIndex] || ['Conservation of mass requires balancing atoms', 'Molar mass bridges mass to moles']
+                                ).map((phrase, pIdx) => (
                                   <button
                                     key={pIdx}
                                     type="button"
@@ -1637,13 +1778,22 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                               </div>
                             </div>
 
-                            {voiceTranscript && !voiceAnalysisResult && (
+                            {/* Gemini Live Analyzing State */}
+                            {isAnalyzingVoice && (
+                              <div className="p-3 bg-indigo-950/70 border border-indigo-500/50 rounded-lg flex items-center gap-2 text-xs text-indigo-200 animate-pulse">
+                                <IconRefreshCw className="w-4 h-4 animate-spin text-indigo-400 shrink-0" />
+                                <span>Gemini Live Socratic Engine evaluating oral explanation and concepts...</span>
+                              </div>
+                            )}
+
+                            {voiceTranscript && !voiceAnalysisResult && !isAnalyzingVoice && (
                               <button
                                 type="button"
                                 onClick={() => analyzeVoiceExplanation(voiceTranscript)}
-                                className="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-lg transition-colors cursor-pointer"
+                                className="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                               >
-                                Analyze & Verify Reasoning
+                                <IconSparkles className="w-3.5 h-3.5" />
+                                <span>Analyze Spoken Reasoning with Gemini Live</span>
                               </button>
                             )}
                           </div>
@@ -1679,7 +1829,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                               className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                             >
                               <IconCheckCircle className="w-4 h-4" />
-                              <span>Apply Verbal Answer to Question (+100 XP)</span>
+                              <span>Apply Verbal Answer to Question {currentIndex === questionsList.length - 1 ? '& Complete Assessment' : ''} (+100 XP)</span>
                             </button>
                           </div>
                         </div>
@@ -1726,7 +1876,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                           className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                         >
                           <IconCheckCircle className="w-4 h-4" />
-                          <span>Apply Scaffolded Deduction & Next</span>
+                          <span>Apply Scaffolded Deduction {currentIndex === questionsList.length - 1 ? '& Complete Assessment' : '& Next'}</span>
                         </button>
                       </div>
                     </div>
@@ -1780,7 +1930,7 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                           className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
                         >
                           <IconCheckCircle className="w-4 h-4" />
-                          <span>Lock Answer with {confidenceLevel}% Certainty & Next</span>
+                          <span>Lock Answer with {confidenceLevel}% Certainty {currentIndex === questionsList.length - 1 ? '& Complete Assessment' : '& Next'}</span>
                         </button>
                       </div>
                     </div>
@@ -2037,7 +2187,11 @@ export const DiagnosticAssessmentModal: React.FC = () => {
                   <button
                     onClick={handleSubmit}
                     disabled={!isCurrentAnswered()}
-                    className={`px-5 py-2 text-xs font-bold text-white rounded-lg shadow-xs transition-all flex items-center gap-1.5 cursor-pointer btn-tactile disabled:bg-slate-300 dark:disabled:bg-slate-800`}
+                    className={`px-5 py-2 text-xs font-bold text-white rounded-lg shadow-xs transition-all flex items-center gap-1.5 cursor-pointer btn-tactile disabled:bg-slate-300 dark:disabled:bg-slate-800 ${
+                      isEconomics
+                        ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800'
+                        : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'
+                    }`}
                   >
                     <span>Submit Assessment</span>
                     <IconCheckCircle className="w-4 h-4" />

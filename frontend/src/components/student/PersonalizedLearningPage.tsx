@@ -38,6 +38,10 @@ export const PersonalizedLearningPage: React.FC = () => {
   const [explainerTopic, setExplainerTopic] = useState<string>('Stoichiometry & Limiting Reactants');
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState<boolean>(false);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, []);
+
   const isPerfectScore = diagnosticSubmission?.generatedLearningPlan?.isPerfectScore ?? false;
   const weakUnits = diagnosticSubmission?.weakUnitIds ?? [];
   const missedQuestions = diagnosticSubmission?.missedQuestions ?? [];
@@ -205,7 +209,7 @@ export const PersonalizedLearningPage: React.FC = () => {
     setPracticeFeedback((prev) => ({ ...prev, [exerciseId]: isCorrect }));
 
     // 1.C: Live Student Activity and Telemetry Firestore Sync
-    const currentUid = authUser?.uid || 'std-rohan';
+    const currentUid = authUser?.uid || 'std-demo-student';
     syncStudentProgress(currentUid, 'Chemistry', {
       recentScore: isCorrect ? 9 : 6,
       strugglingTopic: isCorrect ? 'None' : currentPackage.topic,
@@ -1035,7 +1039,7 @@ export const PersonalizedLearningPage: React.FC = () => {
                   <iframe
                     key={`${currentPackage.videoLesson.youtubeId}-${videoTimestamp}`}
                     className="w-full h-full"
-                    src={`https://www.youtube-nocookie.com/embed/${currentPackage.videoLesson.youtubeId}?autoplay=${videoTimestamp > 0 ? 1 : 0}&start=${videoTimestamp}&rel=0`}
+                    src={`https://www.youtube.com/embed/${currentPackage.videoLesson.youtubeId}?autoplay=${videoTimestamp > 0 ? 1 : 0}&start=${videoTimestamp}&rel=0`}
                     title={currentPackage.videoLesson.title}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
@@ -1251,9 +1255,6 @@ export const PersonalizedLearningPage: React.FC = () => {
           </div>
         </div>
       </section>
-
-      {/* Autonomous Cognitive Modality Engine */}
-      <AutonomousModalityEngine subject="chemistry" />
 
       {/* Jargon-Free Real-Life Analogy Explorer */}
       <RealLifeAnalogyExplorer subject="chemistry" />

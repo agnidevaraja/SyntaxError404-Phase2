@@ -21,7 +21,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { SevenDayProficiencyChart } from '../common/SevenDayProficiencyChart';
-import { ACHALESH_WEEKLY_PROGRESSION } from '../../data/weeklyProficiencyData';
+import { DEMO_STUDENT_WEEKLY_PROGRESSION } from '../../data/weeklyProficiencyData';
 import { GRADE_9_CHEMISTRY_INTERRELATED_TOPICS } from '../../data/mockStudentHubData';
 
 export const ChemistrySubjectPage: React.FC = () => {
@@ -349,7 +349,7 @@ export const ChemistrySubjectPage: React.FC = () => {
 
       {/* SECTION 3: 7-Day Performance & Chemistry Proficiency Graph (Positioned BELOW Class Drive) */}
       <section className="space-y-4">
-        <SevenDayProficiencyChart progression={ACHALESH_WEEKLY_PROGRESSION} />
+        <SevenDayProficiencyChart progression={DEMO_STUDENT_WEEKLY_PROGRESSION} />
       </section>
 
       {/* SECTION 4: Start Your Personalized Learning Platform */}
@@ -365,7 +365,7 @@ export const ChemistrySubjectPage: React.FC = () => {
               Start Your Personalized Learning Platform
             </h2>
 
-            <p className="text-xs sm:text-sm text-indigo-200 max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
               This platform updates every week. Take the 10-question diagnostic to uncover where you made mistakes, analyze specific conceptual traps, and calibrate your weekly learning path.
             </p>
           </div>
@@ -408,7 +408,7 @@ export const ChemistrySubjectPage: React.FC = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <IconCheckCircle className="w-5 h-5 text-emerald-400" />
-                <h3 className="text-sm font-bold text-white">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                   Active Platform Calibration: Score {diagnosticSubmission.score}/10
                 </h3>
               </div>
@@ -442,7 +442,7 @@ export const ChemistrySubjectPage: React.FC = () => {
                     ? 'None (100% Mastery Achieved)'
                     : `${diagnosticSubmission.missedQuestions.length} Misconceptions Isolated`}
                 </span>
-                <p className="text-indigo-200 text-[11px] leading-relaxed">
+                <p className="text-slate-600 dark:text-slate-300 text-[11px] leading-relaxed">
                   {(diagnosticSubmission?.missedQuestions?.length || 0) === 0
                     ? 'All 10 diagnostic questions answered flawlessly with zero errors.'
                     : 'Specific conceptual traps detected. Click below to review your answers.'}

@@ -8,7 +8,7 @@ import {
   onAuthStateChanged,
 } from 'firebase/auth';
 import { auth, googleProvider } from '../services/firebase';
-import { syncUserToFirestore, syncStudentProgress } from '../services/firestoreService';
+import { syncUserToFirestore, syncStudentProgress, purgeAgnidevarajaFromFirestore } from '../services/firestoreService';
 import {
   Role,
   ActiveView,
@@ -753,7 +753,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.warn('[Reset] Error clearing localStorage:', e);
     }
 
-    // 4. Dispatch events to notify real-time bus listeners
+    // 4. Automated Firestore Purge: eradicate any remote records matching Agnidevaraja
+    purgeAgnidevarajaFromFirestore().catch((e) => {
+      console.warn('[Reset] Error during Firestore purge:', e);
+    });
+
+    // 5. Dispatch events to notify real-time bus listeners
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('outstand-progress-update', { detail: { reset: true } }));
       window.dispatchEvent(new CustomEvent('outstand-chat-update', { detail: { reset: true } }));
@@ -766,15 +771,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
+  // Automated startup purge on mounting: eliminate any residual remote records matching Agnidevaraja
+  useEffect(() => {
+    purgeAgnidevarajaFromFirestore().then(({ purgedCount }) => {
+      if (purgedCount > 0 && typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('outstand-progress-update', { detail: { purged: true } }));
+      }
+    });
+  }, []);
+
   // Sync auth state listener with Firebase
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
       if (fbUser) {
         const savedRole = (localStorage.getItem('outstand_auth_role') as 'student' | 'facilitator') || 'student';
+        const defaultStudentName = fbUser.email ? fbUser.email.split('@')[0] : 'Student';
+        const rawDisplayName = fbUser.displayName || (savedRole === 'student' ? defaultStudentName : 'Dr. Eleanor Vance');
+        const displayName = rawDisplayName.toLowerCase().includes('agnidevaraja') ? 'Demo Student' : rawDisplayName;
+
         const profile: AuthUser = {
           uid: fbUser.uid,
           email: fbUser.email,
-          displayName: fbUser.displayName || (savedRole === 'student' ? 'Demo Student' : 'Dr. Eleanor Vance'),
+          displayName,
           photoURL: fbUser.photoURL,
           role: savedRole,
         };
@@ -795,7 +813,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const loginWithGoogle = async (targetRole: 'student' | 'facilitator') => {
     const result = await signInWithPopup(auth, googleProvider);
     const fbUser = result.user;
-    const displayName = fbUser.displayName || (targetRole === 'student' ? 'Demo Student' : 'Dr. Eleanor Vance');
+    const defaultStudentName = fbUser.email ? fbUser.email.split('@')[0] : 'Student';
+    const rawDisplayName = fbUser.displayName || (targetRole === 'student' ? defaultStudentName : 'Dr. Eleanor Vance');
+    const displayName = rawDisplayName.toLowerCase().includes('agnidevaraja') ? 'Demo Student' : rawDisplayName;
     const profile: AuthUser = {
       uid: fbUser.uid,
       email: fbUser.email,
@@ -831,7 +851,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const loginWithEmail = async (email: string, pass: string, targetRole: 'student' | 'facilitator') => {
     const result = await signInWithEmailAndPassword(auth, email, pass);
     const fbUser = result.user;
-    const displayName = fbUser.displayName || (targetRole === 'student' ? 'Demo Student' : 'Dr. Eleanor Vance');
+    const defaultStudentName = fbUser.email ? fbUser.email.split('@')[0] : 'Student';
+    const displayName = fbUser.displayName || (targetRole === 'student' ? defaultStudentName : 'Dr. Eleanor Vance');
     const profile: AuthUser = {
       uid: fbUser.uid,
       email: fbUser.email,
@@ -869,10 +890,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (name) {
       await updateProfile(result.user, { displayName: name });
     }
+    const defaultStudentName = email ? email.split('@')[0] : 'Student';
     const profile: AuthUser = {
       uid: result.user.uid,
       email: result.user.email,
-      displayName: name || (targetRole === 'student' ? 'Demo Student' : 'Dr. Eleanor Vance'),
+      displayName: name || (targetRole === 'student' ? defaultStudentName : 'Dr. Eleanor Vance'),
       photoURL: result.user.photoURL,
       role: targetRole,
     };
@@ -906,7 +928,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const displayName = 'Demo Student';
       const email = 'student@outstand.edu';
       const profile: AuthUser = {
-        uid: 'std-rohan',
+        uid: 'std-demo-student',
         email,
         displayName,
         role: 'student',

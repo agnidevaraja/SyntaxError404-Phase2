@@ -3,6 +3,8 @@ import {
   doc,
   setDoc,
   getDoc,
+  getDocs,
+  deleteDoc,
   onSnapshot,
   query,
   where,
@@ -59,6 +61,68 @@ export interface ChatMessage {
 }
 
 /**
+ * Automated Firestore Cleanup:
+ * Eradicates any document in 'users', 'students', 'subject_progress', and 'personalized_chats'
+ * collections where name, fullName, displayName, email, or document ID matches 'Agnidevaraja'.
+ */
+export async function purgeAgnidevarajaFromFirestore(): Promise<{ purgedCount: number; details: string[] }> {
+  const details: string[] = [];
+  let purgedCount = 0;
+
+  try {
+    const isTarget = (data: any, id: string): boolean => {
+      const matchPattern = (val?: any) => {
+        if (!val || typeof val !== 'string') return false;
+        const norm = val.toLowerCase().trim();
+        return norm === 'agnidevaraja' || norm.includes('agnidevaraja');
+      };
+
+      if (matchPattern(id)) return true;
+      if (!data || typeof data !== 'object') return false;
+      return (
+        matchPattern(data.name) ||
+        matchPattern(data.fullName) ||
+        matchPattern(data.displayName) ||
+        matchPattern(data.email) ||
+        matchPattern(data.studentId) ||
+        matchPattern(data.studentName)
+      );
+    };
+
+    const collectionsToClean = ['users', 'students', 'subject_progress', 'personalized_chats'];
+
+    for (const colName of collectionsToClean) {
+      try {
+        const colRef = collection(db, colName);
+        const snapshot = await getDocs(colRef).catch(() => null);
+        if (snapshot && !snapshot.empty) {
+          for (const docSnap of snapshot.docs) {
+            const data = docSnap.data();
+            if (isTarget(data, docSnap.id)) {
+              await deleteDoc(doc(db, colName, docSnap.id)).catch((e) => {
+                console.warn(`[Purge] Failed to delete ${colName}/${docSnap.id}:`, e);
+              });
+              purgedCount++;
+              details.push(`${colName}/${docSnap.id}`);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn(`[Purge] Error scanning collection ${colName}:`, err);
+      }
+    }
+
+    if (purgedCount > 0) {
+      console.log(`[Purge] Eradicated ${purgedCount} Agnidevaraja record(s) from Firestore:`, details);
+    }
+  } catch (err) {
+    console.warn('[Purge] Unexpected error during Firestore cleanup:', err);
+  }
+
+  return { purgedCount, details };
+}
+
+/**
  * 1.A: Immediately write or merge user profile document to users/${user.uid}
  */
 export async function syncUserToFirestore(user: {
@@ -68,6 +132,16 @@ export async function syncUserToFirestore(user: {
   role: 'student' | 'facilitator';
   assignedSubject?: 'all' | 'Chemistry' | 'Economics';
 }): Promise<void> {
+  // Prevent any Agnidevaraja account from ever writing to Firestore
+  if (
+    user.fullName?.toLowerCase().includes('agnidevaraja') ||
+    user.email?.toLowerCase().includes('agnidevaraja') ||
+    user.uid?.toLowerCase().includes('agnidevaraja')
+  ) {
+    console.warn('[FirestoreSync] Ignored user containing Agnidevaraja');
+    return;
+  }
+
   try {
     const userRef = doc(db, 'users', user.uid);
     const existingSnap = await getDoc(userRef).catch(() => null);
@@ -144,19 +218,17 @@ export function listenToStudentUsers(callback: (students: FirestoreUser[]) => vo
  */
 /**
  * Normalizes student identifiers to guarantee facilitator and student connect to the exact same thread.
- * Both 'std-rohan', 'demo-std-demo', 'demo-student', etc. normalize to 'std-rohan'.
+ * Demo student variations normalize to 'std-demo-student'. Individual student UIDs remain untouched.
  */
 export function normalizeStudentChatId(studentUid: string): string {
-  if (!studentUid) return 'std-rohan';
+  if (!studentUid) return 'std-demo-student';
   const cleaned = studentUid.trim();
   if (
     cleaned === 'demo-std-demo' ||
-    cleaned === 'std-rohan' ||
-    cleaned === 'demo-std-rohan' ||
     cleaned === 'demo-student' ||
     cleaned === 'std-demo'
   ) {
-    return 'std-rohan';
+    return 'std-demo-student';
   }
   return cleaned;
 }
@@ -247,8 +319,6 @@ export function listenToSubjectProgress(
             const data = JSON.parse(raw);
             if (data.studentId) {
               map[data.studentId] = data;
-              map['std-rohan'] = data;
-              map['demo-std-demo'] = data;
             }
           }
         }
@@ -279,13 +349,11 @@ export function listenToSubjectProgress(
         snapshot.forEach((docSnap) => {
           const data = docSnap.data() as StudentProgressDoc;
           if (data.studentId) {
-            const normId = normalizeStudentChatId(data.studentId);
             const entry = {
               ...data,
               lastUpdated: data.lastUpdated instanceof Timestamp ? data.lastUpdated.toDate() : data.lastUpdated,
             };
             progressMap[data.studentId] = entry;
-            progressMap[normId] = entry;
           }
         });
         callback(progressMap);

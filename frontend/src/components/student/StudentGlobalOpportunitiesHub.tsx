@@ -355,19 +355,6 @@ export const StudentGlobalOpportunitiesHub: React.FC = () => {
                     <span className="truncate">Deadline: <strong>{item.deadline}</strong></span>
                   </div>
                 </div>
-
-                {/* "Why It Matches" AI Callout */}
-                {item.whyItMatches && (
-                  <div className="p-3 rounded-xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 space-y-1">
-                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-indigo-800 dark:text-indigo-300 uppercase tracking-wider">
-                      <Sparkles className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
-                      <span>Why This Matches You</span>
-                    </div>
-                    <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-                      {item.whyItMatches}
-                    </p>
-                  </div>
-                )}
               </div>
 
               {/* Action Buttons: Learn More & Official Apply */}

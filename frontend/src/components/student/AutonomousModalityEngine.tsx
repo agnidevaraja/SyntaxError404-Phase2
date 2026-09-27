@@ -164,17 +164,57 @@ export const AutonomousModalityEngine: React.FC<Props> = ({ subject }) => {
     }, 700);
   };
 
+  // Autonomous 7-second idle hesitation detector during practice
+  useEffect(() => {
+    let idleTimer: NodeJS.Timeout | null = null;
+    let hasTriggeredSession = false;
+
+    const resetIdleTimer = () => {
+      if (idleTimer) clearTimeout(idleTimer);
+      if (cognitiveState === 'adapting' || isDominantLocked) return;
+
+      idleTimer = setTimeout(() => {
+        if (!hasTriggeredSession && cognitiveState === 'nominal') {
+          hasTriggeredSession = true;
+          setCognitiveState('hesitant');
+          setHesitationCount((prev) => {
+            const nextCount = prev + 1;
+            if (nextCount >= 2) {
+              triggerAutonomousShift('Prolonged cognitive hesitation (>7s idle latency) and stalled progression.');
+            } else {
+              showToast(
+                'Hesitation Detected (>7s idle)',
+                `Autonomous Engine activated ${modalityMeta[activeModality].label} modality scaffolding to break cognitive deadlock.`,
+                'warning'
+              );
+            }
+            return nextCount;
+          });
+        }
+      }, 7000);
+    };
+
+    const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+    events.forEach((evt) => window.addEventListener(evt, resetIdleTimer));
+    resetIdleTimer();
+
+    return () => {
+      if (idleTimer) clearTimeout(idleTimer);
+      events.forEach((evt) => window.removeEventListener(evt, resetIdleTimer));
+    };
+  }, [cognitiveState, isDominantLocked, activeModality]);
+
   const handleSimulateStruggle = () => {
     const nextCount = hesitationCount + 1;
     setHesitationCount(nextCount);
     setCognitiveState('hesitant');
 
     if (nextCount >= 2) {
-      triggerAutonomousShift('Persistent hesitation (> 5.2s dwell latency) and 2 consecutive verification stalls.');
+      triggerAutonomousShift('Persistent struggle (2 consecutive failed verification attempts / >7s dwell latency).');
     } else {
       showToast(
-        'Hesitation Flagged',
-        'Cognitive dwell detected. Engine monitoring for potential modality adaptation.',
+        'Hesitation / Roadblock Flagged',
+        `Cognitive hesitation recorded (Attempt 1/2). Deploying ${modalityMeta[activeModality].label} scaffolding.`,
         'warning'
       );
     }
@@ -183,11 +223,11 @@ export const AutonomousModalityEngine: React.FC<Props> = ({ subject }) => {
   const handleRecordSuccess = () => {
     const newSuccess = successCount + 1;
     setSuccessCount(newSuccess);
-    if (newSuccess >= 2 && !isDominantLocked) {
+    if ((newSuccess >= 2 || modalityMeta[activeModality].empiricalRecoveryRate >= 80) && !isDominantLocked) {
       setIsDominantLocked(true);
       showToast(
-        'Dominant Modality Locked',
-        `${modalityMeta[activeModality].label} identified as optimal learning preference (${modalityMeta[activeModality].empiricalRecoveryRate}% recovery).`,
+        'Mastery Recovery Verified (≥80%)',
+        `${modalityMeta[activeModality].label} locked as dominant preference (${modalityMeta[activeModality].empiricalRecoveryRate}% recovery rate).`,
         'success'
       );
     } else {

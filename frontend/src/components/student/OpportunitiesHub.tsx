@@ -4,7 +4,7 @@ import { OpportunityItem, StudentPerformanceContext } from '../../types/opportun
 import {
   fetchCuratedOpportunities,
   getDynamicSearchQuery,
-} from '../../services/opportunitiesGeminiService';
+} from '../../services/chemistryOpportunitiesService';
 import {
   Compass,
   Calendar,
@@ -425,20 +425,6 @@ export const OpportunitiesHub: React.FC<OpportunitiesHubProps> = ({
                 </div>
               </div>
 
-            </div>
-
-            {/* "Why this matches you" Section */}
-            <div className="space-y-2 pt-1">
-              <div className="flex items-center gap-2">
-                <Info className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
-                <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                  Why this matches you
-                </h4>
-              </div>
-
-              <div className="p-4 sm:p-5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 text-indigo-950 dark:text-indigo-200 text-xs sm:text-sm leading-relaxed italic">
-                "{selectedOpportunity.whyItMatches}"
-              </div>
             </div>
 
             {/* Modal Bottom External Action Buttons */}

@@ -1,7 +1,7 @@
 import { DailyQuizResult, StudentWeeklyProgression } from '../types';
 
 export const DEMO_STUDENT_WEEKLY_PROGRESSION: StudentWeeklyProgression = {
-  studentId: 'std-rohan',
+  studentId: 'std-demo-student',
   studentName: 'Demo Student',
   subject: 'Chemistry',
   startingProficiency: 58,
@@ -127,12 +127,6 @@ export const ROHAN_WEEKLY_PROGRESSION: StudentWeeklyProgression = {
   startingProficiency: 25,
   currentProficiency: 38,
   growthPercentage: 13,
-};
-
-export const ACHALESH_WEEKLY_PROGRESSION: StudentWeeklyProgression = {
-  ...DEMO_STUDENT_WEEKLY_PROGRESSION,
-  studentId: 'std-achalesh',
-  studentName: 'Achalesh',
 };
 
 export const COHORT_WEEKLY_PROGRESSIONS: Record<string, StudentWeeklyProgression> = {
@@ -327,119 +321,65 @@ export const COHORT_WEEKLY_PROGRESSIONS: Record<string, StudentWeeklyProgression
     ],
   },
   'std-rohan': ROHAN_WEEKLY_PROGRESSION,
-  'std-achalesh': ACHALESH_WEEKLY_PROGRESSION,
-  'std-liam': {
-    studentId: 'std-liam',
-    studentName: 'Liam Patel',
-    subject: 'Chemistry',
-    startingProficiency: 62,
-    currentProficiency: 88,
-    growthPercentage: 26,
-    daysStreak: 7,
-    quizzesCompleted: 7,
-    dailyQuizzes: [
-      { dayIndex: 0, dayName: 'Mon', dateStr: 'Sep 20', quizTitle: 'Atomic Weights', score: 60, quizScore: 60, proficiencyScore: 62, questionsCount: 5, correctCount: 3, timeSpentMinutes: 7, keyConceptMastered: 'Mass spectrometry units', status: 'completed' },
-      { dayIndex: 1, dayName: 'Tue', dateStr: 'Sep 21', quizTitle: 'Polyatomic Charges', score: 60, quizScore: 60, proficiencyScore: 68, questionsCount: 5, correctCount: 3, timeSpentMinutes: 8, keyConceptMastered: 'Ion charge accounting', status: 'completed' },
-      { dayIndex: 2, dayName: 'Wed', dateStr: 'Sep 22', quizTitle: 'Hydrate Molar Masses', score: 80, quizScore: 80, proficiencyScore: 74, questionsCount: 5, correctCount: 4, timeSpentMinutes: 6, keyConceptMastered: 'Water of crystallization', status: 'completed' },
-      { dayIndex: 3, dayName: 'Thu', dateStr: 'Sep 23', quizTitle: 'Dimensional Conversions', score: 80, quizScore: 80, proficiencyScore: 80, questionsCount: 5, correctCount: 4, timeSpentMinutes: 7, keyConceptMastered: 'Unit cancellation', status: 'completed' },
-      { dayIndex: 4, dayName: 'Fri', dateStr: 'Sep 24', quizTitle: 'Combustion Stoichiometry', score: 80, quizScore: 80, proficiencyScore: 83, questionsCount: 5, correctCount: 4, timeSpentMinutes: 8, keyConceptMastered: 'Hydrocarbon combustion', status: 'completed' },
-      { dayIndex: 5, dayName: 'Sat', dateStr: 'Sep 25', quizTitle: 'Limiting Reactant Tables', score: 80, quizScore: 80, proficiencyScore: 86, questionsCount: 5, correctCount: 4, timeSpentMinutes: 9, keyConceptMastered: 'BCA tables', status: 'completed' },
-      { dayIndex: 6, dayName: 'Sun', dateStr: 'Sep 26', quizTitle: 'Gas Volume at STP', score: 80, quizScore: 80, proficiencyScore: 88, questionsCount: 5, correctCount: 4, timeSpentMinutes: 8, keyConceptMastered: '22.4 L/mol law', status: 'completed' },
-    ],
-  },
-  'std-sofia': {
-    studentId: 'std-sofia',
-    studentName: 'Sofia Al-Mansoor',
-    subject: 'Chemistry',
-    startingProficiency: 82,
-    currentProficiency: 98,
-    growthPercentage: 16,
-    daysStreak: 7,
-    quizzesCompleted: 7,
-    dailyQuizzes: [
-      { dayIndex: 0, dayName: 'Mon', dateStr: 'Sep 20', quizTitle: 'Advanced Isotope Decay', score: 80, quizScore: 80, proficiencyScore: 82, questionsCount: 5, correctCount: 4, timeSpentMinutes: 5, keyConceptMastered: 'Nuclear notation', status: 'completed' },
-      { dayIndex: 1, dayName: 'Tue', dateStr: 'Sep 21', quizTitle: 'Formal Charge Distributions', score: 80, quizScore: 80, proficiencyScore: 86, questionsCount: 5, correctCount: 4, timeSpentMinutes: 6, keyConceptMastered: 'Resonance energy', status: 'completed' },
-      { dayIndex: 2, dayName: 'Wed', dateStr: 'Sep 22', quizTitle: 'Complex Formula Weights', score: 80, quizScore: 80, proficiencyScore: 90, questionsCount: 5, correctCount: 4, timeSpentMinutes: 5, keyConceptMastered: 'Coordination complexes', status: 'completed' },
-      { dayIndex: 3, dayName: 'Thu', dateStr: 'Sep 23', quizTitle: 'Multi-Step Mole Bridges', score: 100, quizScore: 100, proficiencyScore: 92, questionsCount: 5, correctCount: 5, timeSpentMinutes: 7, keyConceptMastered: 'Multi-step reactions', status: 'completed' },
-      { dayIndex: 4, dayName: 'Fri', dateStr: 'Sep 24', quizTitle: 'Non-Standard Mole Ratios', score: 100, quizScore: 100, proficiencyScore: 95, questionsCount: 5, correctCount: 5, timeSpentMinutes: 6, keyConceptMastered: 'Sequential reactions', status: 'completed' },
-      { dayIndex: 5, dayName: 'Sat', dateStr: 'Sep 25', quizTitle: 'Excess Reactant Leftovers', score: 100, quizScore: 100, proficiencyScore: 96, questionsCount: 5, correctCount: 5, timeSpentMinutes: 7, keyConceptMastered: 'Surplus mass isolation', status: 'completed' },
-      { dayIndex: 6, dayName: 'Sun', dateStr: 'Sep 26', quizTitle: 'Gas Law Stoichiometry', score: 100, quizScore: 100, proficiencyScore: 98, questionsCount: 5, correctCount: 5, timeSpentMinutes: 6, keyConceptMastered: 'Ideal gas adjustments', status: 'completed' },
-    ],
-  },
-  'std-devendra': {
-    studentId: 'std-devendra',
-    studentName: 'Devendra K.',
-    subject: 'Chemistry',
-    startingProficiency: 55,
-    currentProficiency: 81,
-    growthPercentage: 26,
-    daysStreak: 7,
-    quizzesCompleted: 7,
-    dailyQuizzes: [
-      { dayIndex: 0, dayName: 'Mon', dateStr: 'Sep 20', quizTitle: 'Isotope Fractions', score: 60, quizScore: 60, proficiencyScore: 55, questionsCount: 5, correctCount: 3, timeSpentMinutes: 9, keyConceptMastered: 'Periodic atomic masses', status: 'completed' },
-      { dayIndex: 1, dayName: 'Tue', dateStr: 'Sep 21', quizTitle: 'Lewis Valencies', score: 60, quizScore: 60, proficiencyScore: 60, questionsCount: 5, correctCount: 3, timeSpentMinutes: 8, keyConceptMastered: 'Bonding pairs', status: 'completed' },
-      { dayIndex: 2, dayName: 'Wed', dateStr: 'Sep 22', quizTitle: 'Molar Mass Calculations', score: 60, quizScore: 60, proficiencyScore: 67, questionsCount: 5, correctCount: 3, timeSpentMinutes: 8, keyConceptMastered: 'Subscript arithmetic', status: 'completed' },
-      { dayIndex: 3, dayName: 'Thu', dateStr: 'Sep 23', quizTitle: 'Gram-to-Mole Factors', score: 80, quizScore: 80, proficiencyScore: 72, questionsCount: 5, correctCount: 4, timeSpentMinutes: 7, keyConceptMastered: 'Conversion factor layout', status: 'completed' },
-      { dayIndex: 4, dayName: 'Fri', dateStr: 'Sep 24', quizTitle: 'Equation Balances', score: 80, quizScore: 80, proficiencyScore: 76, questionsCount: 5, correctCount: 4, timeSpentMinutes: 8, keyConceptMastered: 'Inspection balancing', status: 'completed' },
-      { dayIndex: 5, dayName: 'Sat', dateStr: 'Sep 25', quizTitle: 'Limiting Reactant Rules', score: 80, quizScore: 80, proficiencyScore: 79, questionsCount: 5, correctCount: 4, timeSpentMinutes: 10, keyConceptMastered: 'Recipe analogies', status: 'completed' },
-      { dayIndex: 6, dayName: 'Sun', dateStr: 'Sep 26', quizTitle: 'Percent Yield Basics', score: 80, quizScore: 80, proficiencyScore: 81, questionsCount: 5, correctCount: 4, timeSpentMinutes: 8, keyConceptMastered: 'Yield efficiency math', status: 'completed' },
-    ],
-  },
-  'std-chloe': {
-    studentId: 'std-chloe',
-    studentName: 'Chloe Bennett',
-    subject: 'Chemistry',
-    startingProficiency: 48,
-    currentProficiency: 76,
-    growthPercentage: 28,
-    daysStreak: 7,
-    quizzesCompleted: 7,
-    dailyQuizzes: [
-      { dayIndex: 0, dayName: 'Mon', dateStr: 'Sep 20', quizTitle: 'Matter & Atoms', score: 40, quizScore: 40, proficiencyScore: 48, questionsCount: 5, correctCount: 2, timeSpentMinutes: 10, keyConceptMastered: 'Atomic structure', status: 'completed' },
-      { dayIndex: 1, dayName: 'Tue', dateStr: 'Sep 21', quizTitle: 'Valence Counts', score: 60, quizScore: 60, proficiencyScore: 54, questionsCount: 5, correctCount: 3, timeSpentMinutes: 9, keyConceptMastered: 'Periodic trends', status: 'completed' },
-      { dayIndex: 2, dayName: 'Wed', dateStr: 'Sep 22', quizTitle: 'Formula Weight Drill', score: 60, quizScore: 60, proficiencyScore: 60, questionsCount: 5, correctCount: 3, timeSpentMinutes: 9, keyConceptMastered: 'Parentheses distribution', status: 'completed' },
-      { dayIndex: 3, dayName: 'Thu', dateStr: 'Sep 23', quizTitle: 'Mole Equivalents', score: 60, quizScore: 60, proficiencyScore: 66, questionsCount: 5, correctCount: 3, timeSpentMinutes: 8, keyConceptMastered: 'Grams to moles', status: 'completed' },
-      { dayIndex: 4, dayName: 'Fri', dateStr: 'Sep 24', quizTitle: 'Reaction Mole Ratios', score: 80, quizScore: 80, proficiencyScore: 70, questionsCount: 5, correctCount: 4, timeSpentMinutes: 8, keyConceptMastered: 'Mole ratios', status: 'completed' },
-      { dayIndex: 5, dayName: 'Sat', dateStr: 'Sep 25', quizTitle: 'Limiting Factor Test', score: 80, quizScore: 80, proficiencyScore: 73, questionsCount: 5, correctCount: 4, timeSpentMinutes: 9, keyConceptMastered: 'Limiting reagent detection', status: 'completed' },
-      { dayIndex: 6, dayName: 'Sun', dateStr: 'Sep 26', quizTitle: 'Percent Recovery', score: 80, quizScore: 80, proficiencyScore: 76, questionsCount: 5, correctCount: 4, timeSpentMinutes: 9, keyConceptMastered: 'Actual vs theoretical', status: 'completed' },
-    ],
-  },
-  'std-marcus': {
-    studentId: 'std-marcus',
-    studentName: 'Marcus Vance',
-    subject: 'Chemistry',
-    startingProficiency: 65,
-    currentProficiency: 92,
-    growthPercentage: 27,
-    daysStreak: 7,
-    quizzesCompleted: 7,
-    dailyQuizzes: [
-      { dayIndex: 0, dayName: 'Mon', dateStr: 'Sep 20', quizTitle: 'Isotopes & Masses', score: 60, quizScore: 60, proficiencyScore: 65, questionsCount: 5, correctCount: 3, timeSpentMinutes: 6, keyConceptMastered: 'Weighted average', status: 'completed' },
-      { dayIndex: 1, dayName: 'Tue', dateStr: 'Sep 21', quizTitle: 'Ion Lewis Structures', score: 80, quizScore: 80, proficiencyScore: 70, questionsCount: 5, correctCount: 4, timeSpentMinutes: 7, keyConceptMastered: 'Charge accounting', status: 'completed' },
-      { dayIndex: 2, dayName: 'Wed', dateStr: 'Sep 22', quizTitle: 'Formula Mass Sum', score: 80, quizScore: 80, proficiencyScore: 76, questionsCount: 5, correctCount: 4, timeSpentMinutes: 6, keyConceptMastered: 'Subscript multipliers', status: 'completed' },
-      { dayIndex: 3, dayName: 'Thu', dateStr: 'Sep 23', quizTitle: 'Dimensional Analysis', score: 80, quizScore: 80, proficiencyScore: 81, questionsCount: 5, correctCount: 4, timeSpentMinutes: 7, keyConceptMastered: 'Unit conversions', status: 'completed' },
-      { dayIndex: 4, dayName: 'Fri', dateStr: 'Sep 24', quizTitle: 'Stoichiometric Ratios', score: 80, quizScore: 80, proficiencyScore: 86, questionsCount: 5, correctCount: 4, timeSpentMinutes: 7, keyConceptMastered: 'Mole ratios', status: 'completed' },
-      { dayIndex: 5, dayName: 'Sat', dateStr: 'Sep 25', quizTitle: 'Limiting Reagent Tables', score: 100, quizScore: 100, proficiencyScore: 89, questionsCount: 5, correctCount: 5, timeSpentMinutes: 8, keyConceptMastered: 'Mole-coefficient test', status: 'completed' },
-      { dayIndex: 6, dayName: 'Sun', dateStr: 'Sep 26', quizTitle: 'Percent Yield & STP', score: 100, quizScore: 100, proficiencyScore: 92, questionsCount: 5, correctCount: 5, timeSpentMinutes: 8, keyConceptMastered: 'Recovery efficiency', status: 'completed' },
-    ],
-  },
-  'std-aisha': {
-    studentId: 'std-aisha',
-    studentName: 'Aisha Morales',
-    subject: 'Chemistry',
-    startingProficiency: 80,
-    currentProficiency: 97,
-    growthPercentage: 17,
-    daysStreak: 7,
-    quizzesCompleted: 7,
-    dailyQuizzes: [
-      { dayIndex: 0, dayName: 'Mon', dateStr: 'Sep 20', quizTitle: 'Isotopic Distribution', score: 80, quizScore: 80, proficiencyScore: 80, questionsCount: 5, correctCount: 4, timeSpentMinutes: 5, keyConceptMastered: 'High-precision isotopes', status: 'completed' },
-      { dayIndex: 1, dayName: 'Tue', dateStr: 'Sep 21', quizTitle: 'Resonance Hybrids', score: 80, quizScore: 80, proficiencyScore: 85, questionsCount: 5, correctCount: 4, timeSpentMinutes: 6, keyConceptMastered: 'Resonance forms', status: 'completed' },
-      { dayIndex: 2, dayName: 'Wed', dateStr: 'Sep 22', quizTitle: 'Advanced Formula Mass', score: 80, quizScore: 80, proficiencyScore: 88, questionsCount: 5, correctCount: 4, timeSpentMinutes: 5, keyConceptMastered: 'Polymer stoichiometry', status: 'completed' },
-      { dayIndex: 3, dayName: 'Thu', dateStr: 'Sep 23', quizTitle: 'Multi-Conversion Chains', score: 100, quizScore: 100, proficiencyScore: 91, questionsCount: 5, correctCount: 5, timeSpentMinutes: 6, keyConceptMastered: 'Chain factors', status: 'completed' },
-      { dayIndex: 4, dayName: 'Fri', dateStr: 'Sep 24', quizTitle: 'Complex Stoichiometry', score: 100, quizScore: 100, proficiencyScore: 94, questionsCount: 5, correctCount: 5, timeSpentMinutes: 6, keyConceptMastered: 'Parallel reactions', status: 'completed' },
-      { dayIndex: 5, dayName: 'Sat', dateStr: 'Sep 25', quizTitle: 'Limiting Reactant Analytics', score: 100, quizScore: 100, proficiencyScore: 96, questionsCount: 5, correctCount: 5, timeSpentMinutes: 7, keyConceptMastered: 'Multi-reactant limiting', status: 'completed' },
-      { dayIndex: 6, dayName: 'Sun', dateStr: 'Sep 26', quizTitle: 'Gas Law Stoichiometry', score: 100, quizScore: 100, proficiencyScore: 97, questionsCount: 5, correctCount: 5, timeSpentMinutes: 6, keyConceptMastered: 'Combined gas calculations', status: 'completed' },
-    ],
-  },
+  'std-rohan-v': ROHAN_WEEKLY_PROGRESSION,
+  'std-demo-student': DEMO_STUDENT_WEEKLY_PROGRESSION,
 };
+
+export const VIKRAM_WEEKLY_PROGRESSION: StudentWeeklyProgression = {
+  ...DEMO_STUDENT_WEEKLY_PROGRESSION,
+  studentId: 'std-vikram',
+  studentName: 'Vikram R.',
+  subject: 'Economics',
+  startingProficiency: 30,
+  currentProficiency: 44,
+  growthPercentage: 14,
+};
+
+export const ANANYA_WEEKLY_PROGRESSION: StudentWeeklyProgression = {
+  ...DEMO_STUDENT_WEEKLY_PROGRESSION,
+  studentId: 'std-ananya',
+  studentName: 'Ananya D.',
+  subject: 'Economics',
+  startingProficiency: 45,
+  currentProficiency: 58,
+  growthPercentage: 13,
+};
+
+export const TARA_WEEKLY_PROGRESSION: StudentWeeklyProgression = {
+  ...DEMO_STUDENT_WEEKLY_PROGRESSION,
+  studentId: 'std-tara',
+  studentName: 'Tara K.',
+  subject: 'Economics',
+  startingProficiency: 55,
+  currentProficiency: 70,
+  growthPercentage: 15,
+};
+
+export const AARAV_WEEKLY_PROGRESSION: StudentWeeklyProgression = {
+  ...DEMO_STUDENT_WEEKLY_PROGRESSION,
+  studentId: 'std-aarav',
+  studentName: 'Aarav M.',
+  subject: 'Economics',
+  startingProficiency: 88,
+  currentProficiency: 99,
+  growthPercentage: 11,
+};
+
+export const DEMO_STUDENT_ECON_WEEKLY_PROGRESSION: StudentWeeklyProgression = {
+  ...DEMO_STUDENT_WEEKLY_PROGRESSION,
+  studentId: 'std-demo-student-econ',
+  studentName: 'Demo Student',
+  subject: 'Economics',
+  startingProficiency: 54,
+  currentProficiency: 92,
+  growthPercentage: 38,
+};
+
+export const ECONOMICS_COHORT_WEEKLY_PROGRESSIONS: Record<string, StudentWeeklyProgression> = {
+  'std-vikram': VIKRAM_WEEKLY_PROGRESSION,
+  'std-ananya': ANANYA_WEEKLY_PROGRESSION,
+  'std-tara': TARA_WEEKLY_PROGRESSION,
+  'std-aarav': AARAV_WEEKLY_PROGRESSION,
+  'std-demo-student-econ': DEMO_STUDENT_ECON_WEEKLY_PROGRESSION,
+};
+

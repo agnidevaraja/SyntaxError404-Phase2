@@ -11,6 +11,9 @@ export interface StudentAdvisoryContext {
   tasksCompleted?: number;
   totalTasks?: number;
   diagnosticStatus?: string;
+  activeModality?: 'analogical' | 'visual' | 'tactile' | 'scaffolded';
+  recoveryRate?: number;
+  triggerReason?: string;
 }
 
 export interface FacilitatorAdvisoryResult {
@@ -39,6 +42,8 @@ export async function generateFacilitatorAdvisory(
 
   const isHighMastery = context.recentScore >= 9;
   const isModerateMastery = context.recentScore >= 6 && context.recentScore <= 8;
+  const activeModality = context.activeModality || 'visual';
+  const modalityLabel = activeModality.charAt(0).toUpperCase() + activeModality.slice(1);
 
   const prompt = `You are an elite academic diagnostician and educational strategist analyzing a secondary school student in ${context.subject}.
 Student Telemetry and Profile:
@@ -49,6 +54,8 @@ Student Telemetry and Profile:
 - Interaction Hesitation Level: ${context.hesitationLevel} (${context.cognitiveLatency || 'standard dwell time'})
 - Identified Mistakes / Question Traps: ${context.commonMistakes && context.commonMistakes.length > 0 ? context.commonMistakes.join('; ') : 'No mistakes recorded (flawless execution)'}
 - Task Completion Progress: ${context.tasksCompleted ?? 2} of ${context.totalTasks ?? 4} tasks completed
+- Student Active Learning Modality: ${modalityLabel} (${context.recoveryRate ?? 88}% empirical recovery rate)
+- Modality Trigger / Status: ${context.triggerReason || 'Autonomous modality adaptation active'}
 
 PEDAGOGICAL DIRECTIVES BASED ON MASTERY TIER:
 ${
@@ -57,12 +64,12 @@ ${
   * Line 1: Diagnose strong conceptual speed, precision in core principles, and exceptional recall in ${context.strugglingTopic}.
   * Line 2: Identify areas for theoretical extension, multi-variable edge cases, or university-level depth in ${context.subject}.
   * Line 3: 1. Suggest a concrete enrichment, university-level, or Olympiad competition task (e.g. ${context.subject === 'Chemistry' ? 'USNCO / IChO honors problem set' : 'IEO / Harvard Economics challenge'}).
-  * Line 4: 2. Recommend an advanced research project, peer-leadership role, or independent case study.`
+  * Line 4: 2. Recommend an advanced application specifically leveraging their dominant ${modalityLabel} modality (e.g. tactile molecular modeling or visual coordinate proofs).`
     : `- LOW / MEDIUM MASTERY (0/10 to 8/10): The student has specific conceptual roadblocks, calculation gaps, or speed hesitation.
   * Line 1: Pinpoint the exact prerequisite roadblock based on their failed questions and hesitation in ${context.strugglingTopic}.
   * Line 2: Explain the underlying cognitive mechanism failure (e.g. arithmetic slip vs conceptual void, formula misdirection, or unit confusion).
-  * Line 3: 1. Provide an immediate concrete, numbered classroom pedagogical intervention for the teacher (e.g. physical analogy or visual scaffold).
-  * Line 4: 2. Provide a second targeted classroom exercise, calculation grid, or decision matrix for the teacher to assign.`
+  * Line 3: 1. Provide an immediate concrete, numbered classroom pedagogical intervention for the teacher.
+  * Line 4: 2. Provide a second targeted pedagogical action step that specifically reinforces their active ${modalityLabel} learning modality (e.g. analogical mental model, visual coordinate slider, tactile balance sandbox, or step-ladder scaffold) so teacher guidance aligns directly with their autonomous student portal.`
 }
 
 STRICT MANDATORY OUTPUT RULES:
@@ -71,7 +78,7 @@ NO markdown prefixes, NO asterisks, NO bullet points, NO quotes, NO generic prai
 Line 1: Root-cause diagnosis part 1 (plain sentence).
 Line 2: Root-cause diagnosis part 2 (plain sentence).
 Line 3: 1. First numbered pedagogical action step.
-Line 4: 2. Second numbered pedagogical action step.`;
+Line 4: 2. Second numbered pedagogical action step (explicitly referencing their active ${modalityLabel} modality).`;
 
   try {
     const ai = new GoogleGenAI({ apiKey });
@@ -130,6 +137,48 @@ function getDefaultAdvisory(context: StudentAdvisoryContext): FacilitatorAdvisor
   const isChem = context.subject === 'Chemistry';
   const score = context.recentScore;
   const topic = context.strugglingTopic || (isChem ? 'Stoichiometry' : 'Scarcity and Trade');
+  const activeModality = context.activeModality || 'visual';
+
+  // Helper to build modality-aligned action step 2
+  const getModalityActionStep2 = (modality: string, highMastery: boolean): string => {
+    if (highMastery) {
+      if (isChem) {
+        return modality === 'tactile'
+          ? '2. Extend mastery via advanced kinetic rate simulations and USNCO laboratory multi-pan reaction modeling.'
+          : '2. Connect student with verified 2026 competitions such as USNCO and the ACS National Chemistry Challenge.';
+      } else {
+        return modality === 'tactile'
+          ? '2. Extend mastery via game-theory payoff matrices and interactive market-equilibrium simulation labs.'
+          : '2. Connect student with verified 2026 competitions such as the International Economics Olympiad (IEO) and John Locke Prize.';
+      }
+    }
+
+    if (isChem) {
+      switch (modality) {
+        case 'analogical':
+          return '2. Reinforce via the student\'s active Analogical modality: use the Sandwich Shop recipe model to cement limiting vs excess molar ratios.';
+        case 'tactile':
+          return '2. Reinforce via the student\'s active Tactile modality: engage the Two-Pan Kinetic Balance Scale to physically verify atomic conservation.';
+        case 'scaffolded':
+          return '2. Reinforce via the student\'s active Scaffolded modality: step through the Avogadro Step-Ladder dimensional analysis grid with fading hints.';
+        case 'visual':
+        default:
+          return '2. Reinforce via the student\'s active Visual modality: deploy the Subscript Fading Canvas to highlight parenthesis multipliers.';
+      }
+    } else {
+      switch (modality) {
+        case 'analogical':
+          return '2. Reinforce via the student\'s active Analogical modality: walk through the Two-Good Island tradeoff model before quantitative PPF graphing.';
+        case 'tactile':
+          return '2. Reinforce via the student\'s active Tactile modality: utilize the Diminishing Marginal Utility Tasting Lab to observe marginal benefit shifts.';
+        case 'scaffolded':
+          return '2. Reinforce via the student\'s active Scaffolded modality: trace the Price Ceiling Disequilibrium Decision Tree to isolate shortage outcomes.';
+        case 'visual':
+        default:
+          return '2. Reinforce via the student\'s active Visual modality: utilize the Dual-Axis Curve Shift Slider to isolate price moves from schedule shifts.';
+      }
+    }
+  };
 
   if (score >= 9) {
     // High Mastery (9/10 or 10/10)
@@ -142,9 +191,7 @@ function getDefaultAdvisory(context: StudentAdvisoryContext): FacilitatorAdvisor
     const l3 = isChem
       ? `1. Assign national Olympiad honors modules: Non-ideal gas behavior and multi-step chemical reaction kinetics.`
       : `1. Assign Economics Olympiad honors modules: Game theory matrices and comparative advantage mathematical proofs.`;
-    const l4 = isChem
-      ? `2. Connect student with verified 2026 competitions such as USNCO and the ACS National Chemistry Challenge.`
-      : `2. Connect student with verified 2026 competitions such as the International Economics Olympiad (IEO) and John Locke Prize.`;
+    const l4 = getModalityActionStep2(activeModality, true);
 
     return {
       lines: [l1, l2, l3, l4],
@@ -165,9 +212,7 @@ function getDefaultAdvisory(context: StudentAdvisoryContext): FacilitatorAdvisor
     const l3 = isChem
       ? `1. Scaffold intermediate dimensional calculations using a 2-step verification rubric before calculating final values.`
       : `1. Provide a step-by-step graphical decision tree isolating price changes from non-price demand determinant shifts.`;
-    const l4 = isChem
-      ? `2. Assign 3 targeted practice problems comparing molar ratios to volume equivalence at standard temperature and pressure.`
-      : `2. Assign a concrete 2-variable decision matrix calculating total revenue changes alongside elasticity coefficients.`;
+    const l4 = getModalityActionStep2(activeModality, false);
 
     return {
       lines: [l1, l2, l3, l4],
@@ -188,9 +233,7 @@ function getDefaultAdvisory(context: StudentAdvisoryContext): FacilitatorAdvisor
     const l3 = isChem
       ? `1. Anchor the concept using a concrete real-world analogy (e.g. recipe ratios or bicycle frame assembly) before math.`
       : `1. Walk the student through a tangible everyday scenario (e.g. beach gelato stand tradeoffs) to isolate opportunity costs.`;
-    const l4 = isChem
-      ? `2. Implement the 3-step Before-Change-After (BCA) scaffold to balance reactants before calculating gram yields.`
-      : `2. Have the student draw and annotate physical supply and demand shifts using color-coded supply curves.`;
+    const l4 = getModalityActionStep2(activeModality, false);
 
     return {
       lines: [l1, l2, l3, l4],

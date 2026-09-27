@@ -63,12 +63,12 @@ export const DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
     formulaOrReaction:
       'Moles (n) = Mass (m) / Molar Mass (M)',
     options: [
-      '2.00 mol (calculated as 36.04 g / 18.02 g/mol)',
       '0.50 mol (inverted calculation dividing molar mass by sample mass)',
+      '2.00 mol (calculated as 36.04 g / 18.02 g/mol)',
       '1.00 mol (assuming a rounded 1:1 molar equivalence)',
       '6.49 × 10^24 mol (confusing moles with individual molecule count)',
     ],
-    correctAnswerIndex: 0,
+    correctAnswerIndex: 1,
     misconceptionTrap:
       'Inverting the conversion formula (dividing molar mass by sample mass: 18.02 / 36.04 = 0.50 mol).',
     explanation:
@@ -88,12 +88,12 @@ export const DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
     formulaOrReaction:
       'C3H8 + ? O2 -> ? CO2 + ? H2O (Law of Conservation of Mass)',
     options: [
-      '1, 5, 3, 4 (conserves 3 Carbon, 8 Hydrogen, and 10 Oxygen atoms)',
       '1, 3, 3, 4 (failing to account for oxygen atoms in the H2O product)',
       '2, 5, 6, 8 (doubled coefficients that violate lowest integer ratio)',
+      '1, 5, 3, 4 (conserves 3 Carbon, 8 Hydrogen, and 10 Oxygen atoms)',
       '1, 10, 3, 4 (counting diatomic O2 as individual atomic oxygen)',
     ],
-    correctAnswerIndex: 0,
+    correctAnswerIndex: 2,
     misconceptionTrap:
       'Forgetting that oxygen appears in both CO2 and H2O products (3×2 + 4×1 = 10 oxygen atoms needed on the right, requiring 5 O2 molecules).',
     explanation:
@@ -138,12 +138,12 @@ export const DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
     formulaOrReaction:
       'Stoichiometric Requirement: 1.00 mol N2 requires 3.00 mol H2',
     options: [
-      'H2 is limiting (1.00 mol N2 requires 3.00 mol H2, but only 2.00 mol H2 is available)',
       'N2 is limiting (because 1.00 is a smaller numerical coefficient than 3)',
       'Neither is limiting (because both are present in whole-number moles)',
       'NH3 is limiting (product molecules cannot act as limiting reactants)',
+      'H2 is limiting (1.00 mol N2 requires 3.00 mol H2, but only 2.00 mol H2 is available)',
     ],
-    correctAnswerIndex: 0,
+    correctAnswerIndex: 3,
     misconceptionTrap:
       'Direct numerical comparison trap: assuming 1.00 mol N2 must be limiting simply because 1 is smaller than 2, without checking stoichiometric requirements.',
     explanation:
@@ -163,12 +163,12 @@ export const DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
     formulaOrReaction:
       'Percent Yield = (Actual Yield / Theoretical Yield) × 100%',
     options: [
-      '85.0% (calculated as [42.5 g / 50.0 g] × 100%)',
       '117.6% (inverting actual and theoretical yields: 50.0 / 42.5)',
+      '85.0% (calculated as [42.5 g / 50.0 g] × 100%)',
       '7.5% (taking the difference without normalizing to total yield)',
       '92.5% (subtracting the difference from 100% incorrectly)',
     ],
-    correctAnswerIndex: 0,
+    correctAnswerIndex: 1,
     misconceptionTrap:
       'Inverting the fraction (50.0 / 42.5 = 117.6%) or calculating difference as a raw percentage without reference to theoretical maximum.',
     explanation:

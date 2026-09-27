@@ -19,6 +19,11 @@ import { IconCheckCircle, IconAlertTriangle, IconX } from './components/common/I
 export function AppContent() {
   const { activeView, toast, dismissToast } = useApp();
 
+  // Scroll to the top of the page whenever the active view changes
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [activeView]);
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col text-slate-900 dark:text-slate-100 font-sans transition-colors">
       {/* Universal Top Bar */}
@@ -60,13 +65,6 @@ export function AppContent() {
             </span>
             <span>·</span>
             <span>Adaptive Cognitive Mastery Engine</span>
-          </div>
-          <div className="flex items-center gap-4 text-[11px]">
-            <span>Chemistry & Economics Curricula</span>
-            <span>·</span>
-            <span>Real-Time Behavioral Telemetry</span>
-            <span>·</span>
-            <span>WCAG AAA High Contrast</span>
           </div>
         </div>
       </footer>

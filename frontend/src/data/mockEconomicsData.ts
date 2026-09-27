@@ -175,7 +175,7 @@ export const ECONOMICS_SLIDE_DECKS: ClassSlideDeck[] = [
 ];
 
 export const ECONOMICS_WEEKLY_PROGRESSION: StudentWeeklyProgression = {
-  studentId: 'std-rohan',
+  studentId: 'std-demo-student-econ',
   studentName: 'Demo Student',
   subject: 'Economics',
   startingProficiency: 54,
@@ -346,12 +346,12 @@ export const ECONOMICS_DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
     prompt:
       'Which of the following best defines the fundamental concept of scarcity in economics?',
     options: [
-      'The universal condition where unlimited human wants exceed finite productive resources',
       'A temporary shortage of essential goods during supply chain disruptions',
       'The inability of lower-income households to purchase luxury items',
+      'The universal condition where unlimited human wants exceed finite productive resources',
       'A market failure where monopoly sellers withhold inventory',
     ],
-    correctAnswerIndex: 0,
+    correctAnswerIndex: 2,
     misconceptionTrap: 'Confusing fundamental perpetual scarcity with temporary market shortages.',
     explanation:
       'In economics, scarcity is the foundational universal condition that productive resources (land, labor, capital, enterprise) are finite, while human desires for goods and services are unlimited.',
@@ -390,12 +390,12 @@ export const ECONOMICS_DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
     prompt:
       'If an economy is producing at a point situated INSIDE its Production Possibilities Curve (PPC), what does this primarily indicate?',
     options: [
-      'Productive inefficiency or unemployed idle resources in the economy',
       'The economy has attained maximum sustainable productive capacity',
+      'Productive inefficiency or unemployed idle resources in the economy',
       'The output combination is unattainable with current technological knowledge',
       'Rapid innovation is causing the production frontier to shift outward',
     ],
-    correctAnswerIndex: 0,
+    correctAnswerIndex: 1,
     misconceptionTrap: 'Confusing points inside the curve (inefficiency/idle resources) with points outside the curve (unattainable).',
     explanation:
       'Any point strictly inside the PPC frontier indicates that resources are either idle (unemployed labor, vacant factories) or misallocated with productive inefficiency.',
@@ -412,12 +412,12 @@ export const ECONOMICS_DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
     prompt:
       'Which of the following events will cause the market supply curve for solar panels to shift to the RIGHT?',
     options: [
-      'A breakthrough manufacturing innovation that halves the cost of photovoltaic cells',
       'A mandatory per-unit tax imposed by the government on solar panel producers',
       'An increase in the hourly wages paid to solar assembly technicians',
       'A decline in consumer interest in residential clean energy',
+      'A breakthrough manufacturing innovation that halves the cost of photovoltaic cells',
     ],
-    correctAnswerIndex: 0,
+    correctAnswerIndex: 3,
     misconceptionTrap: 'Confusing production cost reductions (supply shifts right) with demand shocks.',
     explanation:
       'Technological breakthroughs that reduce per-unit production costs allow firms to supply more output at every given price, shifting the entire supply curve outward to the right.',
@@ -434,12 +434,12 @@ export const ECONOMICS_DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
     prompt:
       'If a 10% increase in the price of a pharmaceutical medication results in only a 2% decrease in quantity demanded, how is the price elasticity of demand (PED) classified?',
     options: [
-      'Price inelastic (|PED| = 0.20, quantity demanded is relatively unresponsive to price)',
       'Price elastic (|PED| = 5.0, quantity demanded is highly responsive to price)',
+      'Price inelastic (|PED| = 0.20, quantity demanded is relatively unresponsive to price)',
       'Unit elastic (|PED| = 1.0, percentage change in quantity matches price)',
       'Perfectively elastic (|PED| approaches infinity)',
     ],
-    correctAnswerIndex: 0,
+    correctAnswerIndex: 1,
     misconceptionTrap: 'Inverting the elasticity formula or misinterpreting inelastic responsiveness.',
     explanation:
       'PED = (% Change in Quantity Demanded) / (% Change in Price) = (-2%) / (+10%) = -0.20. Because the absolute value |0.20| < 1.0, demand is price inelastic.',
@@ -986,6 +986,7 @@ export const ECONOMICS_COHORT_STUDENTS_LIST: StudentProfile[] = [
     grade: 'Grade 9',
     diagnosticStatus: 'needs_remediation',
     diagnosticScore: 4,
+    triagePriority: 'Critical Roadblock',
     commonMistakes: [
       'Question 1: Accounting financial cost treated as economic opportunity cost',
       'Question 3: Misidentifying foregone alternatives on concave Production Possibility Frontier',
@@ -1004,6 +1005,7 @@ export const ECONOMICS_COHORT_STUDENTS_LIST: StudentProfile[] = [
     grade: 'Grade 9',
     diagnosticStatus: 'needs_remediation',
     diagnosticScore: 5,
+    triagePriority: 'Moderate Gap',
     commonMistakes: [
       'Question 8: Shifting demand curve instead of moving along curve during price change',
       'Question 9: Indeterminate price vs quantity change in simultaneous demand/supply shift',
@@ -1021,6 +1023,7 @@ export const ECONOMICS_COHORT_STUDENTS_LIST: StudentProfile[] = [
     grade: 'Grade 9',
     diagnosticStatus: 'needs_remediation',
     diagnosticScore: 6,
+    triagePriority: 'Needs Practice',
     commonMistakes: [
       'Question 5: Confusing slope of demand curve with price elasticity of demand',
       'Question 7: Total revenue test calculation error for inelastic goods',
@@ -1038,6 +1041,7 @@ export const ECONOMICS_COHORT_STUDENTS_LIST: StudentProfile[] = [
     grade: 'Grade 9',
     diagnosticStatus: 'completed',
     diagnosticScore: 10,
+    triagePriority: 'Mastered',
     commonMistakes: [],
     recommendedFocus: 'Comparative Advantage & Trade Theory (Olympiad Honors Extension)',
     tasksCompleted: 4,
@@ -1051,7 +1055,8 @@ export const ECONOMICS_COHORT_STUDENTS_LIST: StudentProfile[] = [
     avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
     grade: 'Grade 9',
     diagnosticStatus: 'not_started',
-    diagnosticScore: 0,
+    diagnosticScore: undefined,
+    triagePriority: 'Calibration Required',
     commonMistakes: [],
     recommendedFocus: 'Diagnostic Assessment Calibration Required',
     tasksCompleted: 0,
@@ -1060,3 +1065,4 @@ export const ECONOMICS_COHORT_STUDENTS_LIST: StudentProfile[] = [
     recoveryRate: 85,
   },
 ];
+
