@@ -64,6 +64,18 @@ export const SettingsModal: React.FC = () => {
     }
   }, [isSettingsOpen, isFacilitator]);
 
+  // Dismiss modal on Escape key press
+  useEffect(() => {
+    if (!isSettingsOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsSettingsOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isSettingsOpen, setIsSettingsOpen]);
+
   // Student-specific study preferences with persistent localStorage
   const [narrationSpeed, setNarrationSpeed] = useState<'0.8x' | '1.0x' | '1.25x'>(() => {
     return (localStorage.getItem('outstand_narration_speed') as '0.8x' | '1.0x' | '1.25x') || '1.0x';
@@ -242,6 +254,9 @@ export const SettingsModal: React.FC = () => {
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="settings-modal-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-xs animate-in fade-in duration-150"
       onClick={() => setIsSettingsOpen(false)}
     >
@@ -381,7 +396,7 @@ export const SettingsModal: React.FC = () => {
           {/* Top Bar with Category Title & Close Button */}
           <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
             <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+              <h3 id="settings-modal-title" className="text-sm font-bold text-slate-900 dark:text-white">
                 {activeTab === 'display' && 'Display & Contrast Themes'}
                 {activeTab === 'typography' && 'Typography & Equation Formatting'}
                 {activeTab === 'study' && 'Study, Narration & Audio Preferences'}
