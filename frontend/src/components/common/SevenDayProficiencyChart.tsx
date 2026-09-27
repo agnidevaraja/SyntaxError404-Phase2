@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import Plotly from 'plotly.js-dist-min';
+// Bolt Optimization: Type-only import ensures large Plotly library is not statically bundled in main entry point
+import type Plotly from 'plotly.js-dist-min';
 import { StudentWeeklyProgression, DailyQuizResult } from '../../types';
 import { useApp } from '../../context/AppContext';
 import {
@@ -60,9 +61,10 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
     quizzes.reduce((acc, q) => acc + getQuizScore(q), 0) / quizzes.length
   );
 
-  // Initialize and update Plotly graph
+  // Initialize and update Plotly graph using dynamic import for bundle optimization
   useEffect(() => {
     if (!chartContainerRef.current) return;
+    let isCancelled = false;
 
     const isDark =
       theme === 'dark' ||
@@ -314,26 +316,9 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
     let timer1: ReturnType<typeof setTimeout>;
     let timer2: ReturnType<typeof setTimeout>;
     let timer3: ReturnType<typeof setTimeout>;
+    let plotEl: any = null;
+    let plotlyInstance: any = null;
 
-    Plotly.react(chartContainerRef.current, plotData, layout, config).then(() => {
-      if (chartContainerRef.current) {
-        Plotly.Plots.resize(chartContainerRef.current);
-      }
-    });
-
-    // Schedule staged resizes to ensure modal & tab transitions adapt cleanly
-    timer1 = setTimeout(() => {
-      if (chartContainerRef.current) Plotly.Plots.resize(chartContainerRef.current);
-    }, 60);
-    timer2 = setTimeout(() => {
-      if (chartContainerRef.current) Plotly.Plots.resize(chartContainerRef.current);
-    }, 200);
-    timer3 = setTimeout(() => {
-      if (chartContainerRef.current) Plotly.Plots.resize(chartContainerRef.current);
-    }, 450);
-
-    // Click handler to select day
-    const plotEl = chartContainerRef.current as any;
     const handleClick = (data: any) => {
       if (data && data.points && data.points.length > 0) {
         const pointIdx = data.points[0].pointIndex;
@@ -357,20 +342,46 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
       setHoveredDayIndex(null);
     };
 
-    plotEl.on?.('plotly_click', handleClick);
-    plotEl.on?.('plotly_hover', handleHover);
-    plotEl.on?.('plotly_unhover', handleUnhover);
-
     const handleResize = () => {
-      if (chartContainerRef.current) {
-        Plotly.Plots.resize(chartContainerRef.current);
+      if (chartContainerRef.current && plotlyInstance) {
+        plotlyInstance.Plots.resize(chartContainerRef.current);
       }
     };
+
+    // Bolt Optimization: Dynamically import Plotly.js (~6MB) on mount, isolating it into a lazy chunk
+    import('plotly.js-dist-min').then((module) => {
+      if (isCancelled || !chartContainerRef.current) return;
+      const PlotlyModule = module.default || module;
+      plotlyInstance = PlotlyModule;
+
+      PlotlyModule.react(chartContainerRef.current, plotData, layout, config).then(() => {
+        if (chartContainerRef.current && plotlyInstance) {
+          plotlyInstance.Plots.resize(chartContainerRef.current);
+        }
+      });
+
+      // Schedule staged resizes to ensure modal & tab transitions adapt cleanly
+      timer1 = setTimeout(() => {
+        if (chartContainerRef.current && plotlyInstance) plotlyInstance.Plots.resize(chartContainerRef.current);
+      }, 60);
+      timer2 = setTimeout(() => {
+        if (chartContainerRef.current && plotlyInstance) plotlyInstance.Plots.resize(chartContainerRef.current);
+      }, 200);
+      timer3 = setTimeout(() => {
+        if (chartContainerRef.current && plotlyInstance) plotlyInstance.Plots.resize(chartContainerRef.current);
+      }, 450);
+
+      plotEl = chartContainerRef.current as any;
+      plotEl.on?.('plotly_click', handleClick);
+      plotEl.on?.('plotly_hover', handleHover);
+      plotEl.on?.('plotly_unhover', handleUnhover);
+    });
+
     window.addEventListener('resize', handleResize);
 
     const resizeObserver = new ResizeObserver(() => {
-      if (chartContainerRef.current) {
-        Plotly.Plots.resize(chartContainerRef.current);
+      if (chartContainerRef.current && plotlyInstance) {
+        plotlyInstance.Plots.resize(chartContainerRef.current);
       }
     });
     if (chartContainerRef.current) {
@@ -378,6 +389,7 @@ export const SevenDayProficiencyChart: React.FC<SevenDayProficiencyChartProps> =
     }
 
     return () => {
+      isCancelled = true;
       clearTimeout(timer1);
       clearTimeout(timer2);
       clearTimeout(timer3);
