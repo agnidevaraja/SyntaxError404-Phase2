@@ -43,6 +43,18 @@ export const AuthModal: React.FC = () => {
     }
   }, [isAuthModalOpen, authModalInitialRole]);
 
+  // Handle Escape key press to dismiss modal
+  React.useEffect(() => {
+    if (!isAuthModalOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsAuthModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isAuthModalOpen, setIsAuthModalOpen]);
+
   if (!isAuthModalOpen) return null;
 
   const handleRoleChange = (role: 'student' | 'facilitator') => {
@@ -166,13 +178,18 @@ export const AuthModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="auth-modal-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150"
+    >
       <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[94vh] transition-colors">
         
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 flex items-center justify-between shrink-0">
           <div className="flex flex-col">
-            <div className="text-xl font-black tracking-tight select-none font-sans">
+            <div id="auth-modal-title" className="text-xl font-black tracking-tight select-none font-sans">
               <span className="text-indigo-600 dark:text-indigo-400">O</span>
               <span className="text-slate-900 dark:text-white">utstand</span>
             </div>
@@ -183,6 +200,7 @@ export const AuthModal: React.FC = () => {
 
           <button
             onClick={() => setIsAuthModalOpen(false)}
+            aria-label="Close authentication modal"
             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <IconX className="w-5 h-5" />
@@ -267,8 +285,8 @@ export const AuthModal: React.FC = () => {
                     onClick={() => loginDemoQuickFill('student')}
                     className="px-3.5 py-1.5 rounded-lg bg-indigo-500 hover:bg-indigo-400 active:bg-indigo-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer btn-tactile"
                   >
-                    <IconSparkles className="w-3.5 h-3.5" />
-                    <span>Launch Student ➔</span>
+                    <LogIn className="w-3.5 h-3.5" />
+                    <span>Launch Student Portal</span>
                   </button>
                 </div>
               </div>
@@ -304,8 +322,8 @@ export const AuthModal: React.FC = () => {
                       onClick={() => loginDemoQuickFill('facilitator', 'chemistry')}
                       className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-1 cursor-pointer"
                     >
-                      <IconSparkles className="w-3 h-3" />
-                      <span>Chemistry Portal ➔</span>
+                      <LogIn className="w-3 h-3" />
+                      <span>Chemistry Portal</span>
                     </button>
                   </div>
                 </div>
@@ -340,8 +358,8 @@ export const AuthModal: React.FC = () => {
                       onClick={() => loginDemoQuickFill('facilitator', 'economics')}
                       className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-1 cursor-pointer"
                     >
-                      <IconSparkles className="w-3 h-3" />
-                      <span>Economics Portal ➔</span>
+                      <LogIn className="w-3 h-3" />
+                      <span>Economics Portal</span>
                     </button>
                   </div>
                 </div>

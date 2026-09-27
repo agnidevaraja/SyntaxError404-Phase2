@@ -48,6 +48,18 @@ export const StudentMainHub: React.FC = () => {
   const [isDocModalOpen, setIsDocModalOpen] = useState<boolean>(false);
   const [selectedSubjectTab, setSelectedSubjectTab] = useState<string>('ALL');
 
+  // Handle Escape key to dismiss syllabus document modal
+  React.useEffect(() => {
+    if (!isDocModalOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsDocModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isDocModalOpen]);
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -475,7 +487,12 @@ export const StudentMainHub: React.FC = () => {
 
       {/* FULL SYLLABUS INTERACTIVE DOCUMENT VIEWER MODAL */}
       {isDocModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="syllabus-doc-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150"
+        >
           <div className="relative w-full max-w-4xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh] transition-colors">
             
             {/* Modal Header */}
@@ -485,7 +502,7 @@ export const StudentMainHub: React.FC = () => {
                   <IconBookOpen className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  <h3 id="syllabus-doc-modal-title" className="text-base font-bold text-slate-900 dark:text-white">
                     Grade 9 Full Academic Syllabus Document
                   </h3>
                   <div className="text-xs text-slate-500 dark:text-slate-400">
@@ -506,6 +523,7 @@ export const StudentMainHub: React.FC = () => {
 
                 <button
                   onClick={() => setIsDocModalOpen(false)}
+                  aria-label="Close document viewer"
                   className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 >
                   <IconX className="w-5 h-5" />
